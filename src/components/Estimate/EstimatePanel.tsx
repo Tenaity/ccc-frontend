@@ -1,74 +1,72 @@
 import React from "react";
 import type { EstimateResponse } from "../../types";
 
-export default function EstimatePanel({
-    data, loading, error,
-}: { data: EstimateResponse | null; loading: boolean; error: string | null }) {
-    const card = {
-        border: "1px solid #e5e7eb",
-        borderRadius: 10,
-        padding: 12,
-        background: "#fff",
-    } as const;
+const pill = (bg: string) => ({
+    display: "inline-block",
+    padding: "2px 8px",
+    border: "1px solid #e5e7eb",
+    borderRadius: 6,
+    background: bg,
+    marginRight: 6,
+    fontSize: 12,
+});
 
-    const pill = (bg: string, color = "#111") => ({
-        display: "inline-block",
-        padding: "2px 8px",
-        borderRadius: 999,
-        fontWeight: 600,
-        background: bg,
-        color,
-        border: "1px solid rgba(0,0,0,0.06)",
-        fontSize: 12,
-    });
-
-    if (loading) return <div style={card}>Đang tính nhu cầu/cung…</div>;
-    if (error) return <div style={{ ...card, color: "#b91c1c", borderColor: "#fecaca" }}>Estimate lỗi: {error}</div>;
+export default function EstimatePanel({ data, loading, error }: {
+    data: EstimateResponse | null;
+    loading: boolean;
+    error: string | null;
+}) {
+    if (loading) return <div style={{ padding: 8 }}>Đang tính toán nhu cầu công…</div>;
+    if (error) return <div style={{ padding: 8, color: "#b91c1c" }}>Estimate lỗi: {error}</div>;
     if (!data) return null;
 
-    const delta = data.delta_credits;
-    const deltaStyle =
-        delta < 0 ? pill("#FEE2E2", "#991B1B") :
-            delta > 0 ? pill("#DCFCE7", "#14532D") :
-                pill("#E5E7EB", "#111827");
+    // Phòng thủ field
+    const reqCreditsByShift = data.required_credits_by_shift ?? {};
+    const reqByCode = data.required_shifts_by_code ?? {};
+    const CA1c = reqCreditsByShift.CA1 ?? 0;
+    const CA2c = reqCreditsByShift.CA2 ?? 0;
+    const Kc = reqCreditsByShift.K ?? 0;
+    const HCc = reqCreditsByShift.HC ?? 0;
+    const Dc = reqCreditsByShift["Đ"] ?? 0;
+    const Pc = reqCreditsByShift.P ?? 0;
+
+    const monthLabel = `${String(data.month).padStart(2, "0")}/${data.year}`;
 
     return (
-        <div style={{
-            display: "grid",
-            gap: 12,
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            marginBottom: 12
-        }}>
-            <div style={card}>
-                <div style={{ fontSize: 12, color: "#6b7280" }}>TỔNG CÔNG YÊU CẦU</div>
-                <div style={{ fontSize: 28, fontWeight: 800 }}>{data.required_credits_total}</div>
-                <div style={{ marginTop: 8 }}>
-                    <span style={pill("#E6F0FF")}>CA1: {data.required_credits_by_shift.CA1}</span>{" "}
-                    <span style={pill("#FFE8CC")}>CA2: {data.required_credits_by_shift.CA2}</span>{" "}
-                    <span style={pill("#E6FFEA")}>K: {data.required_credits_by_shift.K}</span>{" "}
-                    <span style={pill("#FFE6EA")}>Đ: {data.required_credits_by_shift.Đ}</span>{" "}
-                    <span style={pill("#EDEBFF")}>HC: {data.required_credits_by_shift.HC}</span>
-                </div>
+        <div style={{ border: "1px solid #eee", borderRadius: 8, padding: 12, marginBottom: 12, background: "#fafafa" }}>
+            <div style={{ fontWeight: 700, marginBottom: 6 }}>Ước tính nhu cầu công — {monthLabel}</div>
+
+            <div style={{ marginBottom: 8 }}>
+                <span style={pill("#F4F4F5")}>Ngày trong tháng: {data.days_in_month}</span>{" "}
+                <span style={pill("#E8F0F7")}>Tổng slot (người-ca): {data.required_shifts_total}</span>{" "}
+                <span style={pill("#EAF7EA")}>Tổng công quy đổi: {data.required_credits_total}</span>{" "}
+                <span style={pill("#FFF7EA")}>Tổng cung (quota): {data.supply_total}</span>{" "}
+                <span style={pill(data.delta_total >= 0 ? "#E9FBF0" : "#FFEAEA")}>
+                    Dư/Thiếu công: {data.delta_total}
+                </span>
             </div>
 
-            <div style={card}>
-                <div style={{ fontSize: 12, color: "#6b7280" }}>TỔNG CÔNG NGUỒN CUNG</div>
-                <div style={{ fontSize: 28, fontWeight: 800 }}>{data.supply_credits_total}</div>
-                <div style={{ marginTop: 8, fontSize: 12, color: "#6b7280" }}>
-                    Staff: {data.meta.staff_total} · HC: {data.meta.hc_count} ·
-                    {" "}T2–T6: {data.meta.weekdays} · T7: {data.meta.saturdays} · CN: {data.meta.sundays} · Lễ: {data.meta.holidays}
+            <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.6 }}>
+                <div style={{ marginBottom: 4 }}><strong>Công theo mã:</strong></div>
+                <div>
+                    <span style={pill("#E6F0FF")}>CA1: {CA1c}</span>
+                    <span style={pill("#FFE8CC")}>CA2: {CA2c}</span>
+                    <span style={pill("#E6FFEA")}>K: {Kc}</span>
+                    <span style={pill("#EDEBFF")}>HC: {HCc}</span>
+                    <span style={pill("#FFE6EA")}>Đ: {Dc}</span>
+                    <span style={pill("#EEE")}>P: {Pc}</span>
                 </div>
-            </div>
 
-            <div style={card}>
-                <div style={{ fontSize: 12, color: "#6b7280" }}>CHÊNH LỆCH (cung − cầu)</div>
-                <div style={{ marginTop: 6 }}>
-                    <span style={deltaStyle}>
-                        {delta > 0 ? `Dư ${delta} công` : delta < 0 ? `Thiếu ${Math.abs(delta)} công` : "Cân bằng"}
+                <div style={{ marginTop: 10 }}>
+                    <strong>Slot theo mã:</strong>{" "}
+                    <span style={pill("#E6F0FF")}>
+                        CA1: {data?.required_credits_by_shift?.CA1 ?? 0}
                     </span>
-                </div>
-                <div style={{ marginTop: 8, fontSize: 12, color: "#6b7280" }}>
-                    {data.notes}
+                    <span style={pill("#FFE8CC")}>CA2: {reqByCode.CA2 ?? 0}</span>
+                    <span style={pill("#E6FFEA")}>K: {reqByCode.K ?? 0}</span>
+                    <span style={pill("#EDEBFF")}>HC: {reqByCode.HC ?? 0}</span>
+                    <span style={pill("#FFE6EA")}>Đ: {reqByCode["Đ"] ?? 0}</span>
+                    <span style={pill("#EEE")}>P: {reqByCode.P ?? 0}</span>
                 </div>
             </div>
         </div>

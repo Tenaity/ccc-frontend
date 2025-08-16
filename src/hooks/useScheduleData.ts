@@ -194,44 +194,48 @@ export function useScheduleData(year: number, month: number) {
   }, [perDayLeaders, days]);
 
   // === perDayByPlace: NHỚ có K_WHITE riêng
-  const perDayByPlace = useMemo(() => {
-    const init = () => ({
-      TD: { K_leader: 0, K: 0, CA1: 0, CA2: 0 },
-      PGD: { K: 0, CA2: 0 },
-      K_WHITE: 0,
-      NIGHT: { leader: 0, TD_WHITE: 0, PGD: 0 },
-    });
-    const by: Record<number, ReturnType<typeof init>> = {};
-    for (const d of days) by[d] = init();
+const perDayByPlace = useMemo(() => {
+  const init = () => ({
+    TD: { K_leader: 0, K: 0, CA1: 0, CA2: 0 },
+    PGD: { K: 0, CA2: 0 },
+    NIGHT: { leader: 0, TD_WHITE: 0, PGD: 0 },
+    K_WHITE: 0, // 👈 thêm hẳn field riêng
+  });
+  const by: Record<number, ReturnType<typeof init>> = {};
+  for (const d of days) by[d] = init();
 
-    for (const a of assignments) {
-      const dt = new Date(a.day);
-      const yy = dt.getFullYear(), mm = dt.getMonth()+1, dd = dt.getDate();
-      if (yy !== year || mm !== month || !by[dd]) continue;
+  for (const a of assignments) {
+    const dt = new Date(a.day);
+    const yy = dt.getFullYear(), mm = dt.getMonth() + 1, dd = dt.getDate();
+    if (yy !== year || mm !== month || !by[dd]) continue;
 
-      // TD ban ngày
-      if (["CA1","CA2","K"].includes(a.shift_code) && (a.position === "TD" || !a.position)) {
-        if (a.shift_code === "K" && a.position === "TD") by[dd].TD.K_leader += 1;
-        else by[dd].TD[a.shift_code as "CA1"|"CA2"|"K"] += 1;
-      }
-      // K trắng (T7) — lưu RIÊNG
-      if (a.shift_code === "K" && a.position === "K_WHITE") {
-        by[dd].K_WHITE += 1;
-      }
-      // PGD ban ngày
-      if (a.position === "PGD") {
-        if (a.shift_code === "K") by[dd].PGD.K += 1;
-        if (a.shift_code === "CA2") by[dd].PGD.CA2 += 1;
-      }
-      // Đêm
-      if (a.shift_code === "Đ") {
-        if (a.position === "TD") by[dd].NIGHT.leader += 1;
-        else if (a.position === "D_WHITE") by[dd].NIGHT.TD_WHITE += 1;
-        else if (a.position === "PGD") by[dd].NIGHT.PGD += 1;
-      }
+    // Daytime @ TD
+    if (["CA1","CA2","K"].includes(a.shift_code) && (a.position === "TD" || !a.position)) {
+      if (a.shift_code === "K" && a.position === "TD") by[dd].TD.K_leader += 1;
+      else by[dd].TD[a.shift_code as "CA1"|"CA2"|"K"] += 1;
     }
-    return by;
-  }, [assignments, days, year, month]);
+
+    // PGD (ngày/đêm)
+    if (a.position === "PGD") {
+      if (a.shift_code === "K") by[dd].PGD.K += 1;
+      if (a.shift_code === "CA2") by[dd].PGD.CA2 += 1;
+      // Đ@PGD sẽ cộng ở NIGHT.PGD phía dưới để không double count
+    }
+
+    // K trắng (thứ 7)
+    if (a.shift_code === "K" && a.position === "K_WHITE") {
+      by[dd].K_WHITE += 1; // 👈 tách riêng đúng với TotalsRows
+    }
+
+    // Night
+    if (a.shift_code === "Đ") {
+      if (a.position === "TD") by[dd].NIGHT.leader += 1;
+      else if (a.position === "D_WHITE") by[dd].NIGHT.TD_WHITE += 1;
+      else if (a.position === "PGD") by[dd].NIGHT.PGD += 1;
+    }
+  }
+  return by;
+}, [assignments, days, year, month]);
 
   return {
     staff, assignments, setAssignments,
