@@ -13,8 +13,10 @@ export default function App() {
     const {
         staff, loadingGen, days,
         assignmentIndex,
-        summariesByStaffId, perDayCounts, perDayLeaders, perDayDayNight, perDayByPlace, leaderErrors, estimate, loadingEstimate, estimateError,
+        summariesByStaffId, perDayCounts, perDayLeaders, perDayDayNight, perDayByPlace, leaderErrors,
+        estimate, loadingEstimate, estimateError,
         onGenerate, onShuffle, onSave, onResetSoft, onResetHard,
+        fillHC, setFillHC,                 // 👈 NEW
     } = useScheduleData(year, month);
 
     return (
@@ -37,6 +39,7 @@ export default function App() {
                 onGenerate={onGenerate} onShuffle={onShuffle}
                 onSave={onSave}
                 onResetSoft={onResetSoft} onResetHard={onResetHard}
+                fillHC={fillHC} setFillHC={setFillHC}     // 👈 NEW
             />
 
             <MatrixTable
