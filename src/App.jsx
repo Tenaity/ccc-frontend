@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import CalendarHeader from "./components/CalendarHeader";
 import Legend from "./components/Legend";
 import MatrixTable from "./components/Matrix/MatrixTable";
+import EstimatePanel from "./components/estimate/EstimatePanel";
 import { useScheduleData } from "./hooks/useScheduleData";
 
 export default function App() {
@@ -12,13 +13,14 @@ export default function App() {
     const {
         staff, loadingGen, days,
         assignmentIndex,
-        summariesByStaffId, perDayCounts, perDayLeaders, perDayDayNight, leaderErrors,
+        summariesByStaffId, perDayCounts, perDayLeaders, perDayDayNight, perDayByPlace, leaderErrors, estimate, loadingEstimate, estimateError,
         onGenerate, onShuffle, onSave, onResetSoft, onResetHard,
     } = useScheduleData(year, month);
 
     return (
         <div style={{ fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial", padding: 16 }}>
             <h1 style={{ marginBottom: 8 }}>Lịch phân ca dạng ma trận</h1>
+            <EstimatePanel data={estimate} loading={loadingEstimate} error={estimateError} />
 
             {leaderErrors.length > 0 && (
                 <div style={{ marginBottom: 12, padding: 10, border: "1px solid #f59e0b", background: "#FFFBEB", borderRadius: 8 }}>
@@ -38,13 +40,16 @@ export default function App() {
             />
 
             <MatrixTable
-                year={year} month={month} days={days}
+                year={year}
+                month={month}
+                days={days}
                 staff={staff}
                 assignmentIndex={assignmentIndex}
                 summariesByStaffId={summariesByStaffId}
                 perDayCounts={perDayCounts}
                 perDayLeaders={perDayLeaders}
                 perDayDayNight={perDayDayNight}
+                perDayByPlace={perDayByPlace}
             />
 
             <div style={{ marginTop: 10, fontSize: 12, color: "#555" }}>
