@@ -14,7 +14,7 @@ async function safeJSON<T>(res: Response): Promise<T> {
     if (!res.ok) throw new Error(json?.error || res.statusText || "Request failed");
     return json as T;
   } catch (e) {
-    if (!res.ok) throw new Error(text.slice(0, 200) || res.statusText);
+    if (!res.ok) throw new Error(text.slice(0, 200) || res.statusText); // FIX: Loi dong nay
     throw e;
   }
 }
@@ -99,10 +99,17 @@ export function useScheduleData(year: number, month: number) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      const result = await safeJSON<{ ok: boolean; planned?: Assignment[]; error?: string }>(res);
+      const result = await safeJSON<{ ok?: boolean; planned?: Assignment[]; error?: string }>(res);
 
-      setLastOptions({ year, month, shuffle, seed, fillHC }); // ⬅️ nhớ lưu
-      setAssignments(result.planned ?? []); // preview ngay
+      // Nếu backend báo lỗi hoặc không có planned, đặt [] để UI không crash
+      if (!result || result.ok === false) {
+        console.warn("Generate failed:", result?.error || result);
+        setAssignments([]);
+      } else {
+        setAssignments(result.planned ?? []);
+      }
+
+      setLastOptions({ year, month, shuffle, seed, fillHC });
 
       await fetchEstimate();
     } finally {
