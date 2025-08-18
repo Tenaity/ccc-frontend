@@ -3,7 +3,8 @@ import React from "react";
 import MatrixHeader from "./MatrixHeader";
 import MatrixRow from "./MatrixRow";
 import TotalsRows, { DayPlaceSummary } from "./TotalsRows";
-import type { Staff, Assignment } from "../../types";
+import type { Staff, Assignment, ExpectedByDay, ExpectedPerDay } from "../../types";
+import { isNightLeader, isNightWhite, isNightPGD } from "../../utils/schedule";
 
 const tableWrap = { overflow: "auto", border: "1px solid #eee", borderRadius: 8 };
 const tableCss = { borderCollapse: "separate" as const, borderSpacing: 0, minWidth: 1000 };
@@ -12,7 +13,7 @@ export default function MatrixTable({
     year, month, days, staff,
     assignmentIndex, summariesByStaffId,
     perDayCounts, perDayLeaders, perDayDayNight,
-    perDayByPlace,
+    perDayByPlace, expectedByDay,
 }: {
     year: number; month: number; days: number[];
     staff: Staff[];
@@ -22,6 +23,8 @@ export default function MatrixTable({
     perDayLeaders: Record<number, number>;
     perDayDayNight: Record<number, { dayCount: number; nightCount: number }>;
     perDayByPlace: Record<number, DayPlaceSummary>;
+    expectedByDay: Record<number, ExpectedPerDay>;
+    expected?: ExpectedByDay | null; // ✅ type khớp với ExpectedByDay
 }) {
     return (
         <div style={tableWrap}>
@@ -46,6 +49,8 @@ export default function MatrixTable({
                         perDayDayNight={perDayDayNight}
                         perDayLeaders={perDayLeaders}
                         perDayByPlace={perDayByPlace}  // ✅ type khớp với TotalsRows
+                        expectedByDay={expectedByDay}
+                        expected={expectedByDay}
                     />
                 </tbody>
             </table>

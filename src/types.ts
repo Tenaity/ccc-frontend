@@ -82,3 +82,18 @@ export type EstimateResponse = {
 
   notes: string;
 };
+
+// === Rule expected per-day (đúng cấu trúc app.py trả về) ===
+export type ExpectedDayTD = { K_leader: number; CA1: number; CA2: number };
+export type ExpectedDayPGD = { K: number; CA2: number };
+export type ExpectedNight = { leader: number; TD_WHITE: number; PGD: number };
+
+export type ExpectedPerDay = {
+  TD: ExpectedDayTD;
+  PGD: ExpectedDayPGD;
+  K_WHITE: number;
+  NIGHT: ExpectedNight;
+};
+
+// Map: dd -> ExpectedPerDay
+export type ExpectedByDay = Record<number, ExpectedPerDay>;

@@ -16,3 +16,13 @@ export const pickBg = (code?: ShiftCode) => {
     default:    return "#F8F8F8";
   }
 };
+
+export function isNightLeader(a: {shift_code:string; position?:string|null}) {
+  return a.shift_code === "Đ" && a.position === "TD";
+}
+export function isNightWhite(a: {shift_code:string; position?:string|null}) {
+  return a.shift_code === "Đ" && a.position === "D_WHITE";
+}
+export function isNightPGD(a: {shift_code:string; position?:string|null}) {
+  return a.shift_code === "Đ" && a.position === "PGD";
+}

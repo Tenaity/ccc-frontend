@@ -3,6 +3,7 @@ import React from "react";
 import type { Staff, Assignment } from "../../types";
 import { fmtYMD, getDow, isWeekend } from "../../utils/date";
 import Badge from "../Badge";
+import { isNightLeader, isNightWhite, isNightPGD } from "../../utils/schedule";
 
 const tdCenter = { borderTop: "1px solid #f0f0f0", padding: "6px 8px", textAlign: "center" as const, whiteSpace: "nowrap" as const };
 const tdWeekend = { background: "#FFFDF0" };
@@ -38,18 +39,32 @@ export default function MatrixRow({
                 const dow = getDow(year, month, d);
                 const wk = isWeekend(dow);
 
-                // Logic biến thể badge cho UI
+                // // Logic biến thể badge cho UI
+                // const isLeaderDay = code === "K" && pos === "TD";
+                // const isLeaderNight = code === "Đ" && pos === "TD" && staff.role === "TC";
+                // const variant =
+                //     isLeaderDay ? "leader-day" :
+                //         isLeaderNight ? "leader-night" :
+                //             pos === "K_WHITE" ? "k-white" :
+                //                 pos === "PGD" ? "pgd" : "td";
+                const nightObj = { shift_code: code, position: pos };
+
                 const isLeaderDay = code === "K" && pos === "TD";
-                const isLeaderNight = code === "Đ" && pos === "TD" && staff.role === "TC";
+                const isLeaderNight = isNightLeader(nightObj);
+                const isWhiteNight = isNightWhite(nightObj);
+                const isPGDNight = isNightPGD(nightObj);
+
                 const variant =
                     isLeaderDay ? "leader-day" :
                         isLeaderNight ? "leader-night" :
-                            pos === "K_WHITE" ? "k-white" :
-                                pos === "PGD" ? "pgd" : "td";
+                            isWhiteNight ? "night-white" :
+                                isPGDNight ? "night-pgd" :
+                                    pos === "K_WHITE" ? "k-white" :
+                                        pos === "PGD" ? "pgd" : "td";
 
                 return (
                     <td key={d} style={{ ...tdCenter, ...(wk ? tdWeekend : null) }}>
-                        <Badge
+                        {/* <Badge
                             code={code || ""}
                             crown={isLeaderDay || isLeaderNight}          // ✅ giữ tương thích code cũ
                             variant={
@@ -58,6 +73,11 @@ export default function MatrixRow({
                                         isLeaderDay ? "leader-day" :
                                             isLeaderNight ? "leader-night" : "td"
                             }
+                        /> */}
+                        <Badge
+                            code={code || ""}
+                            crown={isLeaderDay || isLeaderNight}
+                            variant={variant}
                         />
                     </td>
                 );

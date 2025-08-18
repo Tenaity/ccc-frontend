@@ -1,8 +1,8 @@
 // src/hooks/useScheduleData.ts
 import { useEffect, useMemo, useState } from "react";
-import type { Staff, Assignment, EstimateResponse } from "../types";
+import type { Staff, Assignment, EstimateResponse, ExpectedByDay } from "../types";
 import { DAY_SHIFTS, NIGHT_SHIFTS, SHIFT_CREDIT } from "../utils/schedule";
-import { fmtYMD } from "../utils/date";
+import { fmtYMD, parseYMD } from "../utils/date";
 
 type Cell = { code: Assignment["shift_code"]; position: Assignment["position"] };
 
@@ -14,7 +14,7 @@ async function safeJSON<T>(res: Response): Promise<T> {
     if (!res.ok) throw new Error(json?.error || res.statusText || "Request failed");
     return json as T;
   } catch (e) {
-    if (!res.ok) throw new Error(text.slice(0, 200) || res.statusText); // FIX: Loi dong nay
+    if (!res.ok) throw new Error(text.slice(0, 200) || res.statusText);
     throw e;
   }
 }
@@ -24,7 +24,12 @@ export function useScheduleData(year: number, month: number) {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [loadingGen, setLoadingGen] = useState(false);
 
-  // ⬇️ NEW: nhớ thêm fillHC vào lastOptions để Save chạy lại đúng tham số
+  // === Expected (rule) per-day
+  const [expectedByDay, setExpectedByDay] = useState<ExpectedByDay>({});
+  const [loadingExpected, setLoadingExpected] = useState(false);
+  const [expectedError, setExpectedError] = useState<string | null>(null);
+
+  // tham số lần generate gần nhất
   const [lastOptions, setLastOptions] = useState<{
     year: number; month: number; shuffle: boolean; seed: number | null; fillHC: boolean;
   } | null>(null);
@@ -34,7 +39,7 @@ export function useScheduleData(year: number, month: number) {
   const [loadingEstimate, setLoadingEstimate] = useState(false);
   const [estimateError, setEstimateError] = useState<string | null>(null);
 
-  // ⬇️ NEW: trạng thái checkbox “Auto fill HC”
+  // checkbox “Auto fill HC”
   const [fillHC, setFillHC] = useState<boolean>(false);
 
   const lastDay = useMemo(() => new Date(year, month, 0).getDate(), [year, month]);
@@ -48,6 +53,7 @@ export function useScheduleData(year: number, month: number) {
     return m;
   }, [assignments]);
 
+  // initial staff load
   useEffect(() => {
     (async () => {
       const res = await fetch("/api/staff");
@@ -58,6 +64,21 @@ export function useScheduleData(year: number, month: number) {
   const fetchAssignments = async () => {
     const res = await fetch(`/api/assignments?year=${year}&month=${month}`);
     setAssignments(await safeJSON<Assignment[]>(res));
+  };
+
+  const fetchExpected = async () => {
+    setLoadingExpected(true);
+    setExpectedError(null);
+    try {
+      const res = await fetch(`/api/rules/expected?year=${year}&month=${month}`);
+      const json = await safeJSON<{ ok: boolean; perDayExpected: ExpectedByDay }>(res);
+      setExpectedByDay(json?.perDayExpected || {});
+    } catch (err: any) {
+      setExpectedError(err?.message || "Load expected failed");
+      setExpectedByDay({});
+    } finally {
+      setLoadingExpected(false);
+    }
   };
 
   // Estimate theo THÁNG hiện chọn
@@ -76,11 +97,12 @@ export function useScheduleData(year: number, month: number) {
     }
   };
 
-  // Đọc lịch DB + Estimate mỗi khi đổi (year, month)
+  // Đọc lịch DB + Estimate + Expected mỗi khi đổi (year, month)
   useEffect(() => {
     (async () => {
       await fetchAssignments();
       await fetchEstimate();
+      await fetchExpected();
     })(); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year, month]);
 
@@ -91,7 +113,6 @@ export function useScheduleData(year: number, month: number) {
       const shuffle = !!opts?.shuffle;
       const seed = shuffle ? Date.now() : null;
 
-      // ⬇️ NEW: truyền fill_hc theo checkbox
       const body = { year, month, shuffle, seed, save: false, fill_hc: fillHC };
 
       const res = await fetch("/api/schedule/generate", {
@@ -101,7 +122,6 @@ export function useScheduleData(year: number, month: number) {
       });
       const result = await safeJSON<{ ok?: boolean; planned?: Assignment[]; error?: string }>(res);
 
-      // Nếu backend báo lỗi hoặc không có planned, đặt [] để UI không crash
       if (!result || result.ok === false) {
         console.warn("Generate failed:", result?.error || result);
         setAssignments([]);
@@ -112,6 +132,7 @@ export function useScheduleData(year: number, month: number) {
       setLastOptions({ year, month, shuffle, seed, fillHC });
 
       await fetchEstimate();
+      await fetchExpected();
     } finally {
       setLoadingGen(false);
     }
@@ -124,7 +145,6 @@ export function useScheduleData(year: number, month: number) {
     if (!lastOptions) { alert("Hãy Generate hoặc Shuffle trước khi Save."); return; }
     setLoadingGen(true);
     try {
-      // ⬇️ NEW: fill_hc = lastOptions.fillHC
       const body = { ...lastOptions, save: true, fill_hc: lastOptions.fillHC };
       const res = await fetch("/api/schedule/generate", {
         method: "POST",
@@ -134,6 +154,7 @@ export function useScheduleData(year: number, month: number) {
       await safeJSON(res);
       await fetchAssignments();
       await fetchEstimate();
+      await fetchExpected();
       alert("Đã lưu lịch vào DB.");
     } finally {
       setLoadingGen(false);
@@ -146,12 +167,14 @@ export function useScheduleData(year: number, month: number) {
     await fetch("/api/admin/reset?mode=soft", { method: "POST" });
     await fetchAssignments();
     await fetchEstimate();
+    await fetchExpected();
   };
   const onResetHard = async () => {
     if (!confirm("Xoá file DB và tạo lại schema? (mất toàn bộ dữ liệu)")) return;
     await fetch("/api/admin/reset?mode=hard", { method: "POST" });
     await fetchAssignments();
     await fetchEstimate();
+    await fetchExpected();
   };
 
   // === Summaries & totals
@@ -174,13 +197,15 @@ export function useScheduleData(year: number, month: number) {
     return out;
   }, [staff, days, year, month, assignmentIndex]);
 
+  // Đếm theo ngày (tránh lệch TZ: dùng parseYMD)
   const perDayCounts = useMemo(() => {
     const byDay: Record<number, Record<string, number>> = {};
     for (const d of days) byDay[d] = { CA1: 0, K: 0, CA2: 0, HC: 0, Đ: 0, P: 0 };
     for (const a of assignments) {
-      const dt = new Date(a.day);
-      const yy = dt.getFullYear(), mm = dt.getMonth() + 1, dd = dt.getDate();
-      if (yy === year && mm === month && byDay[dd] && byDay[dd][a.shift_code] !== undefined) byDay[dd][a.shift_code] += 1;
+      const { yy, mm, dd } = parseYMD(a.day);
+      if (yy === year && mm === month && byDay[dd] && byDay[dd][a.shift_code] !== undefined) {
+        byDay[dd][a.shift_code] += 1;
+      }
     }
     return byDay;
   }, [assignments, days, year, month]);
@@ -189,8 +214,7 @@ export function useScheduleData(year: number, month: number) {
     const map: Record<number, number> = {};
     for (const d of days) map[d] = 0;
     for (const a of assignments) {
-      const dt = new Date(a.day);
-      const yy = dt.getFullYear(), mm = dt.getMonth() + 1, dd = dt.getDate();
+      const { yy, mm, dd } = parseYMD(a.day);
       if (yy !== year || mm !== month) continue;
       if (a.shift_code === "K" && a.position === "TD") map[dd] += 1;
     }
@@ -201,8 +225,7 @@ export function useScheduleData(year: number, month: number) {
     const map: Record<number, { dayCount: number; nightCount: number }> = {};
     for (const d of days) map[d] = { dayCount: 0, nightCount: 0 };
     for (const a of assignments) {
-      const dt = new Date(a.day);
-      const yy = dt.getFullYear(), mm = dt.getMonth() + 1, dd = dt.getDate();
+      const { yy, mm, dd } = parseYMD(a.day);
       if (yy !== year || mm !== month || !map[dd]) continue;
       if (DAY_SHIFTS.includes(a.shift_code)) map[dd].dayCount += 1;
       else if (NIGHT_SHIFTS.includes(a.shift_code)) map[dd].nightCount += 1;
@@ -210,16 +233,7 @@ export function useScheduleData(year: number, month: number) {
     return map;
   }, [assignments, days, year, month]);
 
-  const leaderErrors = useMemo(() => {
-    const errs: { day: number; count: number }[] = [];
-    for (const d of days) {
-      const c = perDayLeaders[d] ?? 0;
-      if (c !== 1) errs.push({ day: d, count: c });
-    }
-    return errs;
-  }, [perDayLeaders, days]);
-
-  // perDayByPlace (phục vụ TotalsRows)
+  // per-day by place cho TotalsRows
   const perDayByPlace = useMemo(() => {
     const init = () => ({
       TD: { K_leader: 0, K: 0, CA1: 0, CA2: 0 },
@@ -231,8 +245,7 @@ export function useScheduleData(year: number, month: number) {
     for (const d of days) by[d] = init();
 
     for (const a of assignments) {
-      const dt = new Date(a.day);
-      const yy = dt.getFullYear(), mm = dt.getMonth() + 1, dd = dt.getDate();
+      const { yy, mm, dd } = parseYMD(a.day);
       if (yy !== year || mm !== month || !by[dd]) continue;
 
       // Daytime @ TD
@@ -263,6 +276,16 @@ export function useScheduleData(year: number, month: number) {
     return by;
   }, [assignments, days, year, month]);
 
+  // leader error (hiện giữ nguyên logic cũ)
+  const leaderErrors = useMemo(() => {
+    const errs: { day: number; count: number }[] = [];
+    for (const d of days) {
+      const c = perDayLeaders[d] ?? 0;
+      if (c !== 1) errs.push({ day: d, count: c });
+    }
+    return errs;
+  }, [perDayLeaders, days]);
+
   return {
     staff, assignments, setAssignments,
     loadingGen,
@@ -271,10 +294,9 @@ export function useScheduleData(year: number, month: number) {
     summariesByStaffId, perDayCounts, perDayLeaders, perDayDayNight, leaderErrors,
     onGenerate, onShuffle, onSave,
     onResetSoft, onResetHard,
-    // NEW (estimate + per-place)
     estimate, loadingEstimate, estimateError, fetchEstimate,
     perDayByPlace,
-    // 👇 NEW: expose checkbox state
+    expectedByDay, loadingExpected, expectedError,
     fillHC, setFillHC,
   };
 }

@@ -17,6 +17,7 @@ export default function App() {
         estimate, loadingEstimate, estimateError,
         onGenerate, onShuffle, onSave, onResetSoft, onResetHard,
         fillHC, setFillHC,                 // 👈 NEW
+        expectedByDay,
     } = useScheduleData(year, month);
 
     return (
@@ -53,6 +54,7 @@ export default function App() {
                 perDayLeaders={perDayLeaders}
                 perDayDayNight={perDayDayNight}
                 perDayByPlace={perDayByPlace}
+                expectedByDay={expectedByDay}
             />
 
             <div style={{ marginTop: 10, fontSize: 12, color: "#555" }}>
