@@ -3,7 +3,8 @@ import React from "react";
 import type { Staff, Assignment } from "../../types";
 import { fmtYMD, getDow, isWeekend } from "../../utils/date";
 import Badge from "../Badge";
-import { isNightLeader, isNightWhite, isNightPGD } from "../../utils/schedule";
+// Nếu utils/schedule còn dùng – OK, nhưng không cần night-white/night-pgd nữa
+import { isNightLeader, isDayLeader, isNightTD, isNightPGD } from "../../utils/schedule";
 
 const tdCenter = { borderTop: "1px solid #f0f0f0", padding: "6px 8px", textAlign: "center" as const, whiteSpace: "nowrap" as const };
 const tdWeekend = { background: "#FFFDF0" };
@@ -27,7 +28,9 @@ export default function MatrixRow({
         <tr style={{ background: index % 2 ? "#fff" : "#fbfbfd" }}>
             <td className="sticky-col" style={tdStickyLeft}>
                 <div style={{ fontWeight: 600 }}>{staff.full_name}</div>
-                <div style={{ fontSize: 12, color: "#666" }}>{staff.role} {staff.can_night ? "" : "· không đêm"}</div>
+                <div style={{ fontSize: 12, color: "#666" }}>
+                    {staff.role} <span style={{ color: "#999" }}>#{staff.id}</span>
+                </div>
             </td>
 
             {days.map((d) => {
@@ -39,44 +42,30 @@ export default function MatrixRow({
                 const dow = getDow(year, month, d);
                 const wk = isWeekend(dow);
 
-                // // Logic biến thể badge cho UI
-                // const isLeaderDay = code === "K" && pos === "TD";
-                // const isLeaderNight = code === "Đ" && pos === "TD" && staff.role === "TC";
-                // const variant =
-                //     isLeaderDay ? "leader-day" :
-                //         isLeaderNight ? "leader-night" :
-                //             pos === "K_WHITE" ? "k-white" :
-                //                 pos === "PGD" ? "pgd" : "td";
-                const nightObj = { shift_code: code, position: pos };
+                // Tạo object cho helper
+                const marker = { shift_code: code, position: pos, role: staff.role };
 
-                const isLeaderDay = code === "K" && pos === "TD";
-                const isLeaderNight = isNightLeader(nightObj);
-                const isWhiteNight = isNightWhite(nightObj);
-                const isPGDNight = isNightPGD(nightObj);
+                // Leader flags
+                const leaderDay = isDayLeader(marker);   // K @ TD (trưởng ca ngày)
+                const leaderNight = isNightLeader(marker); // Đ @ TD && role=TC (trưởng ca đêm)
+                const tdNight = isNightTD(marker);
+                const pgdNight = isNightPGD(marker);
 
+                // Map về các variant sẵn có trong <Badge />
                 const variant =
-                    isLeaderDay ? "leader-day" :
-                        isLeaderNight ? "leader-night" :
-                            isWhiteNight ? "night-white" :
-                                isPGDNight ? "night-pgd" :
-                                    pos === "K_WHITE" ? "k-white" :
-                                        pos === "PGD" ? "pgd" : "td";
+                    leaderDay ? "leader-day" :
+                        leaderNight ? "leader-night" : tdNight ? "night-white" : pgdNight ?
+                            "night-pgd" :
+                            code === "K" && pos === "TD" ? "k-white" :
+                                code === "Đ" &&
+                                    pos === "PGD" ? "pgd" :
+                                    "td"; // còn lại: TD ngày hoặc Đ@TD non-leader
 
                 return (
                     <td key={d} style={{ ...tdCenter, ...(wk ? tdWeekend : null) }}>
-                        {/* <Badge
-                            code={code || ""}
-                            crown={isLeaderDay || isLeaderNight}          // ✅ giữ tương thích code cũ
-                            variant={
-                                pos === "K_WHITE" ? "k-white" :
-                                    pos === "PGD" ? "pgd" :
-                                        isLeaderDay ? "leader-day" :
-                                            isLeaderNight ? "leader-night" : "td"
-                            }
-                        /> */}
                         <Badge
                             code={code || ""}
-                            crown={isLeaderDay || isLeaderNight}
+                            crown={leaderDay || leaderNight}
                             variant={variant}
                         />
                     </td>

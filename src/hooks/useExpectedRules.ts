@@ -1,13 +1,8 @@
 // src/hooks/useExpectedRules.ts
 import { useEffect, useState } from "react";
+import type { ExpectedByDay } from "../types";  // ✅ dùng type chuẩn từ types.ts
 
-export type ExpectedPerDay = Record<number, {
-  TD: { K_leader: number; CA1: number; CA2: number };
-  PGD: { K: number; CA2: number };
-  K_WHITE: number;
-  NIGHT: { leader: number; TD_WHITE: number; PGD: number };
-}>;
-
+// fetch JSON an toàn
 async function safeJSON<T>(res: Response): Promise<T> {
   const text = await res.text();
   const json = text ? JSON.parse(text) : {};
@@ -15,8 +10,12 @@ async function safeJSON<T>(res: Response): Promise<T> {
   return json as T;
 }
 
+/**
+ * Hook đọc “chuẩn theo rule” cho từng ngày trong tháng.
+ * Output: expected: ExpectedByDay = { [dd]: { dayTD, dayPGD, nightTD, nightPGD } }
+ */
 export function useExpectedRules(year: number, month: number) {
-  const [expected, setExpected] = useState<ExpectedPerDay>({});
+  const [expected, setExpected] = useState<ExpectedByDay>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,8 +23,9 @@ export function useExpectedRules(year: number, month: number) {
     (async () => {
       setLoading(true); setError(null);
       try {
+        // Backend /api/rules/expected trả về { ok, perDayExpected }
         const res = await fetch(`/api/rules/expected?year=${year}&month=${month}`);
-        const json = await safeJSON<{ ok: boolean; perDayExpected: ExpectedPerDay }>(res);
+        const json = await safeJSON<{ ok: boolean; perDayExpected: ExpectedByDay }>(res);
         setExpected(json.perDayExpected || {});
       } catch (e: any) {
         setError(e?.message || "Failed to load expected rules");

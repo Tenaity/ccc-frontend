@@ -1,21 +1,47 @@
 // src/types.ts
-export type ShiftCode = "CA1" | "CA2" | "K" | "HC" | "Đ" | "P";
-export type Position = "TD" | "PGD" | "K_WHITE" | "D_WHITE" | null;
 
+// ================== ENUM-LIKE CONSTANTS ==================
+export const Shift = {
+  CA1: "CA1",
+  CA2: "CA2",
+  K:   "K",
+  HC:  "HC",
+  D:   "Đ",   // night shift
+  P:   "P",
+} as const;
+export type ShiftCode = typeof Shift[keyof typeof Shift];
+
+// Vai trò (type-safe) — khớp backend
+export const StaffRole = {
+  TC:  "TC",
+  GDV: "GDV",
+  HC:  "HC",
+} as const;
+export type RoleCode = typeof StaffRole[keyof typeof StaffRole];
+
+// Lưu ý: backend CÓ THỂ trả "D_WHITE" cho Đ trắng @ tổng đài.
+// "K_WHITE" để dành cho phase K trắng (đang tắt).
+export const Pos = {
+  TD: "TD",
+  PGD: "PGD",
+} as const;
+export type Position = typeof Pos[keyof typeof Pos] | null;
+
+// ================== DOMAIN TYPES ==================
 export interface Staff {
   id: number;
   full_name: string;
-  role: "TC" | "GDV" | "HC";
+  role: RoleCode;     
   can_night: boolean;
   base_quota: number;
   notes?: string | null;
 }
 
 export interface Assignment {
-  day: string;           // ISO date
-  shift_code: ShiftCode;
+  day: string;              // ISO "YYYY-MM-DD"
+  shift_code: ShiftCode;    // dùng Shift.*
   staff_id: number;
-  position?: Position;
+  position?: Position;      // dùng Pos.* hoặc null
 }
 
 export interface PlannedResult {
@@ -25,52 +51,48 @@ export interface PlannedResult {
   details?: any;
 }
 
-/** Bảng tổng theo vị trí/ngày để TotalsRows & MatrixTable xài chung */
+// ================== TOTALS / PER-DAY BUCKETS ==================
 export interface DayPlaceSummary {
-  TD: { K_leader: number; K: number; CA1: number; CA2: number };
-  PGD: { K: number; CA2: number };
-  NIGHT: { leader: number; TD_WHITE: number; PGD: number };
-  /** K trắng (thứ 7) – tách riêng để hiển thị */
-  K_WHITE: number;
+  TD:    { K: number; CA1: number; CA2: number, D: number }; 
+  PGD:   { K: number; CA2: number, D: number };
 }
 
-/** Breakdown số ngày trong tháng (dùng cho EstimatePanel) */
+export function makeEmptyDayPlaceSummary(): DayPlaceSummary {
+  return {
+    TD:    { K: 0, CA1: 0, CA2: 0, D: 0 }, 
+    PGD:   { K: 0, CA2: 0, D: 0 },
+  };
+}
+
+// ================== ESTIMATE TYPES ==================
 export interface EstimateDaysBreakdown {
-  total: number;       // = days_in_month
-  weekdays: number;    // T2–T6
-  saturdays: number;   // T7
-  sundays: number;     // CN
-  holidays: number;    // số ngày lễ (rơi vào bất kỳ thứ nào)
+  total: number;
+  weekdays: number;
+  saturdays: number;
+  sundays: number;
+  holidays: number;
 }
 
-// === Estimate (nhu cầu vs nguồn cung, theo THÁNG) ===
 export type EstimateResponse = {
   ok: boolean;
   year: number;
   month: number;
 
-  // --- Nhu cầu ---
-  days_in_month: number;   // 👈 số ngày trong tháng
-  required_heads_by_day: Record<"CA1" | "CA2" | "K" | "Đ" | "HC" | "P", number>;
-  required_heads_total: number;
+  required_heads_by_day:   Record<"CA1" | "CA2" | "K" | "Đ" | "HC" | "P", number>;
+  required_heads_total:    number;
 
-  // Tổng slot (người-ca) theo mã
   required_shifts_by_code: Record<"CA1" | "CA2" | "K" | "Đ" | "HC" | "P", number>;
-  required_shifts_total: number;
+  required_shifts_total:   number;
 
-  // Công quy đổi (credits)
   required_credits_by_shift: Record<"CA1" | "CA2" | "K" | "Đ" | "HC" | "P", number>;
-  required_credits_total: number;
+  required_credits_total:  number;
 
-  // --- Nguồn cung ---
-  supply_total: number;          // tổng slot cung
-  supply_credits_total: number;  // tổng công quy đổi cung
+  supply_total:          number;
+  supply_credits_total:  number;
 
-  // --- Delta ---
-  delta_total: number;    // supply_total - required_shifts_total
-  delta_credits: number;  // supply_credits_total - required_credits_total
+  delta_total:   number;
+  delta_credits: number;
 
-  // --- Meta ---
   meta: {
     weekdays: number;
     saturdays: number;
@@ -83,17 +105,27 @@ export type EstimateResponse = {
   notes: string;
 };
 
-// === Rule expected per-day (đúng cấu trúc app.py trả về) ===
-export type ExpectedDayTD = { K_leader: number; CA1: number; CA2: number };
-export type ExpectedDayPGD = { K: number; CA2: number };
-export type ExpectedNight = { leader: number; TD_WHITE: number; PGD: number };
+// ================== EXPECTED (RULE) ==================
+export type ExpectedTD   = { K: number; CA1: number; CA2: number, D: number }; 
+export type ExpectedPGD  = { K: number; CA2: number, D: number };
 
-export type ExpectedPerDay = {
-  TD: ExpectedDayTD;
-  PGD: ExpectedDayPGD;
-  K_WHITE: number;
-  NIGHT: ExpectedNight;
-};
+export type ExpectedPerDay  = { expectedTD: ExpectedTD; expectedPGD: ExpectedPGD };
+export type ExpectedByDay   = Record<number, ExpectedPerDay>;
 
-// Map: dd -> ExpectedPerDay
-export type ExpectedByDay = Record<number, ExpectedPerDay>;
+// ================== HELPERS (TYPE-SAFE) ==================
+export const DAY_SHIFTS: ReadonlyArray<ShiftCode> = [Shift.CA1, Shift.CA2, Shift.K, Shift.HC];
+export const NIGHT_SHIFTS: ReadonlyArray<ShiftCode> = [Shift.D];
+
+// Night markers – không cần truyền role vì engine đã đảm bảo leader là TC
+export function isNightLeader(a: { shift_code: ShiftCode; position?: Position | null, role?: RoleCode | null }) {
+  return a.shift_code === Shift.D && a.position === Pos.TD && a.role === StaffRole.TC;
+}
+export function isNightTD(a: { shift_code: ShiftCode; position?: Position | null }) {
+  return a.shift_code === Shift.D && a.position === Pos.TD;
+}
+export function isNightPGD(a: { shift_code: ShiftCode; position?: Position | null }) {
+  return a.shift_code === Shift.D && a.position === Pos.PGD;
+}
+
+export const isTD  = (p: Position | null) => p === Pos.TD;
+export const isPGD = (p: Position | null) => p === Pos.PGD;

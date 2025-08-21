@@ -17,12 +17,16 @@ export const pickBg = (code?: ShiftCode) => {
   }
 };
 
-export function isNightLeader(a: {shift_code:string; position?:string|null}) {
-  return a.shift_code === "Đ" && a.position === "TD";
+export function isDayLeader(a: {shift_code:string; position?:string|null, role: string}) {
+  return a.shift_code === "K" && a.position === "TD" && a.role === "TC";
 }
-export function isNightWhite(a: {shift_code:string; position?:string|null}) {
-  return a.shift_code === "Đ" && a.position === "D_WHITE";
+
+export function isNightLeader(a: {shift_code:string; position?:string|null, role: string}) {
+  return a.shift_code === "Đ" && a.position === "TD" && a.role === "TC";
 }
-export function isNightPGD(a: {shift_code:string; position?:string|null}) {
-  return a.shift_code === "Đ" && a.position === "PGD";
+export function isNightTD(a: {shift_code:string; position?:string|null, role: string}) {
+  return a.shift_code === "Đ" && a.position === "TD" && a.role !== "TC";
+}
+export function isNightPGD(a: {shift_code:string; position?:string|null, role: string}) {
+  return a.shift_code === "Đ" && a.position === "PGD" && a.role !== "TC";
 }

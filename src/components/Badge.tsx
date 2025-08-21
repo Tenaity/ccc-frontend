@@ -53,7 +53,7 @@ export default function Badge({
             base.boxShadow = "0 0 0 1px rgba(124,58,237,.12) inset";
             break;
         case "night-white":
-            base.background = "#FFF7FA";               // hồng rất nhạt (Đ trắng @ TD)
+            base.background = "#FFFFFF";               // hồng rất nhạt (Đ trắng @ TD)
             base.border = "1px solid #f1a7b5";
             break;
         case "night-pgd":

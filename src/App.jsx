@@ -13,10 +13,10 @@ export default function App() {
     const {
         staff, loadingGen, days,
         assignmentIndex,
-        summariesByStaffId, perDayCounts, perDayLeaders, perDayDayNight, perDayByPlace, leaderErrors,
+        summariesByStaffId, perDayLeaders, perDayByPlace, leaderErrors,
         estimate, loadingEstimate, estimateError,
         onGenerate, onShuffle, onSave, onResetSoft, onResetHard,
-        fillHC, setFillHC,                 // 👈 NEW
+        fillHC, setFillHC,
         expectedByDay,
     } = useScheduleData(year, month);
 
@@ -50,9 +50,7 @@ export default function App() {
                 staff={staff}
                 assignmentIndex={assignmentIndex}
                 summariesByStaffId={summariesByStaffId}
-                perDayCounts={perDayCounts}
                 perDayLeaders={perDayLeaders}
-                perDayDayNight={perDayDayNight}
                 perDayByPlace={perDayByPlace}
                 expectedByDay={expectedByDay}
             />

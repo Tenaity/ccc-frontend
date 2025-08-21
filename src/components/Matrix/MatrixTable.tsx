@@ -2,9 +2,8 @@
 import React from "react";
 import MatrixHeader from "./MatrixHeader";
 import MatrixRow from "./MatrixRow";
-import TotalsRows, { DayPlaceSummary } from "./TotalsRows";
-import type { Staff, Assignment, ExpectedByDay, ExpectedPerDay } from "../../types";
-import { isNightLeader, isNightWhite, isNightPGD } from "../../utils/schedule";
+import TotalsRows from "./TotalsRows";
+import type { Staff, Assignment, ExpectedPerDay, DayPlaceSummary } from "../../types";
 
 const tableWrap = { overflow: "auto", border: "1px solid #eee", borderRadius: 8 };
 const tableCss = { borderCollapse: "separate" as const, borderSpacing: 0, minWidth: 1000 };
@@ -12,19 +11,15 @@ const tableCss = { borderCollapse: "separate" as const, borderSpacing: 0, minWid
 export default function MatrixTable({
     year, month, days, staff,
     assignmentIndex, summariesByStaffId,
-    perDayCounts, perDayLeaders, perDayDayNight,
+    perDayLeaders,
     perDayByPlace, expectedByDay,
 }: {
-    year: number; month: number; days: number[];
-    staff: Staff[];
+    year: number; month: number; days: number[]; staff: Staff[];
     assignmentIndex: Map<string, { code: Assignment["shift_code"]; position: Assignment["position"] | null }>;
     summariesByStaffId: Map<number, { counts: Record<string, number>, credit: number, dayCount: number, nightCount: number }>;
-    perDayCounts: Record<number, Record<string, number>>;
     perDayLeaders: Record<number, number>;
-    perDayDayNight: Record<number, { dayCount: number; nightCount: number }>;
     perDayByPlace: Record<number, DayPlaceSummary>;
     expectedByDay: Record<number, ExpectedPerDay>;
-    expected?: ExpectedByDay | null; // ✅ type khớp với ExpectedByDay
 }) {
     return (
         <div style={tableWrap}>
@@ -45,12 +40,8 @@ export default function MatrixTable({
                         year={year}
                         month={month}
                         days={days}
-                        perDayCounts={perDayCounts}
-                        perDayDayNight={perDayDayNight}
-                        perDayLeaders={perDayLeaders}
-                        perDayByPlace={perDayByPlace}  // ✅ type khớp với TotalsRows
+                        perDayByPlace={perDayByPlace}
                         expectedByDay={expectedByDay}
-                        expected={expectedByDay}
                     />
                 </tbody>
             </table>
