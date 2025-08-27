@@ -15,7 +15,7 @@ async function safeJSON<T>(res: Response): Promise<T> {
     if (!res.ok) throw new Error(json?.error || res.statusText || "Request failed");
     return json as T;
   } catch (e) {
-    if (!res.ok) throw new Error(text.slice(0, 200) || res.statusText);
+    if (!res.ok) throw new Error(text.slice(0, 200) || res.statusText); 
     throw e;
   }
 }

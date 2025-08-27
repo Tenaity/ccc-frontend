@@ -14,6 +14,7 @@ export default function Badge({
     code,
     variant = "td",
     crown,
+    rank,
 }: {
     code: ShiftCode | "";
     variant?: Variant;
@@ -69,6 +70,12 @@ export default function Badge({
     // 👑: hiển thị nếu crown=true hoặc là leader
     const showCrown =
         !!crown || variant === "leader-day" || variant === "leader-night";
+
+    if (rank === 1) {
+        base.border = "2px solid #111827";
+    } else if (rank === 2) {
+        base.border = "1.5px dashed #9ca3af";
+    }
 
     return (
         <span style={base}>
