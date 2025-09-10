@@ -44,6 +44,22 @@ export interface Assignment {
   position?: Position;      // dùng Pos.* hoặc null
 }
 
+export interface FixedAssignment {
+  id: number;
+  staff_id: number;
+  day: string;              // ISO "YYYY-MM-DD"
+  shift_code: ShiftCode;
+  position?: Position;
+  note?: string | null;
+}
+
+export interface OffDay {
+  id: number;
+  staff_id: number;
+  day: string;              // ISO "YYYY-MM-DD"
+  reason?: string | null;
+}
+
 export interface PlannedResult {
   ok: boolean;
   planned?: Assignment[];

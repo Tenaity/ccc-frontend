@@ -1,11 +1,18 @@
 // src/hooks/useScheduleData.ts
 import { useEffect, useMemo, useState } from "react";
-import type { Staff, Assignment, EstimateResponse, ExpectedByDay, DayPlaceSummary } from "../types";
+import type {
+  Staff,
+  Assignment,
+  EstimateResponse,
+  ExpectedByDay,
+  DayPlaceSummary,
+  FixedAssignment,
+  OffDay,
+} from "../types";
 import { DAY_SHIFTS, NIGHT_SHIFTS, SHIFT_CREDIT } from "../utils/schedule"; // giữ nguyên nguồn constants/credit hiện tại
 import { fmtYMD, parseYMD } from "../utils/date";
+import { buildCellIndex, type Cell } from "../utils/mergeCellIndex";
 
-/** Cell = 1 ô (staff_id, day) trong ma trận — tiện cho tra cứu nhanh */
-type Cell = { code: Assignment["shift_code"]; position: Assignment["position"] };
 
 /** safeJSON: đọc Response an toàn, ném Error message gọn gàng khi !ok */
 async function safeJSON<T>(res: Response): Promise<T> {
@@ -30,6 +37,8 @@ export function useScheduleData(year: number, month: number) {
   // ====== RAW DATA ======
   const [staff, setStaff] = useState<Staff[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [fixed, setFixed] = useState<FixedAssignment[]>([]);
+  const [offdays, setOffdays] = useState<OffDay[]>([]);
   const [loadingGen, setLoadingGen] = useState(false);
 
   // Rule expected per-day (dùng cho so sánh với planned khi cần)
@@ -55,13 +64,39 @@ export function useScheduleData(year: number, month: number) {
   const days = useMemo(() => Array.from({ length: lastDay }, (_, i) => i + 1), [lastDay]);
 
   /** assignmentIndex: map "staffId|YYYY-MM-DD" -> {code, position} để render nhanh từng ô */
-  const assignmentIndex = useMemo(() => {
-    const m = new Map<string, Cell>();
-    for (const a of assignments) {
-      m.set(`${a.staff_id}|${a.day}`, { code: a.shift_code, position: a.position || null });
+  const assignmentIndex = useMemo(
+    () => buildCellIndex(assignments, fixed, offdays),
+    [assignments, fixed, offdays],
+  );
+
+  const fixedByDay = useMemo(() => {
+    const m = new Map<string, FixedAssignment[]>();
+    for (const f of fixed) {
+      if (!m.has(f.day)) m.set(f.day, []);
+      m.get(f.day)!.push(f);
     }
     return m;
-  }, [assignments]);
+  }, [fixed]);
+
+  const offByDay = useMemo(() => {
+    const m = new Map<string, OffDay[]>();
+    for (const o of offdays) {
+      if (!m.has(o.day)) m.set(o.day, []);
+      m.get(o.day)!.push(o);
+    }
+    return m;
+  }, [offdays]);
+
+  const allAssignments = useMemo<Assignment[]>(() => {
+    const merged: Assignment[] = assignments.map(a => ({ ...a }));
+    for (const f of fixed) {
+      merged.push({ day: f.day, shift_code: f.shift_code, staff_id: f.staff_id, position: f.position });
+    }
+    for (const o of offdays) {
+      merged.push({ day: o.day, shift_code: "P", staff_id: o.staff_id, position: null });
+    }
+    return merged;
+  }, [assignments, fixed, offdays]);
 
   // ====== LOADERS ======
   useEffect(() => {
@@ -76,6 +111,18 @@ export function useScheduleData(year: number, month: number) {
   const fetchAssignments = async () => {
     const res = await fetch(`/api/assignments?year=${year}&month=${month}`);
     setAssignments(await safeJSON<Assignment[]>(res));
+  };
+
+  /** fetchFixed: tải các ca cố định theo (year,month) */
+  const fetchFixed = async () => {
+    const res = await fetch(`/api/fixed?year=${year}&month=${month}`);
+    setFixed(await safeJSON<FixedAssignment[]>(res));
+  };
+
+  /** fetchOffdays: tải danh sách xin nghỉ theo (year,month) */
+  const fetchOffdays = async () => {
+    const res = await fetch(`/api/offdays?year=${year}&month=${month}`);
+    setOffdays(await safeJSON<OffDay[]>(res));
   };
 
   /** fetchExpected: tải rule “chuẩn” từng ngày trong tháng (để đối chiếu UI nếu cần) */
@@ -110,10 +157,12 @@ export function useScheduleData(year: number, month: number) {
     }
   };
 
-  // Khi đổi (year,month): refresh assignments + estimate + expected
+  // Khi đổi (year,month): refresh assignments + fixed/off + estimate + expected
   useEffect(() => {
     (async () => {
       await fetchAssignments();
+      await fetchFixed();
+      await fetchOffdays();
       await fetchEstimate();
       await fetchExpected();
     })(); // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -222,14 +271,14 @@ export function useScheduleData(year: number, month: number) {
   const perDayCounts = useMemo(() => {
     const byDay: Record<number, Record<string, number>> = {};
     for (const d of days) byDay[d] = { CA1: 0, K: 0, CA2: 0, HC: 0, Đ: 0, P: 0 };
-    for (const a of assignments) {
+    for (const a of allAssignments) {
       const { yy, mm, dd } = parseYMD(a.day);
       if (yy === year && mm === month && byDay[dd] && byDay[dd][a.shift_code] !== undefined) {
         byDay[dd][a.shift_code] += 1;
       }
     }
     return byDay;
-  }, [assignments, days, year, month]);
+  }, [allAssignments, days, year, month]);
 
   /**
    * perDayLeaders:
@@ -239,7 +288,7 @@ export function useScheduleData(year: number, month: number) {
   const perDayLeaders = useMemo(() => {
     const map: Record<number, number> = {};
     for (const d of days) map[d] = 0;
-    for (const a of assignments) {
+    for (const a of allAssignments) {
       const { yy, mm, dd } = parseYMD(a.day);
       if (yy !== year || mm !== month) continue;
       if ((a.shift_code === "K" && a.position === "TD") || (a.shift_code === "Đ" && a.position === "TD")) {
@@ -247,7 +296,7 @@ export function useScheduleData(year: number, month: number) {
       }
     }
     return map;
-  }, [assignments, days, year, month]);
+  }, [allAssignments, days, year, month]);
 
   /**
    * perDayDayNight:
@@ -256,14 +305,14 @@ export function useScheduleData(year: number, month: number) {
   const perDayDayNight = useMemo(() => {
     const map: Record<number, { dayCount: number; nightCount: number }> = {};
     for (const d of days) map[d] = { dayCount: 0, nightCount: 0 };
-    for (const a of assignments) {
+    for (const a of allAssignments) {
       const { yy, mm, dd } = parseYMD(a.day);
       if (yy !== year || mm !== month || !map[dd]) continue;
       if (DAY_SHIFTS.includes(a.shift_code)) map[dd].dayCount += 1;
       else if (NIGHT_SHIFTS.includes(a.shift_code)) map[dd].nightCount += 1;
     }
     return map;
-  }, [assignments, days, year, month]);
+  }, [allAssignments, days, year, month]);
 
  const perDayByPlace = useMemo(() => {
   const init = () => ({
@@ -273,7 +322,7 @@ export function useScheduleData(year: number, month: number) {
   const by: Record<number, ReturnType<typeof init>> = {};
   for (const d of days) by[d] = init();
 
-  for (const a of assignments) {
+  for (const a of allAssignments) {
     const { yy, mm, dd } = parseYMD(a.day);
     if (yy !== year || mm !== month || !by[dd]) continue;
 
@@ -293,7 +342,7 @@ export function useScheduleData(year: number, month: number) {
     }
   }
   return by;
-}, [assignments, days, year, month]);
+  }, [allAssignments, days, year, month]);
 
   /** leaderErrors: tiện phát hiện ngày không đúng số “trưởng ca” mong muốn */
   const leaderErrors = useMemo(() => {
@@ -314,6 +363,8 @@ export function useScheduleData(year: number, month: number) {
     // calendar shape
     days,
     assignmentIndex,
+    fixedByDay,
+    offByDay,
 
     // summaries & totals
     summariesByStaffId, perDayCounts, perDayLeaders, perDayDayNight, leaderErrors,
@@ -322,6 +373,7 @@ export function useScheduleData(year: number, month: number) {
     // actions
     onGenerate, onShuffle, onSave,
     onResetSoft, onResetHard,
+    fetchFixed, fetchOffdays,
 
     // estimate & expected
     estimate, loadingEstimate, estimateError, fetchEstimate,
