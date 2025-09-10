@@ -15,11 +15,14 @@ export default function Badge({
     variant = "td",
     crown,
     rank,
+    pinned,
 }: {
     code: ShiftCode | "";
     variant?: Variant;
     /** legacy prop from old code */
     crown?: boolean;
+    pinned?: boolean;
+    rank?: number;
 }) {
     if (!code) return <span style={{ color: "#aaa" }}>—</span>;
 
@@ -79,6 +82,7 @@ export default function Badge({
 
     return (
         <span style={base}>
+            {pinned ? <span title="Fixed" style={{ marginRight: 4 }}>📌</span> : null}
             {code}
             {showCrown ? <span title="Trưởng ca">👑</span> : null}
         </span>

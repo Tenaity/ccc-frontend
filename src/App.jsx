@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import CalendarHeader from "./components/CalendarHeader";
 import Legend from "./components/Legend";
 import MatrixTable from "./components/Matrix/MatrixTable";
-import EstimatePanel from "./components/estimate/EstimatePanel";
+import EstimatePanel from "./components/Estimate/EstimatePanel";
+import ConflictList from "./components/ConflictList";
 import { useScheduleData } from "./hooks/useScheduleData";
 
 export default function App() {
@@ -12,12 +13,13 @@ export default function App() {
 
     const {
         staff, loadingGen, days,
-        assignmentIndex,
+        assignmentIndex, fixedByDayStaff, offByDayStaff,
         summariesByStaffId, perDayLeaders, perDayByPlace, leaderErrors,
         estimate, loadingEstimate, estimateError,
         onGenerate, onShuffle, onSave, onResetSoft, onResetHard,
         fillHC, setFillHC,
         expectedByDay,
+        validation,
     } = useScheduleData(year, month);
 
     return (
@@ -40,8 +42,11 @@ export default function App() {
                 onGenerate={onGenerate} onShuffle={onShuffle}
                 onSave={onSave}
                 onResetSoft={onResetSoft} onResetHard={onResetHard}
-                fillHC={fillHC} setFillHC={setFillHC}     // 👈 NEW
+                fillHC={fillHC} setFillHC={setFillHC}
+                canGenerate={validation.ok}
             />
+
+            <ConflictList conflicts={validation.conflicts} />
 
             <MatrixTable
                 year={year}
@@ -53,6 +58,8 @@ export default function App() {
                 perDayLeaders={perDayLeaders}
                 perDayByPlace={perDayByPlace}
                 expectedByDay={expectedByDay}
+                fixedByDayStaff={fixedByDayStaff}
+                offByDayStaff={offByDayStaff}
             />
 
             <div style={{ marginTop: 10, fontSize: 12, color: "#555" }}>

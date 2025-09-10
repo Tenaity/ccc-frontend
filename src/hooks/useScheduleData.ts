@@ -40,6 +40,7 @@ export function useScheduleData(year: number, month: number) {
   const [fixed, setFixed] = useState<FixedAssignment[]>([]);
   const [offdays, setOffdays] = useState<OffDay[]>([]);
   const [loadingGen, setLoadingGen] = useState(false);
+  const [validation, setValidation] = useState<{ ok: boolean; conflicts: any[] }>({ ok: true, conflicts: [] });
 
   // Rule expected per-day (dùng cho so sánh với planned khi cần)
   const [expectedByDay, setExpectedByDay] = useState<ExpectedByDay>({});
@@ -87,6 +88,18 @@ export function useScheduleData(year: number, month: number) {
     return m;
   }, [offdays]);
 
+  const fixedByDayStaff = useMemo(() => {
+    const m = new Map<string, boolean>();
+    for (const f of fixed) m.set(`${f.staff_id}|${f.day}`, true);
+    return m;
+  }, [fixed]);
+
+  const offByDayStaff = useMemo(() => {
+    const m = new Map<string, boolean>();
+    for (const o of offdays) m.set(`${o.staff_id}|${o.day}`, true);
+    return m;
+  }, [offdays]);
+
   const allAssignments = useMemo<Assignment[]>(() => {
     const merged: Assignment[] = assignments.map(a => ({ ...a }));
     for (const f of fixed) {
@@ -123,6 +136,13 @@ export function useScheduleData(year: number, month: number) {
   const fetchOffdays = async () => {
     const res = await fetch(`/api/offdays?year=${year}&month=${month}`);
     setOffdays(await safeJSON<OffDay[]>(res));
+  };
+
+  const fetchValidate = async () => {
+    const res = await fetch(`/api/schedule/validate?year=${year}&month=${month}`);
+    const json = await safeJSON<{ ok: boolean; conflicts: any[] }>(res);
+    setValidation(json);
+    return json;
   };
 
   /** fetchExpected: tải rule “chuẩn” từng ngày trong tháng (để đối chiếu UI nếu cần) */
@@ -165,6 +185,7 @@ export function useScheduleData(year: number, month: number) {
       await fetchOffdays();
       await fetchEstimate();
       await fetchExpected();
+      await fetchValidate();
     })(); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year, month]);
 
@@ -173,6 +194,8 @@ export function useScheduleData(year: number, month: number) {
   const onGenerate = async (opts?: { shuffle?: boolean }) => {
     setLoadingGen(true);
     try {
+      const valid = await fetchValidate();
+      if (!valid.ok) return;
       const shuffle = !!opts?.shuffle;
       const seed = shuffle ? Date.now() : null;
       const body = { year, month, shuffle, seed, save: false, fill_hc: fillHC };
@@ -359,12 +382,15 @@ export function useScheduleData(year: number, month: number) {
     // raw
     staff, assignments, setAssignments,
     loadingGen,
+    validation,
 
     // calendar shape
     days,
     assignmentIndex,
     fixedByDay,
     offByDay,
+    fixedByDayStaff,
+    offByDayStaff,
 
     // summaries & totals
     summariesByStaffId, perDayCounts, perDayLeaders, perDayDayNight, leaderErrors,
@@ -373,7 +399,7 @@ export function useScheduleData(year: number, month: number) {
     // actions
     onGenerate, onShuffle, onSave,
     onResetSoft, onResetHard,
-    fetchFixed, fetchOffdays,
+    fetchFixed, fetchOffdays, fetchValidate,
 
     // estimate & expected
     estimate, loadingEstimate, estimateError, fetchEstimate,

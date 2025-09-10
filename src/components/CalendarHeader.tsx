@@ -4,6 +4,7 @@ export default function CalendarHeader({
     year, month, setYear, setMonth, loading,
     onGenerate, onShuffle, onSave, onResetSoft, onResetHard,
     fillHC, setFillHC,   // 👈 NEW
+    canGenerate = true,
 }: {
     year: number; month: number;
     setYear: (y: number) => void; setMonth: (m: number) => void;
@@ -12,6 +13,7 @@ export default function CalendarHeader({
     onResetSoft: () => void; onResetHard: () => void;
     fillHC: boolean;                 // 👈 NEW
     setFillHC: (v: boolean) => void; // 👈 NEW
+    canGenerate?: boolean;
 }) {
     return (
         <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12, flexWrap: "wrap" }}>
@@ -31,11 +33,11 @@ export default function CalendarHeader({
                 Tự động bù HC khi Generate/Shuffle
             </label>
 
-            <button onClick={onGenerate} disabled={loading} style={{ padding: "6px 12px" }}>
+            <button onClick={onGenerate} disabled={loading || !canGenerate} style={{ padding: "6px 12px" }}>
                 {loading ? "Đang tạo..." : "Generate (Preview)"}
             </button>
 
-            <button onClick={onShuffle} disabled={loading} style={{ padding: "6px 12px" }}>
+            <button onClick={onShuffle} disabled={loading || !canGenerate} style={{ padding: "6px 12px" }}>
                 {loading ? "…" : "Shuffle (Preview)"}
             </button>
 

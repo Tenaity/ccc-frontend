@@ -13,6 +13,8 @@ export default function MatrixTable({
     assignmentIndex, summariesByStaffId,
     perDayLeaders,
     perDayByPlace, expectedByDay,
+    fixedByDayStaff,
+    offByDayStaff,
 }: {
     year: number; month: number; days: number[]; staff: Staff[];
     assignmentIndex: Map<string, { code: Assignment["shift_code"]; position: Assignment["position"] | null }>;
@@ -20,6 +22,8 @@ export default function MatrixTable({
     perDayLeaders: Record<number, number>;
     perDayByPlace: Record<number, DayPlaceSummary>;
     expectedByDay: Record<number, ExpectedPerDay>;
+    fixedByDayStaff: Map<string, boolean>;
+    offByDayStaff: Map<string, boolean>;
 }) {
     return (
         <div style={tableWrap}>
@@ -34,6 +38,8 @@ export default function MatrixTable({
                             year={year} month={month} days={days}
                             assignmentIndex={assignmentIndex}
                             summariesByStaffId={summariesByStaffId}
+                            fixedByDayStaff={fixedByDayStaff}
+                            offByDayStaff={offByDayStaff}
                         />
                     ))}
                     <TotalsRows

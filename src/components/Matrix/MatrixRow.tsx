@@ -21,6 +21,7 @@ function parseMeta(notes?: string | null) {
 export default function MatrixRow({
     staff, index, year, month, days,
     assignmentIndex, summariesByStaffId,
+    fixedByDayStaff, offByDayStaff,
 }: {
     staff: Staff;
     index: number;
@@ -29,6 +30,8 @@ export default function MatrixRow({
     days: number[];
     assignmentIndex: Map<string, { code: Assignment["shift_code"]; position: Assignment["position"] | null }>;
     summariesByStaffId: Map<number, { counts: Record<string, number>, credit: number, dayCount: number, nightCount: number }>;
+    fixedByDayStaff: Map<string, boolean>;
+    offByDayStaff: Map<string, boolean>;
 }) {
     const sum = summariesByStaffId.get(staff.id) || { counts: {}, credit: 0, dayCount: 0, nightCount: 0 };
     const meta = parseMeta(staff.notes);
@@ -86,9 +89,13 @@ export default function MatrixRow({
                                 pgdNight ? "night-pgd" :
                                     pos === "PGD" ? "pgd" : "td";
 
+                const key = `${staff.id}|${dateKey}`;
+                const isFixed = fixedByDayStaff.has(key);
+                const isOff = offByDayStaff.has(key);
                 return (
-                    <td key={d} style={{ ...tdCenter, ...(wk ? tdWeekend : null) }}>
-                        <Badge code={code || ""} crown={leaderDay || leaderNight} variant={variant} />
+                    <td key={d} style={{ ...tdCenter, ...(wk ? tdWeekend : null), position: "relative" }}>
+                        {isOff ? <span style={{ position: "absolute", top: 2, right: 2 }}>🚫</span> : null}
+                        <Badge code={code || ""} crown={leaderDay || leaderNight} variant={variant} pinned={isFixed} />
                     </td>
                 );
             })}
