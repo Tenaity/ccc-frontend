@@ -31,6 +31,7 @@ export default function EstimatePanel({ data, loading, error }: {
     const Pc = reqCreditsByShift.P ?? 0;
 
     const monthLabel = `${String(data.month).padStart(2, "0")}/${data.year}`;
+    const rankBalance = (data as any).rank_balance as Record<string, { r1: number; r2: number }> | undefined;
 
     return (
         <div style={{ border: "1px solid #eee", borderRadius: 8, padding: 12, marginBottom: 12, background: "#fafafa" }}>
@@ -68,6 +69,17 @@ export default function EstimatePanel({ data, loading, error }: {
                     <span style={pill("#FFE6EA")}>Đ: {reqByCode["Đ"] ?? 0}</span>
                     <span style={pill("#EEE")}>P: {reqByCode.P ?? 0}</span>
                 </div>
+
+                {rankBalance ? (
+                    <div style={{ marginTop: 10 }}>
+                        <div><strong>Rank balance (7d):</strong></div>
+                        {Object.entries(rankBalance).map(([k, v]) => (
+                            <div key={k} style={{ marginBottom: 2 }}>
+                                {k}: r1={v.r1} r2={v.r2}
+                            </div>
+                        ))}
+                    </div>
+                ) : null}
             </div>
         </div>
     );

@@ -93,9 +93,11 @@ export default function MatrixRow({
                 const isFixed = fixedByDayStaff.has(key);
                 const isOff = offByDayStaff.has(key);
                 return (
-                    <td key={d} style={{ ...tdCenter, ...(wk ? tdWeekend : null), position: "relative" }}>
+                    <td key={d}
+                        style={{ ...tdCenter, ...(wk ? tdWeekend : null), position: "relative" }}
+                        title={meta.rank ? `Rank ${meta.rank}` : undefined}>
                         {isOff ? <span style={{ position: "absolute", top: 2, right: 2 }}>🚫</span> : null}
-                        <Badge code={code || ""} crown={leaderDay || leaderNight} variant={variant} pinned={isFixed} />
+                        <Badge code={code || ""} crown={leaderDay || leaderNight} variant={variant} pinned={isFixed} rank={meta.rank || undefined} />
                     </td>
                 );
             })}
