@@ -6,7 +6,7 @@
         "dev": "vite",
         "build": "vite build",
         "preview": "vite preview",
-        "test": "tsx --test \"test/**/*.test.tsx\" \"test/**/*.test.ts\""
+        "test": "tsx --test \"test/**/*.test.tsx\" \"test/**/*.test.ts\" \"src/hooks/__tests__/**/*.spec.ts\""
     },
     "dependencies": {
         "react": "^18.3.1",

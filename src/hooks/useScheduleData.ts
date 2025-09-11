@@ -41,6 +41,7 @@ export function useScheduleData(year: number, month: number) {
   const [offdays, setOffdays] = useState<OffDay[]>([]);
   const [loadingGen, setLoadingGen] = useState(false);
   const [validation, setValidation] = useState<{ ok: boolean; conflicts: any[] }>({ ok: true, conflicts: [] });
+  const [hasLeaderDup, setHasLeaderDup] = useState(false);
 
   // Rule expected per-day (dùng cho so sánh với planned khi cần)
   const [expectedByDay, setExpectedByDay] = useState<ExpectedByDay>({});
@@ -140,8 +141,22 @@ export function useScheduleData(year: number, month: number) {
 
   const fetchValidate = async () => {
     const res = await fetch(`/api/schedule/validate?year=${year}&month=${month}`);
-    const json = await safeJSON<{ ok: boolean; conflicts: any[] }>(res);
-    setValidation(json);
+    const json = await safeJSON<{ ok: boolean; conflicts: any }>(res);
+    const items: any[] = [];
+    let dup = false;
+    const conf = json.conflicts || {};
+    if (Array.isArray(conf)) {
+      for (const c of conf) items.push(c);
+    } else {
+      for (const [k, arr] of Object.entries(conf)) {
+        if ((k === "leader_day_dup" || k === "leader_night_dup") && Array.isArray(arr) && arr.length > 0) {
+          dup = true;
+        }
+        for (const c of arr as any[]) items.push({ ...c, type: k });
+      }
+    }
+    setValidation({ ok: json.ok, conflicts: items });
+    setHasLeaderDup(dup);
     return json;
   };
 
@@ -383,6 +398,7 @@ export function useScheduleData(year: number, month: number) {
     staff, assignments, setAssignments,
     loadingGen,
     validation,
+    hasLeaderDup,
 
     // calendar shape
     days,

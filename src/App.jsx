@@ -20,6 +20,7 @@ export default function App() {
         fillHC, setFillHC,
         expectedByDay,
         validation,
+        hasLeaderDup,
     } = useScheduleData(year, month);
 
     return (
@@ -32,6 +33,12 @@ export default function App() {
                     <strong>Cảnh báo:</strong> Có {leaderErrors.length} ngày không đúng số lượng <em>Trưởng ca ngày</em> (K, position=TD).{" "}
                     {leaderErrors.slice(0, 10).map(e => <code key={e.day} style={{ marginRight: 6 }}>D{e.day}: {e.count}</code>)}
                     {leaderErrors.length > 10 ? "…" : ""}
+                </div>
+            )}
+
+            {hasLeaderDup && (
+                <div style={{ marginBottom: 12, padding: 10, border: "1px solid #f87171", background: "#FEF2F2", borderRadius: 8 }}>
+                    <strong>Cảnh báo:</strong> Có ngày có &gt;1 trưởng ca
                 </div>
             )}
 
