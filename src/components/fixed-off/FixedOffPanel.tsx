@@ -4,7 +4,7 @@ import { useFixedOff } from '@/hooks/useFixedOff';
 import type { ShiftCode, Position } from '@/types';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -15,11 +15,13 @@ export default function FixedOffPanel({
   month,
   open,
   onClose,
+  onToast,
 }: {
   year: number;
   month: number;
   open: boolean;
   onClose: () => void;
+  onToast?: (msg: string) => void;
 }) {
   const { fixed, off, load, createFixed, deleteFixed, createOff, deleteOff } = useFixedOff(year, month);
   const [tab, setTab] = useState<'fixed' | 'off'>('fixed');
@@ -39,22 +41,30 @@ export default function FixedOffPanel({
   if (!open) return null;
 
   const submitFixed = fixedForm.handleSubmit(async (values) => {
-    await createFixed({
-      staff_id: Number(values.staffId),
-      day: values.day?.toISOString().slice(0, 10) || '',
-      shift_code: values.shift,
-      position: values.position || null,
-    });
-    fixedForm.reset();
+    try {
+      await createFixed({
+        staff_id: Number(values.staffId),
+        day: values.day?.toISOString().slice(0, 10) || '',
+        shift_code: values.shift,
+        position: values.position || null,
+      });
+      onToast?.('Saved');
+    } catch (e: any) {
+      onToast?.(e?.message || 'Save failed');
+    }
   });
 
   const submitOff = offForm.handleSubmit(async (values) => {
-    await createOff({
-      staff_id: Number(values.staffId),
-      day: values.day?.toISOString().slice(0, 10) || '',
-      reason: values.reason || null,
-    });
-    offForm.reset();
+    try {
+      await createOff({
+        staff_id: Number(values.staffId),
+        day: values.day?.toISOString().slice(0, 10) || '',
+        reason: values.reason || null,
+      });
+      onToast?.('Saved');
+    } catch (e: any) {
+      onToast?.(e?.message || 'Save failed');
+    }
   });
 
   return (
@@ -74,24 +84,28 @@ export default function FixedOffPanel({
                 <FormField
                   control={fixedForm.control}
                   name="staffId"
+                  rules={{ required: 'Required' }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Staff ID</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
                 <FormField
                   control={fixedForm.control}
                   name="day"
+                  rules={{ required: 'Required' }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Day</FormLabel>
                       <FormControl>
                         <DatePicker value={field.value} onChange={field.onChange} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -148,7 +162,18 @@ export default function FixedOffPanel({
                   <span>
                     {f.day} #{f.staff_id} {f.shift_code} {f.position || ''}
                   </span>
-                  <Button variant="destructive" size="sm" onClick={() => deleteFixed(f.id)}>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        await deleteFixed(f.id);
+                        onToast?.('Deleted');
+                      } catch (e: any) {
+                        onToast?.(e?.message || 'Delete failed');
+                      }
+                    }}
+                  >
                     Del
                   </Button>
                 </li>
@@ -161,24 +186,28 @@ export default function FixedOffPanel({
                 <FormField
                   control={offForm.control}
                   name="staffId"
+                  rules={{ required: 'Required' }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Staff ID</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
                 <FormField
                   control={offForm.control}
                   name="day"
+                  rules={{ required: 'Required' }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Day</FormLabel>
                       <FormControl>
                         <DatePicker value={field.value} onChange={field.onChange} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -203,7 +232,18 @@ export default function FixedOffPanel({
                   <span>
                     {o.day} #{o.staff_id} {o.reason || ''}
                   </span>
-                  <Button variant="destructive" size="sm" onClick={() => deleteOff(o.id)}>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        await deleteOff(o.id);
+                        onToast?.('Deleted');
+                      } catch (e: any) {
+                        onToast?.(e?.message || 'Delete failed');
+                      }
+                    }}
+                  >
                     Del
                   </Button>
                 </li>

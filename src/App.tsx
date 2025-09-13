@@ -89,6 +89,7 @@ export default function App() {
                 month={month}
                 open={showFixedOff}
                 onClose={() => setShowFixedOff(false)}
+                onToast={(m) => setToast(m)}
             />
 
             <div style={{ marginTop: 10, fontSize: 12, color: "#555" }}>
