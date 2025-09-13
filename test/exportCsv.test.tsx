@@ -14,6 +14,7 @@ function okBlob(content: string) {
 
 test('exportMonthCsv downloads CSV', async () => {
   let clicked = false;
+  let filename = '';
   const origFetch = global.fetch;
   const origCreateObj = global.URL.createObjectURL;
   const origRevokeObj = global.URL.revokeObjectURL;
@@ -26,11 +27,16 @@ test('exportMonthCsv downloads CSV', async () => {
   (global.URL as any).createObjectURL = () => 'blob:mock';
   (global.URL as any).revokeObjectURL = () => {};
   global.document = {
-    createElement: () => ({ click: () => { clicked = true; }, set href(v) {}, set download(v) {} }),
+    createElement: () => ({
+      click: () => { clicked = true; },
+      set href(v) {},
+      set download(v) { filename = v; },
+    }),
   } as any;
 
   await exportMonthCsv(2025, 9);
   assert.ok(clicked);
+  assert.equal(filename, 'schedule-2025-09.csv');
 
   global.fetch = origFetch;
   (global.URL as any).createObjectURL = origCreateObj;
