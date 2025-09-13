@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export default function CalendarHeader({
     year, month, setYear, setMonth, loading,
-    onGenerate, onShuffle, onSave, onResetSoft, onResetHard,
+    onGenerate, onShuffle, onSave, onResetSoft, onResetHard, onExport,
     fillHC, setFillHC,
     canGenerate = true,
     onOpenFixedOff,
@@ -12,7 +12,7 @@ export default function CalendarHeader({
     setYear: (y: number) => void; setMonth: (m: number) => void;
     loading: boolean;
     onGenerate: () => void; onShuffle: () => void; onSave: () => void;
-    onResetSoft: () => void; onResetHard: () => void;
+    onResetSoft: () => void; onResetHard: () => void; onExport: () => void;
     fillHC: boolean;
     setFillHC: (v: boolean) => void;
     canGenerate?: boolean;
@@ -45,6 +45,10 @@ export default function CalendarHeader({
 
             <button onClick={onSave} disabled={loading} style={{ padding: "6px 12px", background: "#16a34a", color: "#fff", border: "0", borderRadius: 6 }}>
                 {loading ? "Đang lưu..." : "Save"}
+            </button>
+
+            <button onClick={onExport} disabled={loading} style={{ padding: "6px 12px" }}>
+                Export CSV
             </button>
 
             <button onClick={onResetSoft} disabled={loading} style={{ padding: "6px 12px", marginLeft: 8 }}>

@@ -6,12 +6,15 @@ import EstimatePanel from "./components/Estimate/EstimatePanel";
 import ConflictList from "./components/ConflictList";
 import { useScheduleData } from "./hooks/useScheduleData";
 import { FixedOffPanel } from "./components/fixed-off";
+import Toast from "./components/Toast";
+import { exportMonthCsv } from "./utils/exportCsv";
 
 export default function App() {
     const today = new Date();
     const [year, setYear] = useState(today.getFullYear());
     const [month, setMonth] = useState(today.getMonth() + 1);
     const [showFixedOff, setShowFixedOff] = useState(false);
+    const [toast, setToast] = useState<string | null>(null);
 
     const {
         staff, loadingGen, days,
@@ -24,6 +27,14 @@ export default function App() {
         validation,
         hasLeaderDup,
     } = useScheduleData(year, month);
+
+    const onExport = async () => {
+        try {
+            await exportMonthCsv(year, month);
+        } catch (err: any) {
+            setToast(err?.message || "Export failed");
+        }
+    };
 
     return (
         <div style={{ fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial", padding: 16 }}>
@@ -51,6 +62,7 @@ export default function App() {
                 onGenerate={onGenerate} onShuffle={onShuffle}
                 onSave={onSave}
                 onResetSoft={onResetSoft} onResetHard={onResetHard}
+                onExport={onExport}
                 fillHC={fillHC} setFillHC={setFillHC}
                 canGenerate={validation.ok}
                 onOpenFixedOff={() => setShowFixedOff(true)}
@@ -93,6 +105,7 @@ export default function App() {
                 <Legend label="TC ngày (K + 👑, position=TD)" bg="#E6FFEA" />{" "}
                 <Legend label="TC đêm (Đ + 👑, position=TD & role=TC)" bg="#FFE6EA" />
             </div>
+            <Toast msg={toast} onDone={() => setToast(null)} />
         </div>
     );
 }
