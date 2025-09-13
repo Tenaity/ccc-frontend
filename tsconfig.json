@@ -1,20 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
     "jsx": "react-jsx",
-    "moduleResolution": "Node",
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2020",
     "strict": true,
     "noEmit": true,
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "types": ["vite/client", "node"],
+    "allowJs": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "vite-env.d.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src"]
 }
