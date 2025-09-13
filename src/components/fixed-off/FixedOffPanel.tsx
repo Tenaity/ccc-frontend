@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useFixedOff } from '@/hooks/useFixedOff';
 import type { ShiftCode, Position } from '@/types';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -26,12 +26,19 @@ export default function FixedOffPanel({
   const { fixed, off, load, createFixed, deleteFixed, createOff, deleteOff } = useFixedOff(year, month);
   const [tab, setTab] = useState<'fixed' | 'off'>('fixed');
 
-  const fixedForm = useForm<{ staffId: string; day: Date | undefined; shift: ShiftCode; position: Position | '' }>({
-    defaultValues: { staffId: '', day: undefined, shift: 'CA1', position: '' },
+  const fixedForm = useForm<{
+    staffId: string;
+    day: Date | undefined;
+    shift: ShiftCode | undefined;
+    position: Position | undefined;
+  }>({
+    defaultValues: { staffId: '', day: undefined, shift: undefined, position: undefined },
+    mode: 'onChange',
   });
 
   const offForm = useForm<{ staffId: string; day: Date | undefined; reason: string }>({
     defaultValues: { staffId: '', day: undefined, reason: '' },
+    mode: 'onChange',
   });
 
   useEffect(() => {
@@ -45,8 +52,8 @@ export default function FixedOffPanel({
       await createFixed({
         staff_id: Number(values.staffId),
         day: values.day?.toISOString().slice(0, 10) || '',
-        shift_code: values.shift,
-        position: values.position || null,
+        shift_code: values.shift!,
+        position: values.position ?? null,
       });
       onToast?.('Saved');
     } catch (e: any) {
@@ -69,9 +76,16 @@ export default function FixedOffPanel({
 
   return (
     <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent className="w-80 sm:w-96" side="right">
+      <SheetContent
+        className="w-80 sm:w-96"
+        side="right"
+        aria-describedby="fixedoff-desc"
+      >
         <SheetHeader>
           <SheetTitle>Fixed & Off</SheetTitle>
+          <SheetDescription id="fixedoff-desc">
+            Quản lý ca cố định & ngày nghỉ.
+          </SheetDescription>
         </SheetHeader>
         <Tabs value={tab} onValueChange={(v) => setTab(v as 'fixed' | 'off')} className="mt-4">
           <TabsList className="grid grid-cols-2">
@@ -112,10 +126,14 @@ export default function FixedOffPanel({
                 <FormField
                   control={fixedForm.control}
                   name="shift"
+                  rules={{ required: 'Required' }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Shift</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        value={field.value ?? undefined}
+                        onValueChange={field.onChange}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Chọn" />
@@ -127,8 +145,10 @@ export default function FixedOffPanel({
                           <SelectItem value="K">K</SelectItem>
                           <SelectItem value="HC">HC</SelectItem>
                           <SelectItem value="Đ">Đ</SelectItem>
+                          <SelectItem value="P">P</SelectItem>
                         </SelectContent>
                       </Select>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -138,14 +158,19 @@ export default function FixedOffPanel({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Position</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value || undefined}>
+                      <Select
+                        value={field.value ?? undefined}
+                        onValueChange={(v) =>
+                          field.onChange(v === '__none__' ? undefined : (v as Position))
+                        }
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="--" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">--</SelectItem>
+                          <SelectItem value="__none__">--</SelectItem>
                           <SelectItem value="TD">TD</SelectItem>
                           <SelectItem value="PGD">PGD</SelectItem>
                         </SelectContent>
@@ -153,7 +178,9 @@ export default function FixedOffPanel({
                     </FormItem>
                   )}
                 />
-                <Button type="submit">Add</Button>
+                <Button type="submit" disabled={!fixedForm.formState.isValid}>
+                  Add
+                </Button>
               </form>
             </Form>
             <ul className="space-y-2 text-sm">
@@ -223,7 +250,9 @@ export default function FixedOffPanel({
                     </FormItem>
                   )}
                 />
-                <Button type="submit">Add</Button>
+                <Button type="submit" disabled={!offForm.formState.isValid}>
+                  Add
+                </Button>
               </form>
             </Form>
             <ul className="space-y-2 text-sm">

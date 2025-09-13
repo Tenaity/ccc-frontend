@@ -13,5 +13,5 @@
     "types": ["vite/client", "node"],
     "allowJs": true
   },
-  "include": ["src"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }
