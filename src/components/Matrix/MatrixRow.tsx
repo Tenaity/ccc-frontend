@@ -22,6 +22,7 @@ export default function MatrixRow({
     staff, index, year, month, days,
     assignmentIndex, summariesByStaffId,
     fixedByDayStaff, offByDayStaff,
+    onEditCell,
 }: {
     staff: Staff;
     index: number;
@@ -32,6 +33,7 @@ export default function MatrixRow({
     summariesByStaffId: Map<number, { counts: Record<string, number>, credit: number, dayCount: number, nightCount: number }>;
     fixedByDayStaff: Map<string, boolean>;
     offByDayStaff: Map<string, boolean>;
+    onEditCell?: (staff: Staff, day: number) => void;
 }) {
     const sum = summariesByStaffId.get(staff.id) || { counts: {}, credit: 0, dayCount: 0, nightCount: 0 };
     const meta = parseMeta(staff.notes);
@@ -93,9 +95,19 @@ export default function MatrixRow({
                 const isFixed = fixedByDayStaff.has(key);
                 const isOff = offByDayStaff.has(key);
                 return (
-                    <td key={d}
-                        style={{ ...tdCenter, ...(wk ? tdWeekend : null), position: "relative" }}
-                        title={meta.rank ? `Rank ${meta.rank}` : undefined}>
+                    <td
+                        key={d}
+                        style={{
+                            ...tdCenter,
+                            ...(wk ? tdWeekend : null),
+                            position: "relative",
+                            cursor: (!isFixed && !isOff && onEditCell) ? "pointer" : undefined,
+                        }}
+                        title={meta.rank ? `Rank ${meta.rank}` : undefined}
+                        onClick={() => {
+                            if (!isFixed && !isOff && onEditCell) onEditCell(staff, d);
+                        }}
+                    >
                         {isOff ? <span style={{ position: "absolute", top: 2, right: 2 }}>🚫</span> : null}
                         <Badge code={code || ""} crown={leaderDay || leaderNight} variant={variant} pinned={isFixed} rank={meta.rank || undefined} />
                     </td>

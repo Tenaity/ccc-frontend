@@ -3,6 +3,8 @@ import React from "react";
 import MatrixHeader from "./MatrixHeader";
 import MatrixRow from "./MatrixRow";
 import TotalsRows from "./TotalsRows";
+import QuickEditDialog from "../QuickEditDialog";
+import { fmtYMD } from "../../utils/date";
 import type { Staff, Assignment, ExpectedPerDay, DayPlaceSummary } from "../../types";
 
 export default function MatrixTable({
@@ -22,6 +24,12 @@ export default function MatrixTable({
     fixedByDayStaff: Map<string, boolean>;
     offByDayStaff: Map<string, boolean>;
 }) {
+    const [edit, setEdit] = React.useState<{ staff: Staff; day: number } | null>(null);
+    const candidates = React.useMemo(() => {
+        if (!edit) return [] as Staff[];
+        return (staff ?? []).filter((s) => s.role === edit.staff.role);
+    }, [edit, staff]);
+
     return (
         <div className="overflow-auto border border-gray-200 rounded-lg">
             <table className="border-separate border-spacing-0 min-w-[1000px]">
@@ -37,6 +45,7 @@ export default function MatrixTable({
                             summariesByStaffId={summariesByStaffId}
                             fixedByDayStaff={fixedByDayStaff}
                             offByDayStaff={offByDayStaff}
+                            onEditCell={(st, day) => setEdit({ staff: st, day })}
                         />
                     ))}
                     <TotalsRows
@@ -48,6 +57,16 @@ export default function MatrixTable({
                     />
                 </tbody>
             </table>
+            {edit && (
+                <QuickEditDialog
+                    open={!!edit}
+                    day={fmtYMD(year, month, edit.day)}
+                    current={edit.staff}
+                    candidates={candidates}
+                    fixed={fixedByDayStaff.has(`${edit.staff.id}|${fmtYMD(year, month, edit.day)}`)}
+                    onClose={() => setEdit(null)}
+                />
+            )}
         </div>
     );
 }
