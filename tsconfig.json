@@ -9,7 +9,11 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "vite-env.d.ts"],
   "exclude": ["node_modules", "dist"]

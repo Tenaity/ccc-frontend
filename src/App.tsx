@@ -5,11 +5,13 @@ import MatrixTable from "./components/Matrix/MatrixTable";
 import EstimatePanel from "./components/Estimate/EstimatePanel";
 import ConflictList from "./components/ConflictList";
 import { useScheduleData } from "./hooks/useScheduleData";
+import { FixedOffPanel } from "./components/fixed-off";
 
 export default function App() {
     const today = new Date();
     const [year, setYear] = useState(today.getFullYear());
     const [month, setMonth] = useState(today.getMonth() + 1);
+    const [showFixedOff, setShowFixedOff] = useState(false);
 
     const {
         staff, loadingGen, days,
@@ -51,6 +53,7 @@ export default function App() {
                 onResetSoft={onResetSoft} onResetHard={onResetHard}
                 fillHC={fillHC} setFillHC={setFillHC}
                 canGenerate={validation.ok}
+                onOpenFixedOff={() => setShowFixedOff(true)}
             />
 
             <ConflictList conflicts={validation.conflicts} />
@@ -67,6 +70,13 @@ export default function App() {
                 expectedByDay={expectedByDay}
                 fixedByDayStaff={fixedByDayStaff}
                 offByDayStaff={offByDayStaff}
+            />
+
+            <FixedOffPanel
+                year={year}
+                month={month}
+                open={showFixedOff}
+                onClose={() => setShowFixedOff(false)}
             />
 
             <div style={{ marginTop: 10, fontSize: 12, color: "#555" }}>

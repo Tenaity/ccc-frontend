@@ -5,9 +5,6 @@ import MatrixRow from "./MatrixRow";
 import TotalsRows from "./TotalsRows";
 import type { Staff, Assignment, ExpectedPerDay, DayPlaceSummary } from "../../types";
 
-const tableWrap = { overflow: "auto", border: "1px solid #eee", borderRadius: 8 };
-const tableCss = { borderCollapse: "separate" as const, borderSpacing: 0, minWidth: 1000 };
-
 export default function MatrixTable({
     year, month, days, staff,
     assignmentIndex, summariesByStaffId,
@@ -26,8 +23,8 @@ export default function MatrixTable({
     offByDayStaff: Map<string, boolean>;
 }) {
     return (
-        <div style={tableWrap}>
-            <table style={tableCss}>
+        <div className="overflow-auto border border-gray-200 rounded-lg">
+            <table className="border-separate border-spacing-0 min-w-[1000px]">
                 <MatrixHeader year={year} month={month} days={days} perDayLeaders={perDayLeaders} />
                 <tbody>
                     {(staff ?? []).map((s, idx) => (
