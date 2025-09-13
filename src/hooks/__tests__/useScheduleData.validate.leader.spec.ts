@@ -9,7 +9,8 @@ function ok(json: any) {
 }
 
 test('useScheduleData flags leader duplicates', async () => {
-  global.fetch = async (url: string) => {
+  global.fetch = (async (input: RequestInfo | URL) => {
+    const url = typeof input === 'string' ? input : input.toString();
     if (url.startsWith('/api/schedule/validate')) return ok({ ok: false, conflicts: { leader_day_dup: [{ day: '2025-09-01', ids: [1, 2] }] } });
     if (url.startsWith('/api/staff')) return ok([]);
     if (url.startsWith('/api/assignments')) return ok([]);
@@ -18,7 +19,7 @@ test('useScheduleData flags leader duplicates', async () => {
     if (url.startsWith('/api/schedule/estimate')) return ok({});
     if (url.startsWith('/api/rules/expected')) return ok({ ok: true, perDayExpected: {} });
     return ok({});
-  };
+  }) as any;
   let hook: any;
   function Wrapper() {
     hook = useScheduleData(2025, 9);

@@ -93,6 +93,7 @@ export type EstimateResponse = {
   ok: boolean;
   year: number;
   month: number;
+  days_in_month: number;
 
   required_heads_by_day:   Record<"CA1" | "CA2" | "K" | "Đ" | "HC" | "P", number>;
   required_heads_total:    number;

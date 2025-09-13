@@ -15,7 +15,8 @@ let offStore: any[] = [
   { id: 1, staff_id: 2, day: '2025-09-02', reason: null },
 ];
 
-global.fetch = async (url: string, opts?: any) => {
+global.fetch = (async (input: RequestInfo | URL, opts?: any) => {
+  const url = typeof input === 'string' ? input : input.toString();
   if (url.startsWith('/api/fixed?')) return ok(fixedStore);
   if (url.startsWith('/api/off?')) return ok(offStore);
   if (url === '/api/fixed' && opts?.method === 'POST') {
@@ -48,7 +49,7 @@ global.fetch = async (url: string, opts?: any) => {
     return ok({ ok: true });
   }
   return ok({});
-};
+}) as any;
 
 test('useFixedOff load and mutate', async () => {
   let hook: any;
