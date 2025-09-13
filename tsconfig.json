@@ -1,17 +1,17 @@
 {
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
     "target": "ES2020",
+    "module": "ESNext",
+    "jsx": "react-jsx",
     "strict": true,
-    "noEmit": true,
+    "moduleResolution": "Bundler",
+    "skipLibCheck": true,
+    "allowJs": false,
+    "types": ["vite/client", "react", "react-dom", "node"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    },
-    "types": ["vite/client", "node"],
-    "allowJs": true
+    }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
+  "include": ["src/**/*"]
 }

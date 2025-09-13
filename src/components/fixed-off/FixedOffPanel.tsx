@@ -99,11 +99,11 @@ export default function FixedOffPanel({
       <SheetContent
         className="w-80 sm:w-96"
         side="right"
-        aria-describedby="fixedoff-desc"
+        aria-describedby="fixed-off-desc"
       >
         <SheetHeader>
           <SheetTitle>Fixed & Off</SheetTitle>
-          <SheetDescription id="fixedoff-desc">
+          <SheetDescription id="fixed-off-desc">
             Quản lý ca cố định & ngày nghỉ.
           </SheetDescription>
         </SheetHeader>
@@ -125,7 +125,7 @@ export default function FixedOffPanel({
                       <Select value={field.value} onValueChange={field.onChange}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Chọn" />
+                          <SelectValue placeholder="Chọn" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -167,7 +167,7 @@ export default function FixedOffPanel({
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Chọn" />
+                          <SelectValue placeholder="Chọn mã ca" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
