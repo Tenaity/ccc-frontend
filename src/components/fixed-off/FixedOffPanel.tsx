@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useFixedOff } from '@/hooks/useFixedOff';
-import type { ShiftCode, Position } from '@/types';
+import type { ShiftCode, Position, Staff } from '@/types';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
@@ -16,15 +16,18 @@ export default function FixedOffPanel({
   open,
   onClose,
   onToast,
+  onRefresh,
 }: {
   year: number;
   month: number;
   open: boolean;
   onClose: () => void;
   onToast?: (msg: string) => void;
+  onRefresh?: () => Promise<void> | void;
 }) {
   const { fixed, off, load, createFixed, deleteFixed, createOff, deleteOff } = useFixedOff(year, month);
   const [tab, setTab] = useState<'fixed' | 'off'>('fixed');
+  const [staffOptions, setStaffOptions] = useState<Staff[]>([]);
 
   const fixedForm = useForm<{
     staffId: string;
@@ -45,6 +48,19 @@ export default function FixedOffPanel({
     if (open) load();
   }, [open, year, month]);
 
+  useEffect(() => {
+    if (!open) return;
+    (async () => {
+      try {
+        const res = await fetch('/api/staff');
+        const json = await res.json();
+        setStaffOptions(json || []);
+      } catch {
+        setStaffOptions([]);
+      }
+    })();
+  }, [open]);
+
   if (!open) return null;
 
   const submitFixed = fixedForm.handleSubmit(async (values) => {
@@ -56,6 +72,8 @@ export default function FixedOffPanel({
         position: values.position ?? null,
       });
       onToast?.('Saved');
+      await onRefresh?.();
+      onClose();
     } catch (e: any) {
       onToast?.(e?.message || 'Save failed');
     }
@@ -69,6 +87,8 @@ export default function FixedOffPanel({
         reason: values.reason || null,
       });
       onToast?.('Saved');
+      await onRefresh?.();
+      onClose();
     } catch (e: any) {
       onToast?.(e?.message || 'Save failed');
     }
@@ -101,10 +121,21 @@ export default function FixedOffPanel({
                   rules={{ required: 'Required' }}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Staff ID</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
+                      <FormLabel>Staff</FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Chọn" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {staffOptions.map((s) => (
+                            <SelectItem key={s.id} value={String(s.id)}>
+                              {s.full_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -196,6 +227,8 @@ export default function FixedOffPanel({
                       try {
                         await deleteFixed(f.id);
                         onToast?.('Deleted');
+                        await onRefresh?.();
+                        onClose();
                       } catch (e: any) {
                         onToast?.(e?.message || 'Delete failed');
                       }
@@ -216,10 +249,21 @@ export default function FixedOffPanel({
                   rules={{ required: 'Required' }}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Staff ID</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
+                      <FormLabel>Staff</FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Chọn" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {staffOptions.map((s) => (
+                            <SelectItem key={s.id} value={String(s.id)}>
+                              {s.full_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -268,6 +312,8 @@ export default function FixedOffPanel({
                       try {
                         await deleteOff(o.id);
                         onToast?.('Deleted');
+                        await onRefresh?.();
+                        onClose();
                       } catch (e: any) {
                         onToast?.(e?.message || 'Delete failed');
                       }

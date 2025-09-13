@@ -8,6 +8,7 @@ import { useScheduleData } from "./hooks/useScheduleData";
 import { FixedOffPanel } from "./components/fixed-off";
 import Toast from "./components/Toast";
 import { exportMonthCsv } from "./utils/exportCsv";
+import Toolbar from "./components/Toolbar";
 
 export default function App() {
     const today = new Date();
@@ -22,6 +23,7 @@ export default function App() {
         summariesByStaffId, perDayLeaders, perDayByPlace, leaderErrors,
         estimate, loadingEstimate, estimateError,
         onGenerate, onShuffle, onSave, onResetSoft, onResetHard,
+        fetchFixed, fetchOffdays, fetchValidate,
         fillHC, setFillHC,
         expectedByDay,
         validation,
@@ -67,6 +69,13 @@ export default function App() {
                 canGenerate={validation.ok}
                 onOpenFixedOff={() => setShowFixedOff(true)}
             />
+            <Toolbar
+                onGenerate={onGenerate}
+                onValidate={() => fetchValidate()}
+                onExport={onExport}
+                onFixedOff={() => setShowFixedOff(true)}
+                disabled={loadingGen}
+            />
 
             <ConflictList conflicts={validation.conflicts} />
 
@@ -90,6 +99,10 @@ export default function App() {
                 open={showFixedOff}
                 onClose={() => setShowFixedOff(false)}
                 onToast={(m) => setToast(m)}
+                onRefresh={async () => {
+                    await fetchFixed();
+                    await fetchOffdays();
+                }}
             />
 
             <div style={{ marginTop: 10, fontSize: 12, color: "#555" }}>
