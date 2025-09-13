@@ -8,9 +8,9 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": false,
+    "strict": true,
     "noEmit": true
   },
-  "include": ["src/types.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vite-env.d.ts"],
   "exclude": ["node_modules", "dist"]
 }
