@@ -6,7 +6,8 @@
         "dev": "vite",
         "build": "vite build",
         "preview": "vite preview",
-        "test": "tsx --test \"test/**/*.test.tsx\" \"test/**/*.test.ts\" \"src/hooks/__tests__/**/*.spec.ts\""
+        "test": "tsx --test \"test/**/*.test.tsx\" \"test/**/*.test.ts\" \"src/hooks/__tests__/**/*.spec.ts\"",
+        "typecheck": "tsc --noEmit"
     },
     "dependencies": {
         "react": "^18.3.1",
@@ -14,8 +15,9 @@
     },
     "devDependencies": {
         "@vitejs/plugin-react": "^4.7.0",
+        "react-test-renderer": "^18.3.1",
         "tsx": "^4.20.5",
-        "vite": "^5.4.19",
-        "react-test-renderer": "^18.3.1"
+        "typescript": "^5.9.2",
+        "vite": "^5.4.19"
     }
 }
