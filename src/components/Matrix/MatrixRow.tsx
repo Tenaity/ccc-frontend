@@ -4,10 +4,7 @@ import type { Staff, Assignment } from "../../types";
 import { fmtYMD, getDow, isWeekend } from "../../utils/date";
 import Badge from "../Badge";
 import { isNightLeader, isDayLeader, isNightTD, isNightPGD } from "../../utils/schedule";
-
-const tdCenter = { borderTop: "1px solid #f0f0f0", padding: "6px 8px", textAlign: "center" as const, whiteSpace: "nowrap" as const };
-const tdWeekend = { background: "#FFFDF0" };
-const tdStickyLeft = { ...tdCenter, position: "sticky" as const, left: 0, zIndex: 1, background: "#fff", textAlign: "left" as const };
+import { cn } from "../../lib/utils";
 
 // Parse tiện lợi từ notes: "[CODE:1978][RANK:1]"
 function parseMeta(notes?: string | null) {
@@ -38,34 +35,29 @@ export default function MatrixRow({
     const sum = summariesByStaffId.get(staff.id) || { counts: {}, credit: 0, dayCount: 0, nightCount: 0 };
     const meta = parseMeta(staff.notes);
     const displayId = meta.code ?? String(staff.id);
-    console.log("meta", meta.code);
 
     // chip nhỏ hiển thị rank
     const RankChip = meta.rank ? (
         <span
             title={`Rank ${meta.rank === 1 ? "Pro" : "Amateur"}`}
-            style={{
-                marginLeft: 6,
-                fontSize: 11,
-                padding: "1px 6px",
-                borderRadius: 999,
-                border: "1px solid #e5e7eb",
-                background: meta.rank === 1 ? "#E8F9F0" : "#FFF4E5",
-                color: meta.rank === 1 ? "#0f766e" : "#b45309",
-                fontWeight: 600,
-            }}
+            className={cn(
+                "ml-1 px-1 text-[11px] rounded-full border font-semibold",
+                meta.rank === 1
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                    : "bg-amber-50 text-amber-700 border-amber-200"
+            )}
         >
             R{meta.rank}
         </span>
     ) : null;
 
     return (
-        <tr style={{ background: index % 2 ? "#fff" : "#fbfbfd" }}>
-            <td className="sticky-col" style={tdStickyLeft}>
-                <div style={{ fontWeight: 600 }}>{staff.full_name}</div>
-                <div style={{ fontSize: 12, color: "#666", display: "flex", alignItems: "center" }}>
+        <tr className="odd:bg-gray-50">
+            <td className="sticky left-0 z-10 bg-white border-t border-gray-200 p-1.5 text-left whitespace-nowrap shadow-[inset_-1px_0_0_theme(colors.gray.200)]">
+                <div className="font-semibold">{staff.full_name}</div>
+                <div className="text-xs text-gray-600 flex items-center">
                     {staff.role}
-                    <span style={{ color: "#999", marginLeft: 6 }}>#{displayId}</span>
+                    <span className="ml-1 text-gray-500">#{displayId}</span>
                     {RankChip}
                 </div>
             </td>
@@ -97,32 +89,31 @@ export default function MatrixRow({
                 return (
                     <td
                         key={d}
-                        style={{
-                            ...tdCenter,
-                            ...(wk ? tdWeekend : null),
-                            position: "relative",
-                            cursor: (!isFixed && !isOff && onEditCell) ? "pointer" : undefined,
-                        }}
+                        className={cn(
+                            "relative border-t border-gray-200 p-1.5 text-center whitespace-nowrap",
+                            wk && "bg-amber-50",
+                            !isFixed && !isOff && onEditCell && "cursor-pointer"
+                        )}
                         title={meta.rank ? `Rank ${meta.rank}` : undefined}
                         onClick={() => {
                             if (!isFixed && !isOff && onEditCell) onEditCell(staff, d);
                         }}
                     >
-                        {isOff ? <span style={{ position: "absolute", top: 2, right: 2 }}>🚫</span> : null}
+                        {isOff ? <span className="absolute top-0.5 right-0.5">🚫</span> : null}
                         <Badge code={code || ""} crown={leaderDay || leaderNight} variant={variant} pinned={isFixed} rank={meta.rank || undefined} />
                     </td>
                 );
             })}
 
-            <td style={tdCenter}>{sum.counts["CA1"] || 0}</td>
-            <td style={tdCenter}>{sum.counts["CA2"] || 0}</td>
-            <td style={tdCenter}>{sum.counts["K"] || 0}</td>
-            <td style={tdCenter}>{sum.counts["HC"] || 0}</td>
-            <td style={tdCenter}>{sum.counts["Đ"] || 0}</td>
-            <td style={tdCenter}>{sum.counts["P"] || 0}</td>
-            <td style={tdCenter}>{sum.dayCount || 0}</td>
-            <td style={tdCenter}>{sum.nightCount || 0}</td>
-            <td style={{ ...tdCenter, fontWeight: 700, background: "#f9fafb" }}>{sum.credit || 0}</td>
+            <td className="border-t border-gray-200 p-1.5 text-center whitespace-nowrap">{sum.counts["CA1"] || 0}</td>
+            <td className="border-t border-gray-200 p-1.5 text-center whitespace-nowrap">{sum.counts["CA2"] || 0}</td>
+            <td className="border-t border-gray-200 p-1.5 text-center whitespace-nowrap">{sum.counts["K"] || 0}</td>
+            <td className="border-t border-gray-200 p-1.5 text-center whitespace-nowrap">{sum.counts["HC"] || 0}</td>
+            <td className="border-t border-gray-200 p-1.5 text-center whitespace-nowrap">{sum.counts["Đ"] || 0}</td>
+            <td className="border-t border-gray-200 p-1.5 text-center whitespace-nowrap">{sum.counts["P"] || 0}</td>
+            <td className="border-t border-gray-200 p-1.5 text-center whitespace-nowrap">{sum.dayCount || 0}</td>
+            <td className="border-t border-gray-200 p-1.5 text-center whitespace-nowrap">{sum.nightCount || 0}</td>
+            <td className="border-t border-gray-200 p-1.5 text-center font-bold whitespace-nowrap bg-gray-50">{sum.credit || 0}</td>
         </tr>
     );
 }

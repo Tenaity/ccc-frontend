@@ -1,5 +1,6 @@
 import React from "react";
 import type { ShiftCode } from "../types";
+import { cn } from "../lib/utils";
 
 type Variant =
     | "td"            // mặc định: trực tại Tổng đài (ngày)
@@ -24,79 +25,62 @@ export default function Badge({
     pinned?: boolean;
     rank?: number;
 }) {
-    if (!code) return <span style={{ color: "#aaa" }}>—</span>;
+    if (!code) return <span className="text-muted-foreground">—</span>;
 
-    const base: React.CSSProperties = {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 6,
-        padding: "2px 6px",
-        borderRadius: 6,
-        border: "1px solid #e5e7eb",
-        fontSize: 12,
-        fontWeight: 500,
-        background: pickBg(code),
+    const variantClass: Record<Variant, string> = {
+        td: "",
+        pgd: "bg-rose-100 border-rose-400",
+        "k-white": "bg-white border-dashed border-gray-400",
+        "leader-day":
+            "border-2 border-green-600 shadow-[0_0_0_1px_rgba(22,163,74,0.12)_inset]",
+        "leader-night":
+            "border-2 border-violet-600 shadow-[0_0_0_1px_rgba(124,58,237,0.12)_inset]",
+        "night-white": "bg-white border-rose-200",
+        "night-pgd": "bg-rose-200 border-rose-400",
     };
 
-    // màu/viền theo variant
-    switch (variant) {
-        case "pgd":
-            base.background = "#F7D1D1";               // nền đỏ nhạt (PGD)
-            base.border = "1px solid #e06b6b";
-            break;
-        case "k-white":
-            base.background = "#FFFFFF";               // nền trắng, viền gạch
-            base.border = "1.5px dashed #999";
-            break;
-        case "leader-day":
-            base.border = "1.5px solid #16a34a";       // xanh lá
-            base.boxShadow = "0 0 0 1px rgba(22,163,74,.12) inset";
-            break;
-        case "leader-night":
-            base.border = "1.5px solid #7c3aed";       // tím
-            base.boxShadow = "0 0 0 1px rgba(124,58,237,.12) inset";
-            break;
-        case "night-white":
-            base.background = "#FFFFFF";               // hồng rất nhạt (Đ trắng @ TD)
-            base.border = "1px solid #f1a7b5";
-            break;
-        case "night-pgd":
-            base.background = "#FFDDE0";               // hồng/đỏ nhạt hơn PGD ngày để phân biệt
-            base.border = "1px solid #e06b6b";
-            break;
-        case "td":
-        default:
-            // giữ mặc định theo ca (pickBg)
-            break;
-    }
+    const rankClass =
+        rank === 1
+            ? "border-2 border-gray-900"
+            : rank === 2
+                ? "border border-dashed border-gray-400"
+                : "border";
 
     // 👑: hiển thị nếu crown=true hoặc là leader
     const showCrown =
         !!crown || variant === "leader-day" || variant === "leader-night";
 
-    if (rank === 1) {
-        base.border = "2px solid #111827";
-    } else if (rank === 2) {
-        base.border = "1.5px dashed #9ca3af";
-    }
-
     return (
-        <span style={base}>
-            {pinned ? <span title="Fixed" style={{ marginRight: 4 }}>📌</span> : null}
+        <span
+            className={cn(
+                "inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md text-xs font-medium",
+                pickBg(code),
+                rankClass,
+                variantClass[variant]
+            )}
+        >
+            {pinned ? <span title="Fixed" className="mr-1">📌</span> : null}
             {code}
-            {showCrown ? <span title="Trưởng ca">👑</span> : null}
+            {showCrown ? <span title="Trưởng ca" className="ml-1">👑</span> : null}
         </span>
     );
 }
 
 function pickBg(code: ShiftCode | "") {
     switch (code) {
-        case "CA1": return "#E6F0FF";  // xanh dương nhạt
-        case "CA2": return "#FFE8CC";  // cam nhạt
-        case "K": return "#E6FFEA";  // xanh lá nhạt
-        case "HC": return "#EDEBFF";  // tím nhạt (hành chính)
-        case "Đ": return "#FFE6EA";  // hồng nhạt (đêm)
-        case "P": return "#EEEEEE";  // xám
-        default: return "#F8F8F8";
+        case "CA1":
+            return "bg-blue-100";
+        case "CA2":
+            return "bg-orange-100";
+        case "K":
+            return "bg-green-100";
+        case "HC":
+            return "bg-indigo-100";
+        case "Đ":
+            return "bg-rose-100";
+        case "P":
+            return "bg-gray-200";
+        default:
+            return "bg-gray-100";
     }
 }
