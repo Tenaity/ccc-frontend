@@ -48,6 +48,9 @@ export default function QuickEditDialog({
   onClose: () => void;
 }) {
   const [reasons, setReasons] = React.useState<string[]>([]);
+  const titleId = React.useId();
+  const descriptionId = React.useId();
+  const lockedId = React.useId();
 
   const form = useForm<QuickEditFormValues>({
     resolver: zodResolver(quickEditSchema),
@@ -140,20 +143,32 @@ export default function QuickEditDialog({
 
   const assignDisabled =
     reasons.length > 0 || !form.formState.isValid || !!fixed;
+  const describedBy = fixed
+    ? `${descriptionId} ${lockedId}`
+    : descriptionId;
 
   return (
     <div
       role="dialog"
       aria-modal="true"
+      aria-labelledby={titleId}
+      aria-describedby={describedBy}
       className="w-full max-w-md space-y-4 rounded-lg border border-border/70 bg-background p-6 shadow-lg"
     >
       <div>
-        <h2 className="text-lg font-semibold text-foreground">Quick Edit</h2>
-        <p className="text-sm text-muted-foreground">
+        <h2 id={titleId} className="text-lg font-semibold text-foreground">
+          Quick Edit
+        </h2>
+        <p id={descriptionId} className="text-sm text-muted-foreground">
           Ca hiện tại: <strong>{current.full_name}</strong>
         </p>
         {fixed ? (
-          <p className="mt-2 text-sm font-medium text-destructive">Đã khóa</p>
+          <p
+            id={lockedId}
+            className="mt-2 text-sm font-medium text-destructive"
+          >
+            Đã khóa
+          </p>
         ) : null}
       </div>
 

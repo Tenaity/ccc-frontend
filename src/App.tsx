@@ -89,25 +89,25 @@ export default function App() {
                     <section aria-labelledby="sidebar-navigation" className="space-y-3">
                         <h2
                             id="sidebar-navigation"
-                            className="text-xs font-semibold uppercase tracking-wide text-sidebar-foreground/70"
+                            className="text-xs font-semibold uppercase tracking-wide text-sidebar-foreground"
                         >
                             Điều hướng
                         </h2>
                         <nav aria-labelledby="sidebar-navigation" className="flex flex-col gap-2 text-sm">
                             <a
-                                className="rounded-md px-3 py-2 font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                                className="rounded-md px-3 py-2 font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                                 href="#overview"
                             >
                                 Tổng quan
                             </a>
                             <a
-                                className="rounded-md px-3 py-2 font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                                className="rounded-md px-3 py-2 font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                                 href="#matrix"
                             >
                                 Ma trận phân ca
                             </a>
                             <a
-                                className="rounded-md px-3 py-2 font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                                className="rounded-md px-3 py-2 font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                                 href="#fixed-off"
                             >
                                 Cố định &amp; Nghỉ
@@ -118,11 +118,11 @@ export default function App() {
                     <section aria-labelledby="sidebar-status" className="space-y-3">
                         <h2
                             id="sidebar-status"
-                            className="text-xs font-semibold uppercase tracking-wide text-sidebar-foreground/70"
+                            className="text-xs font-semibold uppercase tracking-wide text-sidebar-foreground"
                         >
                             Trạng thái
                         </h2>
-                        <dl className="space-y-2 text-sm text-sidebar-foreground/90">
+                        <dl className="space-y-2 text-sm text-sidebar-foreground">
                             <div className="flex items-center justify-between rounded-md border border-border/40 bg-sidebar/40 px-3 py-2">
                                 <dt>Cảnh báo</dt>
                                 <dd className="font-semibold">{conflictCount}</dd>
@@ -141,7 +141,7 @@ export default function App() {
                     <section aria-labelledby="sidebar-legend" className="space-y-3">
                         <h2
                             id="sidebar-legend"
-                            className="text-xs font-semibold uppercase tracking-wide text-sidebar-foreground/70"
+                            className="text-xs font-semibold uppercase tracking-wide text-sidebar-foreground"
                         >
                             Chú giải mã ca
                         </h2>

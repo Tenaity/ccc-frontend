@@ -5,8 +5,9 @@ exports[`matrix row renders leader badges and duplicate highlighting 1`] = `
   <tr
     class="border-b border-border/60 transition-colors hover:bg-muted/50 bg-card"
   >
-    <td
-      class="p-3 align-middle text-sm sticky left-0 z-20 min-w-[220px] border-r border-border/60 bg-background px-4 py-3 text-left shadow-[4px_0_12px_-8px_rgba(15,23,42,0.25)]"
+    <th
+      class="sticky left-0 z-20 min-w-[220px] border-r border-border/60 bg-background px-4 py-3 text-left shadow-[4px_0_12px_-8px_rgba(15,23,42,0.25)]"
+      scope="row"
     >
       <div
         class="flex items-baseline justify-between gap-3"
@@ -58,7 +59,7 @@ exports[`matrix row renders leader badges and duplicate highlighting 1`] = `
           />
         </svg>
       </div>
-    </td>
+    </th>
     <td
       class="p-3 align-middle text-sm relative h-16 min-w-[64px] border-r border-border/40 px-1 py-1 text-center"
     >

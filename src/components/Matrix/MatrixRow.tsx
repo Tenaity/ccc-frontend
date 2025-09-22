@@ -80,7 +80,8 @@ export default function MatrixRow({
 
   return (
     <TableRow className={cn(index % 2 === 0 ? "bg-card" : "bg-muted/30")}> 
-      <TableCell
+      <th
+        scope="row"
         className="sticky left-0 z-20 min-w-[220px] border-r border-border/60 bg-background px-4 py-3 text-left shadow-[4px_0_12px_-8px_rgba(15,23,42,0.25)]"
       >
         <div className="flex items-baseline justify-between gap-3">
@@ -98,7 +99,7 @@ export default function MatrixRow({
             <ShieldCheck className="h-4 w-4 text-primary" aria-hidden="true" />
           ) : null}
         </div>
-      </TableCell>
+      </th>
 
       {days.map((day) => {
         const dateKey = fmtYMD(year, month, day);

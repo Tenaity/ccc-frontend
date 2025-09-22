@@ -12,7 +12,7 @@ import type {
   DayPlaceSummary,
 } from "@/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Table, TableBody } from "@/components/ui/table";
+import { Table, TableBody, TableCaption } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -93,6 +93,7 @@ export default function MatrixTable({
 
   const members = staff ?? [];
   const showEmpty = !loading && !error && members.length === 0;
+  const monthLabel = `${String(month).padStart(2, "0")}/${year}`;
 
   return (
     <>
@@ -116,6 +117,9 @@ export default function MatrixTable({
                     className="border-separate border-spacing-0 text-sm text-foreground"
                     stickyHeader
                   >
+                    <TableCaption className="sr-only">
+                      Bảng phân công ca chi tiết cho tháng {monthLabel}
+                    </TableCaption>
                     <MatrixHeader
                       year={year}
                       month={month}

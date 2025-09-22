@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { axe } from "vitest-axe";
 import AppShell, { type AppShellBreadcrumbItem } from "../src/components/layout/AppShell";
 
 const sidebar = <div>Sidebar content</div>;
@@ -38,5 +39,16 @@ describe("AppShell", () => {
     expect(breadcrumbNav).toBeInTheDocument();
     expect(breadcrumbNav).toHaveTextContent("Trang chủ");
     expect(breadcrumbNav).toHaveTextContent("Lịch phân ca");
+  });
+
+  test("layout has no major accessibility violations", async () => {
+    const { container } = render(
+      <AppShell title="Test" sidebar={sidebar} breadcrumbs={breadcrumbs}>
+        <p>Nội dung</p>
+      </AppShell>
+    );
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 });

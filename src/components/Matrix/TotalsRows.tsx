@@ -37,15 +37,16 @@ export default function TotalsRows({
     ) => React.ReactNode,
     options: { italic?: boolean; expected?: boolean } = {}
   ) => (
-    <TableRow key={key} className={cn(backgroundClass, "text-sm")}> 
-      <TableCell
+    <TableRow key={key} className={cn(backgroundClass, "text-sm")}>
+      <th
+        scope="row"
         className={cn(
           "sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2 font-medium",
           options.expected && "text-xs italic text-muted-foreground"
         )}
       >
         {label}
-      </TableCell>
+      </th>
       {days.map((day, index) => (
         <TableCell
           key={`${key}-${day}`}
@@ -65,9 +66,12 @@ export default function TotalsRows({
   return (
     <>
       <TableRow className="bg-sky-50/60 text-sm font-semibold">
-        <TableCell className="sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2">
+        <th
+          scope="row"
+          className="sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2"
+        >
           — TỔNG ĐÀI (TD) —
-        </TableCell>
+        </th>
         {days.map((day) => (
           <TableCell key={`td-section-${day}`} className={cn("px-2", weekendClass(day))} />
         ))}
@@ -133,9 +137,12 @@ export default function TotalsRows({
       )}
 
       <TableRow className="bg-rose-50 text-sm font-semibold">
-        <TableCell className="sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2">
+        <th
+          scope="row"
+          className="sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2"
+        >
           — PHÒNG GIAO DỊCH (PGD) —
-        </TableCell>
+        </th>
         {days.map((day) => (
           <TableCell key={`pgd-section-${day}`} className={cn("px-2", weekendClass(day))} />
         ))}
@@ -187,9 +194,12 @@ export default function TotalsRows({
       )}
 
       <TableRow className="bg-blue-100/50 font-semibold">
-        <TableCell className="sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2">
+        <th
+          scope="row"
+          className="sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2"
+        >
           TỔNG TD
-        </TableCell>
+        </th>
         {days.map((day) => (
           <TableCell
             key={`total-td-${day}`}

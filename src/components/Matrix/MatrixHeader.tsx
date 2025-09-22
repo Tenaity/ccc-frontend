@@ -20,6 +20,7 @@ export default function MatrixHeader({
       <TableRow className="bg-muted/70">
         <TableHead
           rowSpan={3}
+          scope="col"
           className="sticky left-0 top-0 z-40 min-w-[220px] rounded-tl-2xl border-r border-border/60 bg-muted/70 px-4 py-3 text-left text-sm font-semibold text-foreground shadow-[4px_0_12px_-8px_rgba(15,23,42,0.3)]"
         >
           Nhân viên
@@ -32,6 +33,7 @@ export default function MatrixHeader({
           return (
             <TableHead
               key={`day-${day}`}
+              scope="col"
               className={cn(
                 "sticky top-0 z-30 min-w-[64px] border-b border-border/60 bg-muted/70 px-3 py-3 text-center text-sm font-semibold",
                 weekend && "bg-amber-100/70"
@@ -67,6 +69,7 @@ export default function MatrixHeader({
           <TableHead
             key={label}
             rowSpan={3}
+            scope="col"
             className="sticky top-0 z-30 min-w-[72px] border-b border-border/60 bg-muted/70 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground"
           >
             {label}
@@ -80,6 +83,7 @@ export default function MatrixHeader({
           return (
             <TableHead
               key={`dow-${day}`}
+              scope="col"
               className={cn(
                 "sticky top-[46px] z-30 border-b border-border/60 bg-muted/60 px-2 py-1 text-center text-[11px] font-medium uppercase tracking-wide text-muted-foreground",
                 weekend && "bg-amber-100/70"
@@ -97,6 +101,7 @@ export default function MatrixHeader({
           return (
             <TableHead
               key={`leaders-${day}`}
+              scope="col"
               className={cn(
                 "sticky top-[72px] z-30 border-b border-border/60 bg-muted/50 px-2 py-1 text-center text-[11px] text-muted-foreground",
                 weekend && "bg-amber-100/60"
