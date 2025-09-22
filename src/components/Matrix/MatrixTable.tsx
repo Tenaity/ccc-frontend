@@ -12,7 +12,7 @@ import type {
   DayPlaceSummary,
 } from "@/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Table, TableBody } from "@/components/ui/table";
+import { TableBody } from "@/components/ui/table";
 
 export default function MatrixTable({
   year,
@@ -62,7 +62,7 @@ export default function MatrixTable({
     <div className="rounded-3xl border border-border/60 bg-card shadow-sm">
       <ScrollArea className="max-h-[70vh] rounded-3xl">
         <div className="min-w-[1100px]">
-          <Table className="border-separate border-spacing-0 text-sm">
+          <table className="w-full border-separate border-spacing-0 text-sm text-foreground">
             <MatrixHeader
               year={year}
               month={month}
@@ -93,7 +93,7 @@ export default function MatrixTable({
                 expectedByDay={expectedByDay}
               />
             </TableBody>
-          </Table>
+          </table>
         </div>
       </ScrollArea>
       {edit && (
