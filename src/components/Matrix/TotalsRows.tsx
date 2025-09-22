@@ -1,222 +1,243 @@
 // src/components/schedule/TotalsRows.tsx
 import React from "react";
-import { getDow, isWeekend } from "../../utils/date";
-import type { ExpectedByDay, DayPlaceSummary } from "../../types";
-
-const tdCenter = { borderTop: "1px solid #f0f0f0", padding: "6px 8px", textAlign: "center" as const, whiteSpace: "nowrap" as const };
-const tdWeekend = { background: "#FFFDF0" };
-const tdStickyLeft = { ...tdCenter, position: "sticky" as const, left: 0, zIndex: 1, background: "#fff", textAlign: "left" as const };
-
-const BG = {
-    sectionTD: "#EAF5FF",
-    sectionPGD: "#FFECEC",
-    leaderDay: "#E6FFEA",
-    dayCA1: "#E6F0FF",
-    dayCA2: "#FFE8CC",
-    nightTD: "#FFF0F3",
-    nightPGD: "#FFE6EA",
-    totalTD: "#E8F0F7",
-    totalPGD: "#F6EDED",
-    totalALL: "#F4F4F5",
-};
+import { getDow, isWeekend } from "@/utils/date";
+import type { ExpectedByDay, DayPlaceSummary } from "@/types";
+import { TableCell, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 export default function TotalsRows({
-    year, month, days,
-    perDayByPlace,           // { [dd]: { TD:{K,CA1,CA2,D}, PGD:{K,CA2,D} } }
-    expectedByDay,           // { [dd]: { expectedTD:{K,CA1,CA2,D}, expectedPGD:{K,CA2,D} } }
+  year,
+  month,
+  days,
+  perDayByPlace,
+  expectedByDay,
 }: {
-    year: number; month: number; days: number[];
-    perDayByPlace: Record<number, DayPlaceSummary>;
-    expectedByDay: ExpectedByDay;
+  year: number;
+  month: number;
+  days: number[];
+  perDayByPlace: Record<number, DayPlaceSummary>;
+  expectedByDay: ExpectedByDay;
 }) {
+  const weekendClass = (day: number) =>
+    isWeekend(getDow(year, month, day)) ? "bg-amber-50/60" : "";
 
-    const wstyle = (y: number, m: number, d: number) =>
-        (isWeekend(getDow(y, m, d)) ? tdWeekend : {});
+  const tdTotal = (summary: DayPlaceSummary) =>
+    summary.TD.K + summary.TD.CA1 + summary.TD.CA2 + summary.TD.D;
+  const pgdTotal = (summary: DayPlaceSummary) =>
+    summary.PGD.K + summary.PGD.CA2 + summary.PGD.D;
 
-    const tdTotal = (p: DayPlaceSummary) => p.TD.K + p.TD.CA1 + p.TD.CA2 + p.TD.D;
-    const pgdTotal = (p: DayPlaceSummary) => p.PGD.K + p.PGD.CA2 + p.PGD.D;
+  const renderDataRow = (
+    key: string,
+    label: React.ReactNode,
+    backgroundClass: string,
+    valueAccessor: (
+      summary: DayPlaceSummary | undefined,
+      day: number,
+      index: number
+    ) => React.ReactNode,
+    options: { italic?: boolean; expected?: boolean } = {}
+  ) => (
+    <TableRow key={key} className={cn(backgroundClass, "text-sm")}> 
+      <TableCell
+        className={cn(
+          "sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2 font-medium",
+          options.expected && "text-xs italic text-muted-foreground"
+        )}
+      >
+        {label}
+      </TableCell>
+      {days.map((day, index) => (
+        <TableCell
+          key={`${key}-${day}`}
+          className={cn(
+            "px-2 py-1 text-center text-sm",
+            weekendClass(day),
+            options.expected && "text-xs text-muted-foreground"
+          )}
+        >
+          {valueAccessor(perDayByPlace?.[day], day, index)}
+        </TableCell>
+      ))}
+      <TableCell colSpan={9} className="text-xs text-muted-foreground" />
+    </TableRow>
+  );
 
-    const getExp = (d: number) => expectedByDay?.[d];
+  return (
+    <>
+      <TableRow className="bg-sky-50/60 text-sm font-semibold">
+        <TableCell className="sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2">
+          — TỔNG ĐÀI (TD) —
+        </TableCell>
+        {days.map((day) => (
+          <TableCell key={`td-section-${day}`} className={cn("px-2", weekendClass(day))} />
+        ))}
+        <TableCell colSpan={9} className="text-xs text-muted-foreground">
+          Tổng hợp ca tại Tổng đài
+        </TableCell>
+      </TableRow>
 
-    return (
-        <>
-            {/* ===== TD ===== */}
-            <tr style={{ background: BG.sectionTD }}>
-                <td className="sticky-col" style={{ ...tdStickyLeft, fontWeight: 800 }}>— TỔNG ĐÀI (TD) —</td>
-                {days.map(d => <td key={`sep-td-${d}`} style={{ ...tdCenter, ...wstyle(year, month, d) }} />)}
-                <td colSpan={9} />
-            </tr>
+      {renderDataRow(
+        "td-leader",
+        "TD · K 👑 (trưởng ca · ngày)",
+        "bg-emerald-50",
+        (summary) => summary?.TD.K ?? 0
+      )}
+      {renderDataRow(
+        "td-leader-expected",
+        "Chuẩn · TD · K 👑",
+        "bg-muted/40",
+        (_, day) => expectedByDay?.[day]?.expectedTD?.K ?? "-",
+        { expected: true }
+      )}
 
-            {/* TD · K (leader ngày) — planned */}
-            <tr style={{ background: BG.leaderDay }}>
-                <td className="sticky-col" style={{ ...tdStickyLeft, fontWeight: 700 }}>TD · K 👑 (trưởng ca · ngày)</td>
-                {days.map(d => {
-                    const p = perDayByPlace?.[d];
-                    return <td key={`td-k-${d}`} style={{ ...tdCenter, ...wstyle(year, month, d) }}>{p?.TD.K ?? 0}</td>;
-                })}
-                <td colSpan={9} />
-            </tr>
-            {/* TD · K (expected) */}
-            <tr>
-                <td className="sticky-col" style={{ ...tdStickyLeft, fontSize: 12, color: "#6b7280", fontStyle: "italic", background: "#fafafa", borderLeft: "3px dotted #ddd" }}>
-                    Chuẩn · TD · K 👑
-                </td>
-                {days.map(d => <td key={`td-k-exp-${d}`} style={{ ...tdCenter, fontSize: 11, color: "#6b7280", borderTop: 0, paddingTop: 2, paddingBottom: 6 }}>
-                    {getExp(d)?.expectedTD?.K ?? "-"}
-                </td>)}
-                <td colSpan={9} />
-            </tr>
+      {renderDataRow(
+        "td-ca1",
+        "TD · CA1 (ngày)",
+        "bg-blue-50/70",
+        (summary) => summary?.TD.CA1 ?? 0
+      )}
+      {renderDataRow(
+        "td-ca1-expected",
+        "Chuẩn · TD · CA1",
+        "bg-muted/40",
+        (_, day) => expectedByDay?.[day]?.expectedTD?.CA1 ?? "-",
+        { expected: true }
+      )}
 
-            {/* TD · CA1 planned/expected */}
-            <tr style={{ background: BG.dayCA1 }}>
-                <td className="sticky-col" style={{ ...tdStickyLeft }}>TD · CA1 (ngày)</td>
-                {days.map(d => {
-                    const p = perDayByPlace?.[d];
-                    return <td key={`td-ca1-${d}`} style={{ ...tdCenter, ...wstyle(year, month, d) }}>{p?.TD.CA1 ?? 0}</td>;
-                })}
-                <td colSpan={9} />
-            </tr>
-            <tr>
-                <td className="sticky-col" style={{ ...tdStickyLeft, fontSize: 12, color: "#6b7280", fontStyle: "italic", background: "#fafafa", borderLeft: "3px dotted #ddd" }}>
-                    Chuẩn · TD · CA1
-                </td>
-                {days.map(d => <td key={`td-ca1-exp-${d}`} style={{ ...tdCenter, fontSize: 11, color: "#6b7280", borderTop: 0, paddingTop: 2, paddingBottom: 6 }}>
-                    {getExp(d)?.expectedTD?.CA1 ?? "-"}
-                </td>)}
-                <td colSpan={9} />
-            </tr>
+      {renderDataRow(
+        "td-ca2",
+        "TD · CA2 (ngày)",
+        "bg-amber-50/70",
+        (summary) => summary?.TD.CA2 ?? 0
+      )}
+      {renderDataRow(
+        "td-ca2-expected",
+        "Chuẩn · TD · CA2",
+        "bg-muted/40",
+        (_, day) => expectedByDay?.[day]?.expectedTD?.CA2 ?? "-",
+        { expected: true }
+      )}
 
-            {/* TD · CA2 planned/expected */}
-            <tr style={{ background: BG.dayCA2 }}>
-                <td className="sticky-col" style={{ ...tdStickyLeft }}>TD · CA2 (ngày)</td>
-                {days.map(d => {
-                    const p = perDayByPlace?.[d];
-                    return <td key={`td-ca2-${d}`} style={{ ...tdCenter, ...wstyle(year, month, d) }}>{p?.TD.CA2 ?? 0}</td>;
-                })}
-                <td colSpan={9} />
-            </tr>
-            <tr>
-                <td className="sticky-col" style={{ ...tdStickyLeft, fontSize: 12, color: "#6b7280", fontStyle: "italic", background: "#fafafa", borderLeft: "3px dotted #ddd" }}>
-                    Chuẩn · TD · CA2
-                </td>
-                {days.map(d => <td key={`td-ca2-exp-${d}`} style={{ ...tdCenter, fontSize: 11, color: "#6b7280", borderTop: 0, paddingTop: 2, paddingBottom: 6 }}>
-                    {getExp(d)?.expectedTD?.CA2 ?? "-"}
-                </td>)}
-                <td colSpan={9} />
-            </tr>
+      {renderDataRow(
+        "td-night",
+        "TD · Đ (đêm)",
+        "bg-rose-50/70",
+        (summary) => summary?.TD.D ?? 0
+      )}
+      {renderDataRow(
+        "td-night-expected",
+        "Chuẩn · TD · Đ",
+        "bg-muted/40",
+        (_, day) => expectedByDay?.[day]?.expectedTD?.D ?? "-",
+        { expected: true }
+      )}
 
-            {/* TD · Đ (đêm) planned/expected (gộp leader/white) */}
-            <tr style={{ background: BG.nightTD }}>
-                <td className="sticky-col" style={{ ...tdStickyLeft }}>TD · Đ (đêm)</td>
-                {days.map(d => {
-                    const p = perDayByPlace?.[d];
-                    return <td key={`td-d-${d}`} style={{ ...tdCenter, ...wstyle(year, month, d) }}>{p?.TD.D ?? 0}</td>;
-                })}
-                <td colSpan={9} />
-            </tr>
-            <tr>
-                <td className="sticky-col" style={{ ...tdStickyLeft, fontSize: 12, color: "#6b7280", fontStyle: "italic", background: "#fafafa", borderLeft: "3px dotted #ddd" }}>
-                    Chuẩn · TD · Đ
-                </td>
-                {days.map(d => <td key={`td-d-exp-${d}`} style={{ ...tdCenter, fontSize: 11, color: "#6b7280", borderTop: 0, paddingTop: 2, paddingBottom: 6 }}>
-                    {getExp(d)?.expectedTD?.D ?? "-"}
-                </td>)}
-                <td colSpan={9} />
-            </tr>
+      <TableRow className="bg-rose-50 text-sm font-semibold">
+        <TableCell className="sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2">
+          — PHÒNG GIAO DỊCH (PGD) —
+        </TableCell>
+        {days.map((day) => (
+          <TableCell key={`pgd-section-${day}`} className={cn("px-2", weekendClass(day))} />
+        ))}
+        <TableCell colSpan={9} className="text-xs text-muted-foreground">
+          Tổng hợp ca tại PGD
+        </TableCell>
+      </TableRow>
 
-            {/* ===== PGD ===== */}
-            <tr style={{ background: BG.sectionPGD }}>
-                <td className="sticky-col" style={{ ...tdStickyLeft, fontWeight: 800 }}>— PHÒNG GIAO DỊCH (PGD) —</td>
-                {days.map(d => <td key={`sep-pgd-${d}`} style={{ ...tdCenter, ...wstyle(year, month, d) }} />)}
-                <td colSpan={9} />
-            </tr>
+      {renderDataRow(
+        "pgd-k",
+        "PGD · K (ngày)",
+        "bg-rose-100",
+        (summary) => summary?.PGD.K ?? 0
+      )}
+      {renderDataRow(
+        "pgd-k-expected",
+        "Chuẩn · PGD · K",
+        "bg-muted/40",
+        (_, day) => expectedByDay?.[day]?.expectedPGD?.K ?? "-",
+        { expected: true }
+      )}
 
-            {/* PGD · K planned/expected */}
-            <tr style={{ background: "#FFE3E3" }}>
-                <td className="sticky-col" style={{ ...tdStickyLeft, fontWeight: 700 }}>PGD · K (ngày)</td>
-                {days.map(d => {
-                    const p = perDayByPlace?.[d];
-                    return <td key={`pgd-k-${d}`} style={{ ...tdCenter, ...wstyle(year, month, d) }}>{p?.PGD.K ?? 0}</td>;
-                })}
-                <td colSpan={9} />
-            </tr>
-            <tr>
-                <td className="sticky-col" style={{ ...tdStickyLeft, fontSize: 12, color: "#6b7280", fontStyle: "italic", background: "#fafafa", borderLeft: "3px dotted #ddd" }}>
-                    Chuẩn · PGD · K
-                </td>
-                {days.map(d => <td key={`pgd-k-exp-${d}`} style={{ ...tdCenter, fontSize: 11, color: "#6b7280", borderTop: 0, paddingTop: 2, paddingBottom: 6 }}>
-                    {getExp(d)?.expectedPGD?.K ?? "-"}
-                </td>)}
-                <td colSpan={9} />
-            </tr>
+      {renderDataRow(
+        "pgd-ca2",
+        "PGD · CA2 (ngày)",
+        "bg-rose-100/60",
+        (summary) => summary?.PGD.CA2 ?? 0
+      )}
+      {renderDataRow(
+        "pgd-ca2-expected",
+        "Chuẩn · PGD · CA2",
+        "bg-muted/40",
+        (_, day) => expectedByDay?.[day]?.expectedPGD?.CA2 ?? "-",
+        { expected: true }
+      )}
 
-            {/* PGD · CA2 planned/expected */}
-            <tr style={{ background: "#FFE8E8" }}>
-                <td className="sticky-col" style={{ ...tdStickyLeft }}>PGD · CA2 (ngày)</td>
-                {days.map(d => {
-                    const p = perDayByPlace?.[d];
-                    return <td key={`pgd-ca2-${d}`} style={{ ...tdCenter, ...wstyle(year, month, d) }}>{p?.PGD.CA2 ?? 0}</td>;
-                })}
-                <td colSpan={9} />
-            </tr>
-            <tr>
-                <td className="sticky-col" style={{ ...tdStickyLeft, fontSize: 12, color: "#6b7280", fontStyle: "italic", background: "#fafafa", borderLeft: "3px dotted #ddd" }}>
-                    Chuẩn · PGD · CA2
-                </td>
-                {days.map(d => <td key={`pgd-ca2-exp-${d}`} style={{ ...tdCenter, fontSize: 11, color: "#6b7280", borderTop: 0, paddingTop: 2, paddingBottom: 6 }}>
-                    {getExp(d)?.expectedPGD?.CA2 ?? "-"}
-                </td>)}
-                <td colSpan={9} />
-            </tr>
+      {renderDataRow(
+        "pgd-d",
+        "PGD · Đ (đêm)",
+        "bg-rose-200/40",
+        (summary) => summary?.PGD.D ?? 0
+      )}
+      {renderDataRow(
+        "pgd-d-expected",
+        "Chuẩn · PGD · Đ",
+        "bg-muted/40",
+        (_, day) => expectedByDay?.[day]?.expectedPGD?.D ?? "-",
+        { expected: true }
+      )}
 
-            {/* PGD · Đ planned/expected */}
-            <tr style={{ background: BG.nightPGD }}>
-                <td className="sticky-col" style={{ ...tdStickyLeft }}>PGD · Đ (đêm)</td>
-                {days.map(d => {
-                    const p = perDayByPlace?.[d];
-                    return <td key={`pgd-d-${d}`} style={{ ...tdCenter, ...wstyle(year, month, d) }}>{p?.PGD.D ?? 0}</td>;
-                })}
-                <td colSpan={9} />
-            </tr>
-            <tr>
-                <td className="sticky-col" style={{ ...tdStickyLeft, fontSize: 12, color: "#6b7280", fontStyle: "italic", background: "#fafafa", borderLeft: "3px dotted #ddd" }}>
-                    Chuẩn · PGD · Đ
-                </td>
-                {days.map(d => <td key={`pgd-d-exp-${d}`} style={{ ...tdCenter, fontSize: 11, color: "#6b7280", borderTop: 0, paddingTop: 2, paddingBottom: 6 }}>
-                    {getExp(d)?.expectedPGD?.D ?? "-"}
-                </td>)}
-                <td colSpan={9} />
-            </tr>
+      <TableRow className="bg-blue-100/50 font-semibold">
+        <TableCell className="sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2">
+          TỔNG TD
+        </TableCell>
+        {days.map((day) => (
+          <TableCell
+            key={`total-td-${day}`}
+            className={cn("px-2 py-1 text-center", weekendClass(day))}
+          >
+            {perDayByPlace?.[day] ? tdTotal(perDayByPlace[day]) : 0}
+          </TableCell>
+        ))}
+        <TableCell colSpan={9} className="text-xs text-muted-foreground">
+          Tổng nhân sự tại Tổng đài (ngày + đêm)
+        </TableCell>
+      </TableRow>
 
-            {/* ===== Tổng ===== */}
-            <tr style={{ background: BG.totalTD, fontWeight: 700 }}>
-                <td className="sticky-col" style={{ ...tdStickyLeft }}>TỔNG TD</td>
-                {days.map(d => {
-                    const p = perDayByPlace?.[d];
-                    return <td key={`sum-td-${d}`} style={{ ...tdCenter, ...wstyle(year, month, d) }}>{p ? tdTotal(p) : 0}</td>;
-                })}
-                <td colSpan={9} style={{ ...tdCenter, fontStyle: "italic", color: "#666" }}>Tổng nhân sự tại Tổng đài (ngày + đêm)</td>
-            </tr>
+      <TableRow className="bg-rose-100/50 font-semibold">
+        <TableCell className="sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2">
+          TỔNG PGD
+        </TableCell>
+        {days.map((day) => (
+          <TableCell
+            key={`total-pgd-${day}`}
+            className={cn("px-2 py-1 text-center", weekendClass(day))}
+          >
+            {perDayByPlace?.[day] ? pgdTotal(perDayByPlace[day]) : 0}
+          </TableCell>
+        ))}
+        <TableCell colSpan={9} className="text-xs text-muted-foreground">
+          Tổng nhân sự tại PGD (ngày + đêm)
+        </TableCell>
+      </TableRow>
 
-            <tr style={{ background: BG.totalPGD, fontWeight: 700 }}>
-                <td className="sticky-col" style={{ ...tdStickyLeft }}>TỔNG PGD</td>
-                {days.map(d => {
-                    const p = perDayByPlace?.[d];
-                    return <td key={`sum-pgd-${d}`} style={{ ...tdCenter, ...wstyle(year, month, d) }}>{p ? pgdTotal(p) : 0}</td>;
-                })}
-                <td colSpan={9} style={{ ...tdCenter, fontStyle: "italic", color: "#666" }}>Tổng nhân sự tại PGD (ngày + đêm)</td>
-            </tr>
-
-            <tr style={{ background: BG.totalALL, fontWeight: 800 }}>
-                <td className="sticky-col" style={{ ...tdStickyLeft }}>TỔNG (TD + PGD)</td>
-                {days.map(d => {
-                    const p = perDayByPlace?.[d];
-                    return <td key={`sum-all-${d}`} style={{ ...tdCenter, ...wstyle(year, month, d) }}>
-                        {p ? tdTotal(p) + pgdTotal(p) : 0}
-                    </td>;
-                })}
-                <td colSpan={9} style={{ ...tdCenter, fontStyle: "italic", color: "#666" }}>Tổng nhân sự toàn bộ vị trí</td>
-            </tr>
-        </>
-    );
+      <TableRow className="bg-muted/60 font-semibold">
+        <TableCell className="sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2">
+          TỔNG (TD + PGD)
+        </TableCell>
+        {days.map((day) => (
+          <TableCell
+            key={`total-all-${day}`}
+            className={cn("px-2 py-1 text-center", weekendClass(day))}
+          >
+            {perDayByPlace?.[day]
+              ? tdTotal(perDayByPlace[day]) + pgdTotal(perDayByPlace[day])
+              : 0}
+          </TableCell>
+        ))}
+        <TableCell colSpan={9} className="text-xs text-muted-foreground">
+          Tổng nhân sự toàn bộ vị trí
+        </TableCell>
+      </TableRow>
+    </>
+  );
 }

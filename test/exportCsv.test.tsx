@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import { act, create } from 'react-test-renderer';
 import CalendarHeader from '../src/components/CalendarHeader';
+import { TooltipProvider } from '../src/components/ui/tooltip';
+import { ToastStateProvider } from '../src/components/ui/use-toast';
 import { exportMonthCsv } from '../src/utils/exportCsv';
 
 function okBlob(content: string) {
@@ -69,29 +71,34 @@ test('CalendarHeader renders export button and triggers fetch', async () => {
   } as any;
 
   let inst: any;
+  const handleExport = () => exportMonthCsv(2025, 9);
   await act(async () => {
     inst = create(
-      <CalendarHeader
-        year={2025}
-        month={9}
-        setYear={() => {}}
-        setMonth={() => {}}
-        loading={false}
-        onGenerate={() => {}}
-        onShuffle={() => {}}
-        onSave={() => {}}
-        onResetSoft={() => {}}
-        onResetHard={() => {}}
-        onExport={() => exportMonthCsv(2025, 9)}
-        fillHC={false}
-        setFillHC={() => {}}
-        canGenerate={true}
-        onOpenFixedOff={() => {}}
-      />
+      <TooltipProvider delayDuration={150} skipDelayDuration={0} disableHoverableContent>
+        <ToastStateProvider>
+          <CalendarHeader
+            year={2025}
+            month={9}
+            setYear={() => {}}
+            setMonth={() => {}}
+            loading={false}
+            onGenerate={() => {}}
+            onShuffle={() => {}}
+            onSave={() => {}}
+            onResetSoft={() => {}}
+            onResetHard={() => {}}
+            onExport={handleExport}
+            fillHC={false}
+            setFillHC={() => {}}
+            canGenerate={true}
+            onOpenFixedOff={() => {}}
+          />
+        </ToastStateProvider>
+      </TooltipProvider>
     );
   });
 
-  const btn = inst.root.findAll((n: any) => n.type === 'button' && n.children.includes('Export CSV'))[0];
+  const btn = inst.root.findAll((n: any) => n.props && n.props.onClick === handleExport)[0];
   assert.ok(btn, 'button exists');
   await act(async () => { btn.props.onClick(); });
   assert.equal(url, '/api/export/month.csv?year=2025&month=9');

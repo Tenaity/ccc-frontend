@@ -1,10 +1,18 @@
 // src/components/schedule/MatrixRow.tsx
 import React from "react";
-import type { Staff, Assignment } from "../../types";
-import { fmtYMD, getDow, isWeekend } from "../../utils/date";
-import Badge from "../Badge";
-import { isNightLeader, isDayLeader, isNightTD, isNightPGD } from "../../utils/schedule";
-import { cn } from "../../lib/utils";
+import type { Staff, Assignment } from "@/types";
+import { fmtYMD, getDow, isWeekend } from "@/utils/date";
+import Badge from "@/components/Badge";
+import {
+  isNightLeader,
+  isDayLeader,
+  isNightTD,
+  isNightPGD,
+} from "@/utils/schedule";
+import { cn } from "@/lib/utils";
+import { TableCell, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { ShieldCheck } from "lucide-react";
 
 // Parse tiện lợi từ notes: "[CODE:1978][RANK:1]"
 function parseMeta(notes?: string | null) {
@@ -16,104 +24,186 @@ function parseMeta(notes?: string | null) {
 }
 
 export default function MatrixRow({
-    staff, index, year, month, days,
-    assignmentIndex, summariesByStaffId,
-    fixedByDayStaff, offByDayStaff,
-    onEditCell,
+  staff,
+  index,
+  year,
+  month,
+  days,
+  assignmentIndex,
+  summariesByStaffId,
+  fixedByDayStaff,
+  offByDayStaff,
+  onEditCell,
 }: {
-    staff: Staff;
-    index: number;
-    year: number;
-    month: number;
-    days: number[];
-    assignmentIndex: Map<string, { code: Assignment["shift_code"]; position: Assignment["position"] | null }>;
-    summariesByStaffId: Map<number, { counts: Record<string, number>, credit: number, dayCount: number, nightCount: number }>;
-    fixedByDayStaff: Map<string, boolean>;
-    offByDayStaff: Map<string, boolean>;
-    onEditCell?: (staff: Staff, day: number) => void;
+  staff: Staff;
+  index: number;
+  year: number;
+  month: number;
+  days: number[];
+  assignmentIndex: Map<
+    string,
+    { code: Assignment["shift_code"]; position: Assignment["position"] | null }
+  >;
+  summariesByStaffId: Map<
+    number,
+    {
+      counts: Record<string, number>;
+      credit: number;
+      dayCount: number;
+      nightCount: number;
+    }
+  >;
+  fixedByDayStaff: Map<string, boolean>;
+  offByDayStaff: Map<string, boolean>;
+  onEditCell?: (staff: Staff, day: number) => void;
 }) {
-    const sum = summariesByStaffId.get(staff.id) || { counts: {}, credit: 0, dayCount: 0, nightCount: 0 };
-    const meta = parseMeta(staff.notes);
-    const displayId = meta.code ?? String(staff.id);
+  const sum =
+    summariesByStaffId.get(staff.id) ||
+    { counts: {}, credit: 0, dayCount: 0, nightCount: 0 };
+  const meta = parseMeta(staff.notes);
+  const displayId = meta.code ?? String(staff.id);
 
-    // chip nhỏ hiển thị rank
-    const RankChip = meta.rank ? (
-        <span
-            title={`Rank ${meta.rank === 1 ? "Pro" : "Amateur"}`}
+  const RankChip = meta.rank ? (
+    <span
+      className={cn(
+        "ml-2 inline-flex items-center rounded-full border px-1.5 text-[11px] font-semibold",
+        meta.rank === 1
+          ? "border-primary/70 bg-primary/10 text-primary"
+          : "border-dashed border-primary/50 bg-primary/5 text-primary"
+      )}
+    >
+      Rank {meta.rank}
+    </span>
+  ) : null;
+
+  return (
+    <TableRow className={cn(index % 2 === 0 ? "bg-card" : "bg-muted/30")}> 
+      <TableCell
+        className="sticky left-0 z-20 min-w-[220px] border-r border-border/60 bg-background px-4 py-3 text-left shadow-[4px_0_12px_-8px_rgba(15,23,42,0.25)]"
+      >
+        <div className="flex items-baseline justify-between gap-3">
+          <div>
+            <div className="text-sm font-semibold text-foreground">
+              {staff.full_name}
+            </div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span>{staff.role}</span>
+              <span className="rounded bg-muted px-1 py-0.5">#{displayId}</span>
+              {RankChip}
+            </div>
+          </div>
+          {meta.rank === 1 ? (
+            <ShieldCheck className="h-4 w-4 text-primary" aria-hidden="true" />
+          ) : null}
+        </div>
+      </TableCell>
+
+      {days.map((day) => {
+        const dateKey = fmtYMD(year, month, day);
+        const cell = assignmentIndex.get(`${staff.id}|${dateKey}`);
+        const code = (cell?.code ?? "") as Assignment["shift_code"] | "";
+        const position =
+          (cell?.position ?? null) as Assignment["position"] | null;
+        const weekend = isWeekend(getDow(year, month, day));
+
+        const marker = { shift_code: code, position, role: staff.role };
+        const leaderDay = isDayLeader(marker);
+        const leaderNight = isNightLeader(marker);
+        const tdNight = isNightTD(marker);
+        const pgdNight = isNightPGD(marker);
+
+        let badgeVariant: React.ComponentProps<typeof Badge>["variant"] = "td";
+        if (leaderDay) badgeVariant = "leader-day";
+        else if (leaderNight) badgeVariant = "leader-night";
+        else if (tdNight) badgeVariant = "night-td";
+        else if (pgdNight) badgeVariant = "night-pgd";
+        else if (position === "PGD") badgeVariant = "pgd";
+
+        const key = `${staff.id}|${dateKey}`;
+        const isFixed = fixedByDayStaff.has(key);
+        const isOff = offByDayStaff.has(key);
+
+        const tooltipSource = isOff
+          ? "Nguồn: Off"
+          : isFixed
+            ? "Nguồn: Fixed"
+            : "Nguồn: Engine";
+
+        const displayCode = isOff ? "OFF" : code || "Trống";
+
+        return (
+          <TableCell
+            key={day}
             className={cn(
-                "ml-1 px-1 text-[11px] rounded-full border font-semibold",
-                meta.rank === 1
-                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                    : "bg-amber-50 text-amber-700 border-amber-200"
+              "relative h-16 min-w-[64px] border-r border-border/40 px-1 py-1 text-center",
+              weekend && "bg-amber-50/60",
+              !isFixed && !isOff && onEditCell && "cursor-pointer hover:bg-primary/5"
             )}
-        >
-            R{meta.rank}
-        </span>
-    ) : null;
-
-    return (
-        <tr className="odd:bg-gray-50">
-            <td className="sticky left-0 z-10 bg-white border-t border-gray-200 p-1.5 text-left whitespace-nowrap shadow-[inset_-1px_0_0_theme(colors.gray.200)]">
-                <div className="font-semibold">{staff.full_name}</div>
-                <div className="text-xs text-gray-600 flex items-center">
-                    {staff.role}
-                    <span className="ml-1 text-gray-500">#{displayId}</span>
-                    {RankChip}
+            onClick={() => {
+              if (!isFixed && !isOff && onEditCell) {
+                onEditCell(staff, day);
+              }
+            }}
+          >
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex h-full w-full items-center justify-center">
+                  {isOff ? (
+                    <Badge code="OFF" variant="off" />
+                  ) : (
+                    <Badge
+                      code={code || ""}
+                      crown={leaderDay || leaderNight}
+                      variant={isFixed ? "fixed" : badgeVariant}
+                      pinned={isFixed}
+                      rank={meta.rank || undefined}
+                    />
+                  )}
                 </div>
-            </td>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs text-left">
+                <p className="font-semibold">{staff.full_name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {dateKey} · {displayCode}
+                </p>
+                {position ? (
+                  <p className="text-xs">Vị trí: {position}</p>
+                ) : null}
+                <p className="text-xs">{tooltipSource}</p>
+                <p className="text-xs">Credit tháng: {sum.credit}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TableCell>
+        );
+      })}
 
-            {days.map((d) => {
-                const dateKey = fmtYMD(year, month, d);
-                const cell = assignmentIndex.get(`${staff.id}|${dateKey}`);
-                const code = (cell?.code ?? "") as Assignment["shift_code"] | "";
-                const pos = (cell?.position ?? null) as Assignment["position"] | null;
-
-                const wk = isWeekend(getDow(year, month, d));
-
-                const marker = { shift_code: code, position: pos, role: staff.role };
-                const leaderDay = isDayLeader(marker);     // K @ TD
-                const leaderNight = isNightLeader(marker); // Đ @ TD && role=TC
-                const tdNight = isNightTD(marker);         // Đ @ TD (non‑leader)
-                const pgdNight = isNightPGD(marker);       // Đ @ PGD
-
-                const variant =
-                    leaderDay ? "leader-day" :
-                        leaderNight ? "leader-night" :
-                            tdNight ? "night-white" :
-                                pgdNight ? "night-pgd" :
-                                    pos === "PGD" ? "pgd" : "td";
-
-                const key = `${staff.id}|${dateKey}`;
-                const isFixed = fixedByDayStaff.has(key);
-                const isOff = offByDayStaff.has(key);
-                return (
-                    <td
-                        key={d}
-                        className={cn(
-                            "relative border-t border-gray-200 p-1.5 text-center whitespace-nowrap",
-                            wk && "bg-amber-50",
-                            !isFixed && !isOff && onEditCell && "cursor-pointer"
-                        )}
-                        title={meta.rank ? `Rank ${meta.rank}` : undefined}
-                        onClick={() => {
-                            if (!isFixed && !isOff && onEditCell) onEditCell(staff, d);
-                        }}
-                    >
-                        {isOff ? <span className="absolute top-0.5 right-0.5">🚫</span> : null}
-                        <Badge code={code || ""} crown={leaderDay || leaderNight} variant={variant} pinned={isFixed} rank={meta.rank || undefined} />
-                    </td>
-                );
-            })}
-
-            <td className="border-t border-gray-200 p-1.5 text-center whitespace-nowrap">{sum.counts["CA1"] || 0}</td>
-            <td className="border-t border-gray-200 p-1.5 text-center whitespace-nowrap">{sum.counts["CA2"] || 0}</td>
-            <td className="border-t border-gray-200 p-1.5 text-center whitespace-nowrap">{sum.counts["K"] || 0}</td>
-            <td className="border-t border-gray-200 p-1.5 text-center whitespace-nowrap">{sum.counts["HC"] || 0}</td>
-            <td className="border-t border-gray-200 p-1.5 text-center whitespace-nowrap">{sum.counts["Đ"] || 0}</td>
-            <td className="border-t border-gray-200 p-1.5 text-center whitespace-nowrap">{sum.counts["P"] || 0}</td>
-            <td className="border-t border-gray-200 p-1.5 text-center whitespace-nowrap">{sum.dayCount || 0}</td>
-            <td className="border-t border-gray-200 p-1.5 text-center whitespace-nowrap">{sum.nightCount || 0}</td>
-            <td className="border-t border-gray-200 p-1.5 text-center font-bold whitespace-nowrap bg-gray-50">{sum.credit || 0}</td>
-        </tr>
-    );
+      <TableCell className="text-center text-sm font-medium text-foreground">
+        {sum.counts["CA1"] || 0}
+      </TableCell>
+      <TableCell className="text-center text-sm font-medium text-foreground">
+        {sum.counts["CA2"] || 0}
+      </TableCell>
+      <TableCell className="text-center text-sm font-medium text-foreground">
+        {sum.counts["K"] || 0}
+      </TableCell>
+      <TableCell className="text-center text-sm font-medium text-foreground">
+        {sum.counts["HC"] || 0}
+      </TableCell>
+      <TableCell className="text-center text-sm font-medium text-foreground">
+        {sum.counts["Đ"] || 0}
+      </TableCell>
+      <TableCell className="text-center text-sm font-medium text-foreground">
+        {sum.counts["P"] || 0}
+      </TableCell>
+      <TableCell className="bg-muted/40 text-center text-sm font-semibold text-foreground">
+        {sum.dayCount || 0}
+      </TableCell>
+      <TableCell className="bg-muted/40 text-center text-sm font-semibold text-foreground">
+        {sum.nightCount || 0}
+      </TableCell>
+      <TableCell className="bg-muted/60 text-center text-sm font-bold text-foreground">
+        {sum.credit || 0}
+      </TableCell>
+    </TableRow>
+  );
 }

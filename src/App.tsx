@@ -6,16 +6,16 @@ import EstimatePanel from "./components/Estimate/EstimatePanel";
 import ConflictList from "./components/ConflictList";
 import { useScheduleData } from "./hooks/useScheduleData";
 import { FixedOffPanel } from "./components/fixed-off";
-import Toast from "./components/Toast";
 import { exportMonthCsv } from "./utils/exportCsv";
 import Toolbar from "./components/Toolbar";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function App() {
     const today = new Date();
     const [year, setYear] = useState(today.getFullYear());
     const [month, setMonth] = useState(today.getMonth() + 1);
     const [showFixedOff, setShowFixedOff] = useState(false);
-    const [toast, setToast] = useState<string | null>(null);
+    const { toast } = useToast();
 
     const {
         staff, loadingGen, days,
@@ -34,7 +34,11 @@ export default function App() {
         try {
             await exportMonthCsv(year, month);
         } catch (err: any) {
-            setToast(err?.message || "Export failed");
+            toast({
+                variant: "destructive",
+                title: "Export CSV thất bại",
+                description: err?.message || "Không thể xuất file.",
+            });
         }
     };
 
@@ -98,7 +102,12 @@ export default function App() {
                 month={month}
                 open={showFixedOff}
                 onClose={() => setShowFixedOff(false)}
-                onToast={(m) => setToast(m)}
+                onToast={(m, options) =>
+                    toast({
+                        description: m,
+                        ...options,
+                    })
+                }
                 onRefresh={async () => {
                     await fetchFixed();
                     await fetchOffdays();
@@ -119,7 +128,6 @@ export default function App() {
                 <Legend label="TC ngày (K + 👑, position=TD)" bg="#E6FFEA" />{" "}
                 <Legend label="TC đêm (Đ + 👑, position=TD & role=TC)" bg="#FFE6EA" />
             </div>
-            <Toast msg={toast} onDone={() => setToast(null)} />
         </div>
     );
 }

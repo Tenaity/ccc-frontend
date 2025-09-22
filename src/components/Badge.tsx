@@ -1,86 +1,90 @@
 import React from "react";
-import type { ShiftCode } from "../types";
-import { cn } from "../lib/utils";
+import { cva } from "class-variance-authority";
+import type { ShiftCode } from "@/types";
+import { cn } from "@/lib/utils";
+import { Badge as UiBadge } from "@/components/ui/badge";
+import { Crown, Pin } from "lucide-react";
 
-type Variant =
-    | "td"            // mặc định: trực tại Tổng đài (ngày)
-    | "pgd"           // trực PGD (ngày hoặc đêm)
-    | "k-white"       // K nền trắng (thứ 7, TD)
-    | "leader-day"    // K @ TD (trưởng ca ngày)
-    | "leader-night"  // Đ @ TD (trưởng ca đêm)
-    | "night-white"   // Đ trắng @ TD
-    | "night-pgd";    // Đ @ PGD
+const badgeVariant = cva(
+  "inline-flex min-w-[3rem] items-center justify-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold uppercase tracking-tight transition-colors",
+  {
+    variants: {
+      intent: {
+        td: "bg-blue-50 text-blue-900 ring-1 ring-blue-200",
+        pgd: "bg-rose-50 text-rose-900 ring-1 ring-rose-200",
+        "leader-day":
+          "bg-emerald-50 text-emerald-900 ring-2 ring-emerald-300",
+        "leader-night":
+          "bg-violet-50 text-violet-900 ring-2 ring-violet-300",
+        "night-td": "bg-slate-50 text-slate-900 ring-1 ring-slate-200",
+        "night-pgd": "bg-rose-100 text-rose-900 ring-1 ring-rose-300",
+        off: "bg-muted text-muted-foreground ring-1 ring-border/70",
+        fixed: "bg-primary/10 text-primary ring-1 ring-primary/40",
+      },
+    },
+    defaultVariants: {
+      intent: "td",
+    },
+  }
+);
+
+const codeBackground: Record<ShiftCode, string> = {
+  CA1: "bg-blue-100 text-blue-900",
+  CA2: "bg-amber-100 text-amber-900",
+  K: "bg-emerald-100 text-emerald-900",
+  HC: "bg-indigo-100 text-indigo-900",
+  Đ: "bg-rose-100 text-rose-900",
+  P: "bg-slate-200 text-slate-900",
+};
 
 export default function Badge({
-    code,
-    variant = "td",
-    crown,
-    rank,
-    pinned,
+  code,
+  variant = "td",
+  crown,
+  rank,
+  pinned,
 }: {
-    code: ShiftCode | "";
-    variant?: Variant;
-    /** legacy prop from old code */
-    crown?: boolean;
-    pinned?: boolean;
-    rank?: number;
+  code: ShiftCode | string | "";
+  variant?:
+    | "td"
+    | "pgd"
+    | "leader-day"
+    | "leader-night"
+    | "night-td"
+    | "night-pgd"
+    | "off"
+    | "fixed";
+  crown?: boolean;
+  pinned?: boolean;
+  rank?: number | null;
 }) {
-    if (!code) return <span className="text-muted-foreground">—</span>;
+  if (!code) {
+    return <span className="text-sm text-muted-foreground">—</span>;
+  }
 
-    const variantClass: Record<Variant, string> = {
-        td: "",
-        pgd: "bg-rose-100 border-rose-400",
-        "k-white": "bg-white border-dashed border-gray-400",
-        "leader-day":
-            "border-2 border-green-600 shadow-[0_0_0_1px_rgba(22,163,74,0.12)_inset]",
-        "leader-night":
-            "border-2 border-violet-600 shadow-[0_0_0_1px_rgba(124,58,237,0.12)_inset]",
-        "night-white": "bg-white border-rose-200",
-        "night-pgd": "bg-rose-200 border-rose-400",
-    };
+  const baseColor = codeBackground[code as ShiftCode] ?? "bg-muted";
+  const rankClass =
+    rank === 1
+      ? "border border-primary/60"
+      : rank === 2
+        ? "border border-dashed border-primary/40"
+        : "border border-transparent";
 
-    const rankClass =
-        rank === 1
-            ? "border-2 border-gray-900"
-            : rank === 2
-                ? "border border-dashed border-gray-400"
-                : "border";
+  const showCrown = crown || variant === "leader-day" || variant === "leader-night";
 
-    // 👑: hiển thị nếu crown=true hoặc là leader
-    const showCrown =
-        !!crown || variant === "leader-day" || variant === "leader-night";
+  const showBaseColor = variant === "td" || variant === "pgd";
 
-    return (
-        <span
-            className={cn(
-                "inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md text-xs font-medium",
-                pickBg(code),
-                rankClass,
-                variantClass[variant]
-            )}
-        >
-            {pinned ? <span title="Fixed" className="mr-1">📌</span> : null}
-            {code}
-            {showCrown ? <span title="Trưởng ca" className="ml-1">👑</span> : null}
-        </span>
-    );
-}
-
-function pickBg(code: ShiftCode | "") {
-    switch (code) {
-        case "CA1":
-            return "bg-blue-100";
-        case "CA2":
-            return "bg-orange-100";
-        case "K":
-            return "bg-green-100";
-        case "HC":
-            return "bg-indigo-100";
-        case "Đ":
-            return "bg-rose-100";
-        case "P":
-            return "bg-gray-200";
-        default:
-            return "bg-gray-100";
-    }
+  return (
+    <UiBadge
+      className={cn(
+        badgeVariant({ intent: variant }),
+        showBaseColor ? baseColor : undefined,
+        rankClass
+      )}
+    >
+      {pinned ? <Pin className="h-3.5 w-3.5 text-primary" aria-hidden="true" /> : null}
+      <span>{code}</span>
+      {showCrown ? <Crown className="h-3.5 w-3.5 text-amber-500" aria-hidden="true" /> : null}
+    </UiBadge>
+  );
 }

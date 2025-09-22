@@ -15,5 +15,10 @@ export default defineConfig({
     proxy: {
       '/api': { target: 'http://localhost:5001', changeOrigin: true }
     }
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './vitest.setup.ts'
   }
 })
