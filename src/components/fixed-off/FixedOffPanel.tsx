@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useFixedOff } from "@/hooks/useFixedOff";
+import { useHolidays } from "@/hooks/useHolidays";
 import type { ShiftCode, Position, Staff } from "@/types";
 import {
   Dialog,
@@ -50,6 +51,8 @@ export default function FixedOffPanel({
   onClose,
   onToast,
   onRefresh,
+  onExportCsv,
+  exporting = false,
 }: {
   year: number;
   month: number;
@@ -57,10 +60,13 @@ export default function FixedOffPanel({
   onClose: () => void;
   onToast?: (msg: string, options?: ToastOptions) => void;
   onRefresh?: () => Promise<void> | void;
+  onExportCsv?: () => Promise<void> | void;
+  exporting?: boolean;
 }) {
   const { fixed, off, load, createFixed, deleteFixed, createOff, deleteOff } =
     useFixedOff(year, month);
-  const [tab, setTab] = useState<"fixed" | "off">("fixed");
+  const { holidays, load: loadHolidays, createHoliday, deleteHoliday } = useHolidays(year, month);
+  const [tab, setTab] = useState<"fixed" | "off" | "holiday" | "export">("fixed");
   const [staffOptions, setStaffOptions] = useState<Staff[]>([]);
 
   const fixedForm = useForm<{
@@ -87,9 +93,18 @@ export default function FixedOffPanel({
     mode: "onChange",
   });
 
+  const holidayForm = useForm<{
+    day: Date | undefined;
+    name: string;
+  }>({
+    defaultValues: { day: undefined, name: "" },
+    mode: "onChange",
+  });
+
   useEffect(() => {
     if (open) {
       load();
+      loadHolidays();
       fixedForm.reset({
         staffId: "",
         day: undefined,
@@ -97,8 +112,9 @@ export default function FixedOffPanel({
         position: undefined,
       });
       offForm.reset({ staffId: "", day: undefined, reason: "" });
+      holidayForm.reset({ day: undefined, name: "" });
     }
-  }, [open, year, month, load, fixedForm, offForm]);
+  }, [open, year, month, load, loadHolidays, fixedForm, offForm, holidayForm]);
 
   useEffect(() => {
     if (!open) return;
@@ -151,6 +167,22 @@ export default function FixedOffPanel({
     }
   });
 
+  const submitHoliday = holidayForm.handleSubmit(async (values) => {
+    try {
+      await createHoliday({
+        day: values.day?.toISOString().slice(0, 10) || "",
+        name: values.name || null,
+      });
+      onToast?.("Đã lưu ngày lễ", { title: "Thành công" });
+      await onRefresh?.();
+      onClose();
+    } catch (error: any) {
+      onToast?.(error?.message || "Không thể lưu ngày lễ", {
+        variant: "destructive",
+      });
+    }
+  });
+
   const handleDelete = async (
     action: () => Promise<void>,
     successMessage: string
@@ -187,9 +219,11 @@ export default function FixedOffPanel({
           onValueChange={(value) => setTab(value as "fixed" | "off")}
           className="px-6"
         >
-          <TabsList className="grid grid-cols-2 rounded-full bg-muted">
+          <TabsList className="grid grid-cols-4 rounded-full bg-muted">
             <TabsTrigger value="fixed">Ca cố định</TabsTrigger>
             <TabsTrigger value="off">Ngày nghỉ</TabsTrigger>
+            <TabsTrigger value="holiday">Ngày lễ</TabsTrigger>
+            <TabsTrigger value="export">Export</TabsTrigger>
           </TabsList>
         </Tabs>
         <Separator className="mx-6" />
@@ -451,6 +485,102 @@ export default function FixedOffPanel({
                   </li>
                 ) : null}
               </ul>
+            </div>
+          </TabsContent>
+          <TabsContent value="holiday" className="mt-4 space-y-6">
+            <Form {...holidayForm}>
+              <form onSubmit={submitHoliday} className="space-y-4">
+                <FormField
+                  control={holidayForm.control}
+                  name="day"
+                  rules={{ required: "Bắt buộc" }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Ngày lễ</FormLabel>
+                      <FormControl>
+                        <DatePicker value={field.value} onChange={field.onChange} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={holidayForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tên ngày lễ</FormLabel>
+                      <FormControl>
+                        <Input placeholder="(tuỳ chọn)" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <div className="flex justify-end">
+                  <Button type="submit" disabled={!holidayForm.formState.isValid}>
+                    Thêm ngày lễ
+                  </Button>
+                </div>
+              </form>
+            </Form>
+            <div>
+              <h3 className="text-sm font-semibold text-muted-foreground">
+                Danh sách ngày lễ
+              </h3>
+              <ul className="mt-3 space-y-2">
+                {holidays.map((item) => (
+                  <li
+                    key={item.id}
+                    className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/40 px-3 py-2 text-sm"
+                  >
+                    <div className="space-y-0.5">
+                      <p className="font-medium text-foreground">{item.day}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {item.name || "(Không tên)"}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() =>
+                        handleDelete(() => deleteHoliday(item.id), "Đã xóa ngày lễ")
+                      }
+                    >
+                      Xóa
+                    </Button>
+                  </li>
+                ))}
+                {holidays.length === 0 ? (
+                  <li className="rounded-lg border border-dashed border-border/60 px-3 py-6 text-center text-sm text-muted-foreground">
+                    Chưa có ngày lễ.
+                  </li>
+                ) : null}
+              </ul>
+            </div>
+          </TabsContent>
+          <TabsContent value="export" className="mt-4 space-y-4">
+            <div className="space-y-1">
+              <h3 className="text-sm font-semibold text-muted-foreground">
+                Export CSV
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Xuất lịch phân ca tháng {month}/{year} dưới dạng CSV để chia sẻ hoặc lưu trữ.
+              </p>
+            </div>
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={exporting || !onExportCsv}
+                onClick={() => {
+                  if (onExportCsv) {
+                    void onExportCsv();
+                  }
+                }}
+              >
+                {exporting ? "Đang xuất..." : "Export CSV"}
+              </Button>
             </div>
           </TabsContent>
         </ScrollArea>

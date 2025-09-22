@@ -60,6 +60,12 @@ export interface OffDay {
   reason?: string | null;
 }
 
+export interface Holiday {
+  id: number;
+  day: string;              // ISO "YYYY-MM-DD"
+  name?: string | null;
+}
+
 export interface PlannedResult {
   ok: boolean;
   planned?: Assignment[];

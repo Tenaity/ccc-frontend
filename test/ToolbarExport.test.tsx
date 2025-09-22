@@ -18,3 +18,18 @@ test('export button triggers handler', async () => {
   await act(async () => { btn.props.onClick(); });
   assert.equal(called, true);
 });
+
+test('export button shows loading state', () => {
+  const tree = create(
+    <Toolbar
+      onGenerate={() => {}}
+      onValidate={() => {}}
+      onExport={() => {}}
+      onFixedOff={() => {}}
+      exporting
+    />
+  );
+  const btn = tree.root.findByProps({ 'data-testid': 'btn-export' });
+  assert.equal(btn.props.disabled, true);
+  assert.equal(btn.props.children, 'Đang xuất...');
+});

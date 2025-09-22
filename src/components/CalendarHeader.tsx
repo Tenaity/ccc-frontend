@@ -49,6 +49,7 @@ export default function CalendarHeader({
   onResetSoft,
   onResetHard,
   onExport,
+  exporting = false,
   fillHC,
   setFillHC,
   canGenerate = true,
@@ -65,6 +66,7 @@ export default function CalendarHeader({
   onResetSoft: () => void;
   onResetHard: () => void;
   onExport: () => void;
+  exporting?: boolean;
   fillHC: boolean;
   setFillHC: (v: boolean) => void;
   canGenerate?: boolean;
@@ -247,13 +249,14 @@ export default function CalendarHeader({
             <Button
               variant="outline"
               onClick={onExport}
-              disabled={loading}
+              disabled={loading || exporting}
               className="min-w-[140px]"
             >
-              <DownloadIcon className="mr-2 h-4 w-4" /> Export CSV
+              <DownloadIcon className="mr-2 h-4 w-4" />
+              {exporting ? "Đang xuất..." : "Export CSV"}
             </Button>
-            <Button onClick={onOpenFixedOff} disabled={loading} className="min-w-[160px]">
-              <CalendarIcon className="mr-2 h-4 w-4" /> Fixed &amp; Off
+            <Button onClick={onOpenFixedOff} disabled={loading} className="min-w-[180px]">
+              <CalendarIcon className="mr-2 h-4 w-4" /> Fixed/Off/Holiday
             </Button>
           </div>
         </div>

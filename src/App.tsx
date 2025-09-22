@@ -7,7 +7,7 @@ import MatrixTable from "./components/Matrix/MatrixTable";
 import EstimatePanel from "./components/Estimate/EstimatePanel";
 import { useScheduleData } from "./hooks/useScheduleData";
 import { FixedOffPanel } from "./components/fixed-off";
-import { exportMonthCsv } from "./utils/exportCsv";
+import { useExportCsv } from "./hooks/useExportCsv";
 import Toolbar from "./components/Toolbar";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -42,6 +42,7 @@ export default function App() {
         fetchStaff,
         fetchFixed,
         fetchOffdays,
+        fetchHolidays,
         fetchValidate,
         fillHC,
         setFillHC,
@@ -50,18 +51,11 @@ export default function App() {
         hasLeaderDup,
     } = useScheduleData(year, month);
 
-    const onExport = async () => {
-        try {
-            await exportMonthCsv(year, month);
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : "Không thể xuất file.";
-            toast({
-                variant: "destructive",
-                title: "Export CSV thất bại",
-                description: message,
-            });
-        }
-    };
+    const { exportCsv, isExporting } = useExportCsv();
+
+    const onExport = React.useCallback(() => {
+        void exportCsv(year, month);
+    }, [exportCsv, year, month]);
 
     const monthLabel = useMemo(() => `${String(month).padStart(2, "0")}/${year}`, [month, year]);
     const breadcrumbs: AppShellBreadcrumbItem[] = useMemo(
@@ -228,6 +222,7 @@ export default function App() {
                     onResetSoft={onResetSoft}
                     onResetHard={onResetHard}
                     onExport={onExport}
+                    exporting={isExporting}
                     fillHC={fillHC}
                     setFillHC={setFillHC}
                     canGenerate={validation.ok}
@@ -240,6 +235,7 @@ export default function App() {
                     onExport={onExport}
                     onFixedOff={() => setShowFixedOff(true)}
                     disabled={loadingGen}
+                    exporting={isExporting}
                 />
 
                 <div id="conflicts" className="space-y-4">
@@ -275,6 +271,8 @@ export default function App() {
                     month={month}
                     open={showFixedOff}
                     onClose={() => setShowFixedOff(false)}
+                    onExportCsv={onExport}
+                    exporting={isExporting}
                     onToast={(message, options) =>
                         toast({
                             description: message,
@@ -284,6 +282,7 @@ export default function App() {
                     onRefresh={async () => {
                         await fetchFixed();
                         await fetchOffdays();
+                        await fetchHolidays();
                     }}
                 />
             </div>

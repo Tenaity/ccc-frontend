@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
 
-import type { FixedAssignment, OffDay, Staff } from '../src/types'
+import type { FixedAssignment, Holiday, OffDay, Staff } from '../src/types'
 
 // Mock DatePicker to simplify date input interactions in tests.
 type MockDatePickerProps = {
@@ -323,16 +323,22 @@ const initialFixedAssignments: FixedAssignment[] = [
 ]
 
 const initialOffDays: OffDay[] = []
+const initialHolidays: Holiday[] = [
+  { id: 1, day: '2025-09-02', name: 'Quốc khánh' },
+]
 
 function createMockServer() {
   let fixedAssignments = initialFixedAssignments.map(item => ({ ...item }))
   let offDays = initialOffDays.map(item => ({ ...item }))
+  let holidays = initialHolidays.map(item => ({ ...item }))
   let nextFixedId = initialFixedAssignments.length + 1
+  let nextHolidayId = initialHolidays.length + 1
 
   return setupServer(
     http.get('/api/staff', () => HttpResponse.json(staffFixtures)),
     http.get('/api/fixed', () => HttpResponse.json(fixedAssignments)),
     http.get('/api/off', () => HttpResponse.json(offDays)),
+    http.get('/api/holidays', () => HttpResponse.json(holidays)),
     http.post('/api/fixed', async ({ request }) => {
       const payload = (await request.json()) as Omit<FixedAssignment, 'id'>
       const item: FixedAssignment = { ...payload, id: nextFixedId++ }
@@ -342,6 +348,21 @@ function createMockServer() {
     http.delete('/api/fixed/:id', ({ params }) => {
       const id = Number(params.id)
       fixedAssignments = fixedAssignments.filter(item => item.id !== id)
+      return HttpResponse.json({ ok: true })
+    }),
+    http.post('/api/holidays', async ({ request }) => {
+      const payload = (await request.json()) as Omit<Holiday, 'id'>
+      const existing = holidays.find(item => item.day === payload.day)
+      if (existing) {
+        return HttpResponse.json({ ok: true, item: existing })
+      }
+      const item: Holiday = { ...payload, id: nextHolidayId++ }
+      holidays = [...holidays, item]
+      return HttpResponse.json({ ok: true, item })
+    }),
+    http.delete('/api/holidays/:id', ({ params }) => {
+      const id = Number(params.id)
+      holidays = holidays.filter(item => item.id !== id)
       return HttpResponse.json({ ok: true })
     }),
   )
@@ -417,6 +438,46 @@ describe('FixedOffPanel', () => {
       expect(onToast).toHaveBeenCalledWith('Đã lưu ca cố định', { title: 'Thành công' })
 
       expect(await screen.findByText('#2 · CA2')).toBeInTheDocument()
+    } finally {
+      server.close()
+      cleanup()
+    }
+  })
+
+  test('creates a holiday and shows toast', async () => {
+    const server = createMockServer()
+    server.listen({ onUnhandledRequest: 'error' })
+
+    try {
+      const user = userEvent.setup()
+      const onToast = vi.fn()
+      const onRefresh = vi.fn().mockResolvedValue(undefined)
+
+      renderPanel({ onToast, onRefresh })
+
+      const holidayTab = screen.getByRole('tab', { name: 'Ngày lễ' })
+      await user.click(holidayTab)
+
+      const dayInput = await screen.findByLabelText('Ngày lễ')
+      fireEvent.input(dayInput, { target: { value: '2025-09-05' } })
+
+      const nameInput = screen.getByLabelText('Tên ngày lễ')
+      fireEvent.input(nameInput, { target: { value: 'Team building' } })
+
+      const submitButton = screen.getByRole('button', { name: 'Thêm ngày lễ' })
+      await waitFor(() => expect(submitButton).toBeEnabled())
+
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(onToast).toHaveBeenCalledWith('Đã lưu ngày lễ', { title: 'Thành công' })
+      })
+      await waitFor(() => {
+        expect(onRefresh).toHaveBeenCalled()
+      })
+
+      expect(await screen.findByText('2025-09-05')).toBeInTheDocument()
+      expect(await screen.findByText(/Team building/)).toBeInTheDocument()
     } finally {
       server.close()
       cleanup()

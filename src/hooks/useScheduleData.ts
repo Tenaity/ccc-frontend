@@ -8,6 +8,7 @@ import type {
   DayPlaceSummary,
   FixedAssignment,
   OffDay,
+  Holiday,
 } from "../types";
 import { DAY_SHIFTS, NIGHT_SHIFTS, SHIFT_CREDIT } from "../utils/schedule"; // giữ nguyên nguồn constants/credit hiện tại
 import { fmtYMD, parseYMD } from "../utils/date";
@@ -39,6 +40,7 @@ export function useScheduleData(year: number, month: number) {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [fixed, setFixed] = useState<FixedAssignment[]>([]);
   const [offdays, setOffdays] = useState<OffDay[]>([]);
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [loadingGen, setLoadingGen] = useState(false);
   const [loadingStaff, setLoadingStaff] = useState(true);
   const [staffError, setStaffError] = useState<string | null>(null);
@@ -156,6 +158,11 @@ export function useScheduleData(year: number, month: number) {
     setOffdays(await safeJSON<OffDay[]>(res));
   };
 
+  const fetchHolidays = async () => {
+    const res = await fetch(`/api/holidays?year=${year}&month=${month}`);
+    setHolidays(await safeJSON<Holiday[]>(res));
+  };
+
   const fetchValidate = async () => {
     const res = await fetch(`/api/schedule/validate?year=${year}&month=${month}`);
     const json = await safeJSON<{ ok: boolean; conflicts: any }>(res);
@@ -215,6 +222,7 @@ export function useScheduleData(year: number, month: number) {
       await fetchAssignments();
       await fetchFixed();
       await fetchOffdays();
+      await fetchHolidays();
       await fetchEstimate();
       await fetchExpected();
       await fetchValidate();
@@ -426,6 +434,7 @@ export function useScheduleData(year: number, month: number) {
     offByDay,
     fixedByDayStaff,
     offByDayStaff,
+    holidays,
 
     // summaries & totals
     summariesByStaffId, perDayCounts, perDayLeaders, perDayDayNight, leaderErrors,
@@ -434,7 +443,7 @@ export function useScheduleData(year: number, month: number) {
     // actions
     onGenerate, onShuffle, onSave,
     onResetSoft, onResetHard,
-    fetchStaff, fetchFixed, fetchOffdays, fetchValidate,
+    fetchStaff, fetchFixed, fetchOffdays, fetchHolidays, fetchValidate,
 
     // estimate & expected
     estimate, loadingEstimate, estimateError, fetchEstimate,

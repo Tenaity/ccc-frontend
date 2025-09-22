@@ -17,6 +17,7 @@ test('onGenerate is blocked when validation fails', async () => {
     if (url.startsWith('/api/assignments')) return ok([]);
     if (url.startsWith('/api/fixed')) return ok([]);
     if (url.startsWith('/api/offdays')) return ok([]);
+    if (url.startsWith('/api/holidays')) return ok([]);
     if (url.startsWith('/api/schedule/estimate')) return ok({});
     if (url.startsWith('/api/rules/expected')) return ok({ ok: true, perDayExpected: {} });
     if (url.startsWith('/api/schedule/generate')) return ok({ ok: true, planned: [] });
