@@ -2,8 +2,6 @@
 
 @tailwind base;
 
-@plugin "tailwindcss-animate";
-
 @custom-variant dark (&:is(.dark *));
 @tailwind components;
 @tailwind utilities;
@@ -13,8 +11,8 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
