@@ -1,16 +1,34 @@
-import React, { useEffect, useState } from "react";
-import type { Staff } from "../types";
+import * as React from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import type { Staff } from "@/types";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const quickEditSchema = z.object({
+  staffId: z.string().min(1, "Chọn nhân viên"),
+});
+
+type QuickEditFormValues = z.infer<typeof quickEditSchema>;
 
 /**
  * QuickEditDialog: allow manually overriding a cell assignment.
- *
- * Props:
- * - open: whether dialog is visible
- * - day: ISO date string "YYYY-MM-DD" of the cell
- * - current: current staff of the cell
- * - candidates: staff options to assign
- * - fixed: whether the cell is fixed (locked) and cannot be changed
- * - onClose: called when dialog requests close
  *
  * NOTE: Assign action is scaffold only; API call is TODO.
  */
@@ -29,69 +47,168 @@ export default function QuickEditDialog({
   fixed?: boolean;
   onClose: () => void;
 }) {
-  const [selected, setSelected] = useState<number>(current.id);
-  const [reasons, setReasons] = useState<string[]>([]);
+  const [reasons, setReasons] = React.useState<string[]>([]);
 
-  useEffect(() => {
-    if (!open) return;
-    async function run() {
-      try {
-        const res = await fetch(
-          `/api/schedule/validate?day=${day}&staff_id=${selected}`
-        );
-        const body = await res.json();
-        setReasons(body.reasons || []);
-      } catch (e) {
-        setReasons(["network"]);
-      }
+  const form = useForm<QuickEditFormValues>({
+    resolver: zodResolver(quickEditSchema),
+    defaultValues: {
+      staffId: current ? String(current.id) : "",
+    },
+    mode: "onChange",
+  });
+
+  const selectedStaffId = form.watch("staffId");
+
+  React.useEffect(() => {
+    if (!open) {
+      return;
     }
-    run();
-  }, [open, day, selected]);
 
-  const disabled = reasons.length > 0;
+    const initialStaffId = current ? String(current.id) : "";
+    setReasons([]);
+    form.clearErrors();
+    form.reset({ staffId: initialStaffId });
+  }, [open, current, form]);
 
-  if (!open) return null;
+  React.useEffect(() => {
+    if (!open) {
+      return;
+    }
+    if (!selectedStaffId) {
+      setReasons([]);
+      form.clearErrors("staffId");
+      return;
+    }
+
+    const controller = new AbortController();
+    let cancelled = false;
+
+    const validateSelection = async () => {
+      try {
+        const response = await fetch(
+          `/api/schedule/validate?day=${encodeURIComponent(
+            day
+          )}&staff_id=${encodeURIComponent(selectedStaffId)}`,
+          { signal: controller.signal }
+        );
+        const body = await response.json();
+        const nextReasons = Array.isArray(body?.reasons)
+          ? (body.reasons as string[])
+          : [];
+
+        if (cancelled) {
+          return;
+        }
+
+        setReasons(nextReasons);
+
+        if (nextReasons.length > 0) {
+          form.setError("staffId", {
+            type: "manual",
+            message: `Không thể gán: ${nextReasons.join(", ")}`,
+          });
+        } else {
+          form.clearErrors("staffId");
+        }
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+        setReasons(["network"]);
+        form.setError("staffId", {
+          type: "manual",
+          message: "Không thể kiểm tra lịch. Vui lòng thử lại.",
+        });
+      }
+    };
+
+    void validateSelection();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [open, day, selectedStaffId, form]);
+
+  const onSubmit = form.handleSubmit(() => {
+    onClose();
+  });
+
+  if (!open) {
+    return null;
+  }
+
+  const assignDisabled =
+    reasons.length > 0 || !form.formState.isValid || !!fixed;
+
   return (
-    <div role="dialog" className="p-4 border rounded bg-white">
-      <h2 className="font-bold mb-2">Quick Edit</h2>
-      <div className="mb-2">Current: {current.full_name}</div>
-      {fixed && <div className="mb-2 text-red-600">Fixed</div>}
-      <select
-        className="border p-1 mb-2 w-full"
-        value={selected}
-        onChange={(e) => setSelected(Number(e.target.value))}
-      >
-        {candidates.map((c) => (
-          <option key={c.id} value={c.id}>
-            {c.full_name}
-          </option>
-        ))}
-      </select>
-      {reasons.length > 0 && (
-        <ul className="mb-2 list-disc list-inside text-sm text-red-600">
-          {reasons.map((r) => (
-            <li key={r}>{r}</li>
-          ))}
-        </ul>
-      )}
-      <div className="flex gap-2 justify-end">
-        <button
-          className="px-3 py-1 border rounded"
-          onClick={onClose}
-        >
-          Close
-        </button>
-        <button
-          className="px-3 py-1 border rounded bg-blue-500 text-white disabled:bg-gray-300"
-          disabled={disabled}
-          onClick={() => {
-            // TODO: submit assignment
-            onClose();
-          }}
-        >
-          Assign
-        </button>
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="w-full max-w-md space-y-4 rounded-lg border border-border/70 bg-background p-6 shadow-lg"
+    >
+      <div>
+        <h2 className="text-lg font-semibold text-foreground">Quick Edit</h2>
+        <p className="text-sm text-muted-foreground">
+          Ca hiện tại: <strong>{current.full_name}</strong>
+        </p>
+        {fixed ? (
+          <p className="mt-2 text-sm font-medium text-destructive">Đã khóa</p>
+        ) : null}
       </div>
+
+      <Form {...form}>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="staffId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nhân viên</FormLabel>
+                <Select
+                  value={field.value}
+                  onValueChange={(value) => field.onChange(value)}
+                  disabled={!!fixed}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Chọn nhân viên" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {candidates.map((candidate) => (
+                      <SelectItem
+                        key={candidate.id}
+                        value={String(candidate.id)}
+                      >
+                        {candidate.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {reasons.length > 0 ? (
+            <ul className="list-disc space-y-1 pl-5 text-sm text-destructive" role="list">
+              {reasons.map((reason) => (
+                <li key={reason}>{reason}</li>
+              ))}
+            </ul>
+          ) : null}
+
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={onClose}>
+              Đóng
+            </Button>
+            <Button type="submit" disabled={assignDisabled}>
+              Assign
+            </Button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 }

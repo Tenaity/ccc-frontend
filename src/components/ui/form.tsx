@@ -145,7 +145,7 @@ FormDescription.displayName = "FormDescription"
 const FormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
->(({ className, children, ...props }, ref) => {
+>(({ className, children, role, ...props }, ref) => {
   const { error, formMessageId } = useFormField()
   const body = error ? String(error?.message ?? "") : children
 
@@ -157,6 +157,8 @@ const FormMessage = React.forwardRef<
     <p
       ref={ref}
       id={formMessageId}
+      role={role ?? (error ? "alert" : undefined)}
+      aria-live={error ? "assertive" : undefined}
       className={cn("text-[0.8rem] font-medium text-destructive", className)}
       {...props}
     >

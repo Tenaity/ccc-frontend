@@ -1,47 +1,119 @@
-import { test } from 'vitest';
-import assert from 'node:assert/strict';
-import React from 'react';
-import { act, create } from 'react-test-renderer';
-import QuickEditDialog from '../src/components/QuickEditDialog';
+import { afterEach, beforeAll, expect, test, vi } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { render, screen, waitFor, within } from "@testing-library/react";
+import React from "react";
 
-const staffA = { id: 1, full_name: 'Alice', role: 'TC', can_night: true, base_quota: 5 } as any;
-const staffB = { id: 2, full_name: 'Bob', role: 'TC', can_night: true, base_quota: 5 } as any;
+import QuickEditDialog from "../src/components/QuickEditDialog";
+import type { Staff } from "@/types";
 
-function ok(body: any) {
-  return { ok: true, json: async () => body } as any;
-}
+const staffA: Staff = {
+  id: 1,
+  full_name: "Alice",
+  role: "TC",
+  can_night: true,
+  base_quota: 5,
+};
 
-test('dialog fetches and displays reasons', async () => {
-  let url = '';
-  const origFetch = global.fetch;
-  global.fetch = async (u: string) => {
-    url = u;
-    return ok({ ok: false, reasons: ['lock', 'quota'] });
-  };
+const staffB: Staff = {
+  id: 2,
+  full_name: "Bob",
+  role: "TC",
+  can_night: true,
+  base_quota: 5,
+};
 
-  let inst: any;
-  await act(async () => {
-    inst = create(
-      <QuickEditDialog
-        open={true}
-        day="2025-09-01"
-        current={staffA}
-        candidates={[staffA, staffB]}
-        onClose={() => {}}
-      />
+beforeAll(() => {
+  Object.defineProperty(window.HTMLElement.prototype, "scrollIntoView", {
+    configurable: true,
+    value: () => {},
+  });
+  Object.defineProperty(window.HTMLElement.prototype, "hasPointerCapture", {
+    configurable: true,
+    value: () => false,
+  });
+  Object.defineProperty(window.HTMLElement.prototype, "releasePointerCapture", {
+    configurable: true,
+    value: () => {},
+  });
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+test("shows validation reasons from the API", async () => {
+  const fetchMock = vi
+    .spyOn(global, "fetch")
+    .mockResolvedValue({
+      ok: true,
+      json: async () => ({ reasons: ["lock", "quota"] }),
+    } as unknown as Response);
+
+  const user = userEvent.setup({ pointerEventsCheck: "never" });
+
+  render(
+    <QuickEditDialog
+      open
+      day="2025-09-01"
+      current={staffA}
+      candidates={[staffA, staffB]}
+      onClose={() => {}}
+    />
+  );
+
+  const trigger = screen.getByLabelText(/nhân viên/i);
+  await user.click(trigger);
+  const listbox = await screen.findByRole("listbox");
+  await user.click(within(listbox).getByRole("option", { name: "Bob" }));
+
+  await waitFor(() => {
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      "/api/schedule/validate?day=2025-09-01&staff_id=2",
+      expect.objectContaining({ signal: expect.any(Object) })
     );
   });
 
-  const select = inst.root.findByType('select');
-  await act(async () => {
-    select.props.onChange({ target: { value: '2' } });
+  const alert = await screen.findByRole("alert");
+  expect(alert).toHaveTextContent("Không thể gán: lock, quota");
+
+  const items = screen.getAllByRole("listitem");
+  expect(items.map((item) => item.textContent)).toEqual(["lock", "quota"]);
+
+  expect(screen.getByRole("button", { name: /assign/i })).toBeDisabled();
+});
+
+test("allows assigning when validation passes", async () => {
+  const fetchMock = vi
+    .spyOn(global, "fetch")
+    .mockResolvedValue({
+      ok: true,
+      json: async () => ({ reasons: [] }),
+    } as unknown as Response);
+
+  const user = userEvent.setup({ pointerEventsCheck: "never" });
+
+  render(
+    <QuickEditDialog
+      open
+      day="2025-09-01"
+      current={staffA}
+      candidates={[staffA, staffB]}
+      onClose={() => {}}
+    />
+  );
+
+  const trigger = screen.getByLabelText(/nhân viên/i);
+  await user.click(trigger);
+  const listbox = await screen.findByRole("listbox");
+  await user.click(within(listbox).getByRole("option", { name: "Bob" }));
+
+  await waitFor(() => {
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
-  await act(async () => {});
 
-  assert.equal(url, '/api/schedule/validate?day=2025-09-01&staff_id=2');
-  const items = inst.root.findAll((n: any) => n.type === 'li');
-  const texts = items.map((n: any) => n.children.join(''));
-  assert.deepEqual(texts, ['lock', 'quota']);
+  await waitFor(() => {
+    expect(screen.getByRole("button", { name: /assign/i })).not.toBeDisabled();
+  });
 
-  global.fetch = origFetch;
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 });
