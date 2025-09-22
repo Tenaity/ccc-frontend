@@ -72,5 +72,5 @@ test('App renders inside UiProvider without crashing', () => {
     </UiProvider>,
   )
 
-  expect(screen.getByText('Lịch phân ca dạng ma trận')).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /customer care center/i })).toBeInTheDocument()
 })
