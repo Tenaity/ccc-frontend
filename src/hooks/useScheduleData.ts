@@ -1,5 +1,5 @@
 // src/hooks/useScheduleData.ts
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type {
   Staff,
   Assignment,
@@ -40,6 +40,8 @@ export function useScheduleData(year: number, month: number) {
   const [fixed, setFixed] = useState<FixedAssignment[]>([]);
   const [offdays, setOffdays] = useState<OffDay[]>([]);
   const [loadingGen, setLoadingGen] = useState(false);
+  const [loadingStaff, setLoadingStaff] = useState(true);
+  const [staffError, setStaffError] = useState<string | null>(null);
   const [validation, setValidation] = useState<{ ok: boolean; conflicts: any[] }>({ ok: true, conflicts: [] });
   const [hasLeaderDup, setHasLeaderDup] = useState(false);
 
@@ -113,13 +115,28 @@ export function useScheduleData(year: number, month: number) {
   }, [assignments, fixed, offdays]);
 
   // ====== LOADERS ======
-  useEffect(() => {
-    // load staff 1 lần
-    (async () => {
+  const fetchStaff = useCallback(async () => {
+    setLoadingStaff(true);
+    setStaffError(null);
+    try {
       const res = await fetch("/api/staff");
-      setStaff(await safeJSON<Staff[]>(res));
-    })();
+      const json = await safeJSON<Staff[]>(res);
+      setStaff(json);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Không thể tải danh sách nhân sự.";
+      setStaff([]);
+      setStaffError(message);
+    } finally {
+      setLoadingStaff(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void fetchStaff();
+  }, [fetchStaff]);
 
   /** fetchAssignments: tải lịch đã lưu (DB) theo (year,month) */
   const fetchAssignments = async () => {
@@ -397,6 +414,8 @@ export function useScheduleData(year: number, month: number) {
     // raw
     staff, assignments, setAssignments,
     loadingGen,
+    loadingStaff,
+    staffError,
     validation,
     hasLeaderDup,
 
@@ -415,7 +434,7 @@ export function useScheduleData(year: number, month: number) {
     // actions
     onGenerate, onShuffle, onSave,
     onResetSoft, onResetHard,
-    fetchFixed, fetchOffdays, fetchValidate,
+    fetchStaff, fetchFixed, fetchOffdays, fetchValidate,
 
     // estimate & expected
     estimate, loadingEstimate, estimateError, fetchEstimate,

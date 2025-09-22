@@ -21,6 +21,8 @@ export default function App() {
     const {
         staff,
         loadingGen,
+        loadingStaff,
+        staffError,
         days,
         assignmentIndex,
         fixedByDayStaff,
@@ -37,6 +39,7 @@ export default function App() {
         onSave,
         onResetSoft,
         onResetHard,
+        fetchStaff,
         fetchFixed,
         fetchOffdays,
         fetchValidate,
@@ -73,6 +76,8 @@ export default function App() {
     const conflictCount = validation.conflicts.length;
     const leaderWarningCount = leaderErrors.length;
     const duplicateLabel = hasLeaderDup ? "Có" : "Không";
+    const matrixLoading = loadingStaff || (loadingGen && staff.length === 0);
+    const matrixError = staffError;
 
     return (
         <AppShell
@@ -254,6 +259,9 @@ export default function App() {
                         expectedByDay={expectedByDay}
                         fixedByDayStaff={fixedByDayStaff}
                         offByDayStaff={offByDayStaff}
+                        loading={matrixLoading}
+                        error={matrixError}
+                        onRetry={fetchStaff}
                     />
                 </div>
             </section>
