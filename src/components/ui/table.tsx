@@ -2,28 +2,47 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-const Table = React.forwardRef<
-  HTMLTableElement,
-  React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto">
-    <table
-      ref={ref}
-      className={cn(
-        "w-full caption-bottom text-sm text-foreground",
-        className
-      )}
-      {...props}
-    />
-  </div>
-))
+interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
+  stickyHeader?: boolean
+}
+
+const Table = React.forwardRef<HTMLTableElement, TableProps>(
+  ({ className, stickyHeader = false, ...props }, ref) => (
+    <div className="relative w-full overflow-x-auto">
+      <table
+        ref={ref}
+        data-sticky-header={stickyHeader ? "true" : undefined}
+        className={cn(
+          "w-full caption-bottom text-sm text-foreground",
+          className
+        )}
+        {...props}
+      />
+    </div>
+  )
+)
 Table.displayName = "Table"
+
+interface TableHeaderProps
+  extends React.HTMLAttributes<HTMLTableSectionElement> {
+  sticky?: boolean
+}
 
 const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
-  React.HTMLAttributes<HTMLTableSectionElement>
->(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn("[&_tr]:border-b", className)} {...props} />
+  TableHeaderProps
+>(({ className, sticky = false, ...props }, ref) => (
+  <thead
+    ref={ref}
+    data-sticky={sticky ? "true" : undefined}
+    className={cn(
+      "[&_tr]:border-b",
+      sticky &&
+        "sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80",
+      className
+    )}
+    {...props}
+  />
 ))
 TableHeader.displayName = "TableHeader"
 

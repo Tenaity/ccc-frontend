@@ -16,7 +16,7 @@ export default function MatrixHeader({
   perDayLeaders: Record<number, number>;
 }) {
   return (
-    <TableHeader className="sticky top-0 z-30 bg-background">
+    <TableHeader sticky className="z-30 bg-background">
       <TableRow className="bg-muted/70">
         <TableHead
           rowSpan={3}

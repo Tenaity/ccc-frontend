@@ -58,6 +58,27 @@ export default function MatrixTable({
     return (staff ?? []).filter((s) => s.role === edit.staff.role);
   }, [edit, staff]);
 
+  const leaderCountsByDay = React.useMemo(() => {
+    const counts = new Map<number, { day: number; night: number }>();
+    for (const day of days) {
+      counts.set(day, { day: 0, night: 0 });
+    }
+    assignmentIndex.forEach((value, key) => {
+      const [, isoDay] = key.split("|");
+      if (!isoDay) return;
+      const dayNum = Number(isoDay.split("-")[2]);
+      const bucket = counts.get(dayNum);
+      if (!bucket) return;
+      if (value?.code === "K" && value?.position === "TD") {
+        bucket.day += 1;
+      }
+      if (value?.code === "Đ" && value?.position === "TD") {
+        bucket.night += 1;
+      }
+    });
+    return counts;
+  }, [assignmentIndex, days]);
+
   return (
     <div className="rounded-3xl border border-border/60 bg-card shadow-sm">
       <ScrollArea className="max-h-[70vh] rounded-3xl">
@@ -82,6 +103,7 @@ export default function MatrixTable({
                   summariesByStaffId={summariesByStaffId}
                   fixedByDayStaff={fixedByDayStaff}
                   offByDayStaff={offByDayStaff}
+                  leaderCountsByDay={leaderCountsByDay}
                   onEditCell={(st, day) => setEdit({ staff: st, day })}
                 />
               ))}

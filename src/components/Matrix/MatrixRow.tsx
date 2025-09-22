@@ -33,6 +33,7 @@ export default function MatrixRow({
   summariesByStaffId,
   fixedByDayStaff,
   offByDayStaff,
+  leaderCountsByDay,
   onEditCell,
 }: {
   staff: Staff;
@@ -55,6 +56,7 @@ export default function MatrixRow({
   >;
   fixedByDayStaff: Map<string, boolean>;
   offByDayStaff: Map<string, boolean>;
+  leaderCountsByDay: Map<number, { day: number; night: number }>;
   onEditCell?: (staff: Staff, day: number) => void;
 }) {
   const sum =
@@ -112,11 +114,16 @@ export default function MatrixRow({
         const tdNight = isNightTD(marker);
         const pgdNight = isNightPGD(marker);
 
-        let badgeVariant: React.ComponentProps<typeof Badge>["variant"] = "td";
-        if (leaderDay) badgeVariant = "leader-day";
-        else if (leaderNight) badgeVariant = "leader-night";
-        else if (tdNight) badgeVariant = "night-td";
-        else if (pgdNight) badgeVariant = "night-pgd";
+        const leaderBucket = leaderCountsByDay.get(day);
+        const duplicateDayLeader = leaderDay && (leaderBucket?.day ?? 0) > 1;
+        const duplicateNightLeader = leaderNight && (leaderBucket?.night ?? 0) > 1;
+
+        let badgeVariant: React.ComponentProps<typeof Badge>["variant"] = "default";
+        if (leaderDay) badgeVariant = duplicateDayLeader ? "duplicate" : "leader";
+        else if (leaderNight)
+          badgeVariant = duplicateNightLeader ? "duplicate" : "night";
+        else if (tdNight) badgeVariant = "night";
+        else if (pgdNight) badgeVariant = "pgd";
         else if (position === "PGD") badgeVariant = "pgd";
 
         const key = `${staff.id}|${dateKey}`;
