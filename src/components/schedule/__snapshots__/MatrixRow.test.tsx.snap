@@ -5,10 +5,10 @@ exports[`MatrixRow > matches snapshot with duplicate leaders and rank badge 1`] 
   <table>
     <tbody>
       <tr
-        class="border-b border-border/60 transition-colors hover:bg-muted/50 bg-card"
+        class="border-b border-border/60 transition-colors hover:bg-primary/15 bg-primary/5"
       >
         <th
-          class="sticky left-0 z-20 min-w-[220px] border-r border-border/60 bg-background px-4 py-3 text-left shadow-[4px_0_12px_-8px_rgba(15,23,42,0.25)]"
+          class="sticky left-0 z-20 min-w-[220px] border-r border-border/60 px-4 py-3 text-left shadow-[4px_0_12px_-8px_rgba(15,23,42,0.25)] bg-primary/5"
           scope="row"
         >
           <div
@@ -27,7 +27,7 @@ exports[`MatrixRow > matches snapshot with duplicate leaders and rank badge 1`] 
                   TC
                 </span>
                 <span
-                  class="rounded bg-muted px-1 py-0.5"
+                  class="rounded-md border border-primary/20 bg-primary/10 px-1.5 py-0.5 font-medium text-primary"
                 >
                   #1978
                 </span>

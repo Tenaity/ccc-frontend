@@ -65,6 +65,8 @@ export default function MatrixRow({
   const meta = parseMeta(staff.notes);
   const displayId = meta.code ?? String(staff.id);
 
+  const stripeClass = index % 2 === 0 ? "bg-primary/5" : "bg-primary/10";
+
   const RankChip = meta.rank ? (
     <span
       className={cn(
@@ -79,10 +81,18 @@ export default function MatrixRow({
   ) : null;
 
   return (
-    <TableRow className={cn(index % 2 === 0 ? "bg-card" : "bg-muted/30")}> 
+    <TableRow
+      className={cn(
+        "hover:bg-primary/15",
+        stripeClass,
+      )}
+    >
       <th
         scope="row"
-        className="sticky left-0 z-20 min-w-[220px] border-r border-border/60 bg-background px-4 py-3 text-left shadow-[4px_0_12px_-8px_rgba(15,23,42,0.25)]"
+        className={cn(
+          "sticky left-0 z-20 min-w-[220px] border-r border-border/60 px-4 py-3 text-left shadow-[4px_0_12px_-8px_rgba(15,23,42,0.25)]",
+          stripeClass,
+        )}
       >
         <div className="flex items-baseline justify-between gap-3">
           <div>
@@ -91,7 +101,9 @@ export default function MatrixRow({
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span>{staff.role}</span>
-              <span className="rounded bg-muted px-1 py-0.5">#{displayId}</span>
+              <span className="rounded-md border border-primary/20 bg-primary/10 px-1.5 py-0.5 font-medium text-primary">
+                #{displayId}
+              </span>
               {RankChip}
             </div>
           </div>
