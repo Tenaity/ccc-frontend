@@ -56,8 +56,8 @@ vi.mock("@/hooks/useScheduleData", () => ({
 }))
 
 const exportCsvMock = vi.fn<
-  Promise<number>,
-  [{ toastApi: ReturnType<typeof import("@/components/ui/use-toast").useToast>; year: number; month: number }]
+  [{ toastApi: ReturnType<typeof import("@/components/ui/use-toast").useToast>; year: number; month: number }],
+  Promise<number>
 >()
 
 vi.mock("@/hooks/useExportCsv", async () => {

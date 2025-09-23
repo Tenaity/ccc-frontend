@@ -5,7 +5,7 @@ import { describe, expect, test, vi } from "vitest"
 
 import MatrixRow from "./MatrixRow"
 import { TooltipProvider } from "@/components/ui/tooltip"
-import type { Staff } from "@/types"
+import type { Position, ShiftCode, Staff } from "@/types"
 
 function createAssignmentKey(staffId: number, day: string) {
   return `${staffId}|${day}`
@@ -26,7 +26,10 @@ describe("MatrixRow", () => {
       notes: "[CODE:1978][RANK:1]",
     }
 
-    const assignmentIndex = new Map([
+    const assignmentIndex: Map<
+      string,
+      { code: ShiftCode; position: Position | undefined }
+    > = new Map([
       [createAssignmentKey(staff.id, "2024-06-01"), { code: "K", position: "TD" }],
       [createAssignmentKey(staff.id, "2024-06-02"), { code: "Đ", position: "TD" }],
       [createAssignmentKey(staff.id, "2024-06-03"), { code: "CA1", position: null }],
