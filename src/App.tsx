@@ -15,7 +15,9 @@ import Legend from "@/components/Legend"
 
 import DashboardPage from "./pages/Dashboard"
 
-const SchedulePage = lazy(() => import("./pages/Schedule"))
+const ScheduleMatrixRoute = lazy(
+  () => import("./routes/ScheduleMatrixRoute"),
+)
 const FixedOffPanel = lazy(() => import("./components/fixed-off/FixedOffPanel"))
 
 const MAIN_CONTENT_ID = "app-main-content"
@@ -333,14 +335,9 @@ export default function App() {
               <Route
                 path="/schedule"
                 element={
-                  <SchedulePage
+                  <ScheduleMatrixRoute
                     year={year}
                     month={month}
-                    loadingGen={loadingGen}
-                    onGenerate={handleGenerate}
-                    onValidate={handleValidate}
-                    onExport={handleExport}
-                    exporting={isExporting}
                     days={days}
                     staff={staff}
                     assignmentIndex={assignmentIndex}
@@ -350,9 +347,9 @@ export default function App() {
                     expectedByDay={expectedByDay}
                     fixedByDayStaff={fixedByDayStaff}
                     offByDayStaff={offByDayStaff}
-                    matrixLoading={matrixLoading}
-                    matrixError={matrixError}
-                    fetchStaff={fetchStaff}
+                    loading={matrixLoading}
+                    error={matrixError}
+                    onRetry={fetchStaff}
                     toolbarActions={scheduleToolbar}
                   />
                 }
