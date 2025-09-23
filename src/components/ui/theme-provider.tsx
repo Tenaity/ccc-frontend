@@ -17,9 +17,11 @@ function getPreferredScheme(): Theme {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
     return "light"
   }
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light"
+  const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
+  if (!mediaQuery || typeof mediaQuery.matches !== "boolean") {
+    return "light"
+  }
+  return mediaQuery.matches ? "dark" : "light"
 }
 
 function applyThemeClass(theme: Theme) {
@@ -63,10 +65,17 @@ export function ThemeProvider({
   }, [storageKey, theme])
 
   React.useEffect(() => {
-    if (typeof window === "undefined" || theme !== "system") {
+    if (
+      typeof window === "undefined" ||
+      theme !== "system" ||
+      typeof window.matchMedia !== "function"
+    ) {
       return undefined
     }
     const media = window.matchMedia("(prefers-color-scheme: dark)")
+    if (!media || typeof media.addEventListener !== "function") {
+      return undefined
+    }
     const listener = () => {
       const next = media.matches ? "dark" : "light"
       setResolvedTheme(next)
