@@ -20,6 +20,12 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts', 'src/test/setup.ts'],
-    restoreMocks: true
+    restoreMocks: true,
+    poolOptions: {
+      threads: {
+        maxThreads: 2,
+        minThreads: 1
+      }
+    }
   }
 })
