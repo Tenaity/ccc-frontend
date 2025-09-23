@@ -3,23 +3,23 @@
   --radius: 0.75rem;
 
   /* semantic surface tokens */
-  --bg: 0.99 0 0;
-  --fg: 0.2 0.015 257;
-  --muted: 0.95 0.01 255;
-  --muted-foreground: 0.53 0.01 260;
-  --border: 0.9 0.01 260;
-  --input: 0.92 0.01 260;
-  --ring: 0.59 0.21 259;
+  --bg: 1 0 89.9;
+  --fg: 0.1371 0.036 258.5;
+  --muted: 0.9684 0.0068 247.9;
+  --muted-foreground: 0.5547 0.0407 257.4;
+  --border: 0.929 0.0126 255.5;
+  --input: 0.929 0.0126 255.5;
+  --ring: 0.546 0.2153 262.9;
 
   /* semantic interactive tokens */
-  --primary: 0.59 0.21 259;
-  --primary-foreground: 0.98 0.01 254;
-  --secondary: 0.95 0.04 246;
-  --secondary-foreground: 0.32 0.02 255;
-  --accent: 0.94 0.05 257;
-  --accent-foreground: 0.32 0.02 255;
-  --destructive: 0.63 0.25 28;
-  --destructive-foreground: 0.98 0.01 255;
+  --primary: 0.546 0.2153 262.9;
+  --primary-foreground: 0.9838 0.0035 247.9;
+  --secondary: 0.9684 0.0068 247.9;
+  --secondary-foreground: 0.2079 0.0399 265.7;
+  --accent: 0.9684 0.0068 247.9;
+  --accent-foreground: 0.2079 0.0399 265.7;
+  --destructive: 0.6368 0.2078 25.3;
+  --destructive-foreground: 0.9838 0.0035 247.9;
 
   /* derived aliases for existing components */
   --background: var(--bg);
@@ -29,14 +29,14 @@
   --popover: var(--bg);
   --popover-foreground: var(--fg);
 
-  --chart-1: 0.66 0.2 259;
-  --chart-2: 0.64 0.14 180;
-  --chart-3: 0.58 0.15 40;
-  --chart-4: 0.72 0.17 120;
-  --chart-5: 0.63 0.18 330;
+  --chart-1: 0.6231 0.188 259.8;
+  --chart-2: 0.7137 0.1434 254.6;
+  --chart-3: 0.5461 0.2152 262.9;
+  --chart-4: 0.4882 0.2172 264.4;
+  --chart-5: 0.4244 0.1809 265.6;
 
-  --sidebar: 0.98 0.005 255;
-  --sidebar-foreground: 0.24 0.015 257;
+  --sidebar: var(--muted);
+  --sidebar-foreground: var(--fg);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: var(--accent);
@@ -48,38 +48,38 @@
 .dark {
   color-scheme: dark;
 
-  --bg: 0.2 0.02 255;
-  --fg: 0.97 0.01 260;
-  --muted: 0.33 0.01 255;
-  --muted-foreground: 0.72 0.02 260;
-  --border: 0.33 0.01 255;
-  --input: 0.36 0.015 255;
-  --ring: 0.72 0.13 259;
+  --bg: 0.1371 0.036 258.5;
+  --fg: 0.9838 0.0035 247.9;
+  --muted: 0.28 0.0369 260;
+  --muted-foreground: 0.7107 0.0351 256.8;
+  --border: 0.28 0.0369 260;
+  --input: 0.28 0.0369 260;
+  --ring: 0.4878 0.217 264.4;
 
-  --primary: 0.72 0.13 259;
-  --primary-foreground: 0.2 0.02 255;
-  --secondary: 0.33 0.03 255;
-  --secondary-foreground: 0.95 0.02 257;
-  --accent: 0.36 0.04 257;
-  --accent-foreground: 0.95 0.02 257;
-  --destructive: 0.62 0.22 25;
-  --destructive-foreground: 0.98 0.01 254;
+  --primary: 0.6232 0.1879 259.8;
+  --primary-foreground: 0.2079 0.0399 265.7;
+  --secondary: 0.28 0.0369 260;
+  --secondary-foreground: 0.9838 0.0035 247.9;
+  --accent: 0.28 0.0369 260;
+  --accent-foreground: 0.9838 0.0035 247.9;
+  --destructive: 0.3959 0.1331 25.7;
+  --destructive-foreground: 0.9838 0.0035 247.9;
 
   --background: var(--bg);
   --foreground: var(--fg);
-  --card: 0.24 0.02 255;
+  --card: var(--bg);
   --card-foreground: var(--fg);
-  --popover: 0.24 0.02 255;
+  --popover: var(--bg);
   --popover-foreground: var(--fg);
 
-  --chart-1: 0.72 0.17 259;
-  --chart-2: 0.6 0.17 182;
-  --chart-3: 0.66 0.17 42;
-  --chart-4: 0.73 0.17 120;
-  --chart-5: 0.66 0.18 330;
+  --chart-1: 0.6231 0.188 259.8;
+  --chart-2: 0.7137 0.1434 254.6;
+  --chart-3: 0.5461 0.2152 262.9;
+  --chart-4: 0.4882 0.2172 264.4;
+  --chart-5: 0.4244 0.1809 265.6;
 
-  --sidebar: 0.24 0.02 255;
-  --sidebar-foreground: 0.97 0.01 260;
+  --sidebar: var(--muted);
+  --sidebar-foreground: var(--fg);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: var(--accent);
