@@ -3,7 +3,6 @@ import { HashRouter } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
-import "./styles.css";
 import { UiProvider } from "@/components/ui/UiProvider";
 
 if (import.meta.env.MODE !== "production") {

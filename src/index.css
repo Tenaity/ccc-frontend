@@ -1,5 +1,13 @@
 @import "./lib/ui/theme.css";
 
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter-roman-latin.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+}
+
 @tailwind base;
 
 @custom-variant dark (&:is(.dark *));
@@ -45,10 +53,17 @@
 }
 
 @layer base {
+  :root {
+    font-family: Inter, system-ui, Arial, sans-serif;
+  }
+
   * {
     @apply border-border outline-ring/50;
+    box-sizing: border-box;
   }
+
   body {
     @apply bg-background text-foreground;
+    margin: 0;
   }
 }

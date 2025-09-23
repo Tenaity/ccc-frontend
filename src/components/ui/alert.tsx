@@ -28,13 +28,15 @@ export interface AlertProps
     VariantProps<typeof alertVariants> {}
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
-  ({ className, variant, ...props }, ref) => (
+  ({ className, variant, children, ...props }, ref) => (
     <div
       ref={ref}
       role="alert"
       className={cn(alertVariants({ variant }), className)}
       {...props}
-    />
+    >
+      {children}
+    </div>
   )
 )
 Alert.displayName = "Alert"
@@ -42,24 +44,28 @@ Alert.displayName = "Alert"
 const AlertTitle = React.forwardRef<
   React.ElementRef<"h5">,
   React.ComponentPropsWithoutRef<"h5">
->(({ className, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <h5
     ref={ref}
     className={cn("mb-1 font-semibold leading-none tracking-tight", className)}
     {...props}
-  />
+  >
+    {children}
+  </h5>
 ))
 AlertTitle.displayName = "AlertTitle"
 
 const AlertDescription = React.forwardRef<
   HTMLParagraphElement,
   React.ComponentPropsWithoutRef<"p">
->(({ className, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <p
     ref={ref}
     className={cn("text-sm leading-relaxed", className)}
     {...props}
-  />
+  >
+    {children}
+  </p>
 ))
 AlertDescription.displayName = "AlertDescription"
 

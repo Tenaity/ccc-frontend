@@ -206,8 +206,8 @@ export default function QuickEditDialog({
             )}
           />
 
-          {reasons.length > 0 ? (
-            <ul className="list-disc space-y-1 pl-5 text-sm text-destructive" role="list">
+            {reasons.length > 0 ? (
+              <ul className="list-disc space-y-1 pl-5 text-sm text-destructive">
               {reasons.map((reason) => (
                 <li key={reason}>{reason}</li>
               ))}

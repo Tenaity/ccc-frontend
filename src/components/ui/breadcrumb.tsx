@@ -5,20 +5,22 @@ import { cn } from "@/lib/utils"
 const Breadcrumb = React.forwardRef<
   HTMLElement,
   React.ComponentPropsWithoutRef<"nav">
->(({ className, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <nav
     ref={ref}
     aria-label="Breadcrumb"
     className={cn("w-full", className)}
     {...props}
-  />
+  >
+    {children}
+  </nav>
 ))
 Breadcrumb.displayName = "Breadcrumb"
 
 const BreadcrumbList = React.forwardRef<
   HTMLOListElement,
   React.ComponentPropsWithoutRef<"ol">
->(({ className, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <ol
     ref={ref}
     className={cn(
@@ -26,26 +28,30 @@ const BreadcrumbList = React.forwardRef<
       className
     )}
     {...props}
-  />
+  >
+    {children}
+  </ol>
 ))
 BreadcrumbList.displayName = "BreadcrumbList"
 
 const BreadcrumbItem = React.forwardRef<
   HTMLLIElement,
   React.ComponentPropsWithoutRef<"li">
->(({ className, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <li
     ref={ref}
     className={cn("inline-flex items-center gap-1", className)}
     {...props}
-  />
+  >
+    {children}
+  </li>
 ))
 BreadcrumbItem.displayName = "BreadcrumbItem"
 
 const BreadcrumbLink = React.forwardRef<
   HTMLAnchorElement,
   React.ComponentPropsWithoutRef<"a">
->(({ className, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <a
     ref={ref}
     className={cn(
@@ -53,20 +59,24 @@ const BreadcrumbLink = React.forwardRef<
       className
     )}
     {...props}
-  />
+  >
+    {children}
+  </a>
 ))
 BreadcrumbLink.displayName = "BreadcrumbLink"
 
 const BreadcrumbPage = React.forwardRef<
   HTMLSpanElement,
   React.ComponentPropsWithoutRef<"span">
->(({ className, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <span
     ref={ref}
     aria-current="page"
     className={cn("font-medium text-foreground", className)}
     {...props}
-  />
+  >
+    {children}
+  </span>
 ))
 BreadcrumbPage.displayName = "BreadcrumbPage"
 
