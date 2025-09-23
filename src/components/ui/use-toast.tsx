@@ -1,4 +1,7 @@
 import * as React from "react"
+import { toast as notify } from "sonner"
+
+import { cn } from "@/lib/utils"
 
 export type ToastRecord = {
   id: string
@@ -21,21 +24,54 @@ function createId() {
   return Math.random().toString(36).slice(2)
 }
 
+function showToast(id: string, toast: Omit<ToastRecord, "id">) {
+  if (typeof window === "undefined") {
+    return
+  }
+
+  const show = toast.variant === "destructive" ? notify.error : notify
+  const title = toast.title ?? toast.description ?? ""
+  const description = toast.title ? toast.description : undefined
+
+  show(title, {
+    id,
+    description,
+    duration: toast.duration,
+    className: cn(
+      "rounded-xl border border-border/60 bg-background text-foreground shadow-lg",
+      toast.variant === "destructive" &&
+        "border-destructive/60 bg-destructive text-destructive-foreground",
+    ),
+  })
+}
+
 export function ToastStateProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = React.useState<ToastRecord[]>([])
 
-  const toast = React.useCallback((toast: Omit<ToastRecord, "id">) => {
+  const toast = React.useCallback((input: Omit<ToastRecord, "id">) => {
     const id = createId()
-    setToasts((current) => [...current, { id, ...toast }])
+    setToasts((current) => [...current, { id, ...input }])
+    showToast(id, input)
     return { id }
   }, [])
 
   const dismiss = React.useCallback((id?: string) => {
-    if (!id) {
-      setToasts([])
+    setToasts((current) => {
+      if (!id) {
+        return []
+      }
+      return current.filter((toast) => toast.id !== id)
+    })
+
+    if (typeof window === "undefined") {
       return
     }
-    setToasts((current) => current.filter((toast) => toast.id !== id))
+
+    if (id) {
+      notify.dismiss(id)
+    } else {
+      notify.dismiss()
+    }
   }, [])
 
   const value = React.useMemo(() => ({ toasts, toast, dismiss }), [toasts, toast, dismiss])
