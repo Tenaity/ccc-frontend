@@ -3,7 +3,7 @@ import { expect, test } from "vitest";
 import { render } from "@testing-library/react";
 import { axe } from "vitest-axe";
 
-import MatrixTable from "../src/components/Matrix/MatrixTable";
+import MatrixTable from "@/components/schedule/MatrixTable";
 import type {
   Assignment,
   DayPlaceSummary,

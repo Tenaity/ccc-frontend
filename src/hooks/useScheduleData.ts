@@ -163,7 +163,7 @@ export function useScheduleData(year: number, month: number) {
     setHolidays(await safeJSON<Holiday[]>(res));
   };
 
-  const fetchValidate = async () => {
+  const fetchValidate = async (): Promise<{ ok: boolean; conflicts: any[] }> => {
     const res = await fetch(`/api/schedule/validate?year=${year}&month=${month}`);
     const json = await safeJSON<{ ok: boolean; conflicts: any }>(res);
     const items: any[] = [];
@@ -179,9 +179,10 @@ export function useScheduleData(year: number, month: number) {
         for (const c of arr as any[]) items.push({ ...c, type: k });
       }
     }
-    setValidation({ ok: json.ok, conflicts: items });
+    const normalized = { ok: json.ok, conflicts: items };
+    setValidation(normalized);
     setHasLeaderDup(dup);
-    return json;
+    return normalized;
   };
 
   /** fetchExpected: tải rule “chuẩn” từng ngày trong tháng (để đối chiếu UI nếu cần) */
@@ -231,11 +232,13 @@ export function useScheduleData(year: number, month: number) {
 
   // ====== ACTIONS (Generate/Shuffle/Save/Reset) ======
   /** onGenerate: chạy engine để xem preview (không lưu DB) */
-  const onGenerate = async (opts?: { shuffle?: boolean }) => {
+  const onGenerate = async (
+    opts?: { shuffle?: boolean }
+  ): Promise<{ ok: boolean; conflicts: any[] }> => {
     setLoadingGen(true);
     try {
       const valid = await fetchValidate();
-      if (!valid.ok) return;
+      if (!valid.ok) return valid;
       const shuffle = !!opts?.shuffle;
       const seed = shuffle ? Date.now() : null;
       const body = { year, month, shuffle, seed, save: false, fill_hc: fillHC };
@@ -252,6 +255,8 @@ export function useScheduleData(year: number, month: number) {
 
       await fetchEstimate();
       await fetchExpected();
+
+      return valid;
     } finally {
       setLoadingGen(false);
     }

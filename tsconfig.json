@@ -6,6 +6,7 @@
     "strict": true,
     "moduleResolution": "Bundler",
     "skipLibCheck": true,
+    "resolveJsonModule": true,
     "allowJs": false,
     "noEmit": true,
     "types": ["vite/client", "react", "react-dom", "node"],

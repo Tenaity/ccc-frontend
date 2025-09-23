@@ -1,7 +1,8 @@
 import React from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 
-import MatrixRoute from '../../src/routes/MatrixRoute'
+import SchedulePage from '../../src/pages/Schedule'
 import type { DayPlaceSummary, ExpectedByDay } from '../../src/types'
 import type { Cell } from '../../src/utils/mergeCellIndex'
 
@@ -14,6 +15,10 @@ vi.mock('@/components/CalendarHeader', () => ({
       <button onClick={onOpenFixedOff}>header-fixed</button>
     </div>
   ),
+}))
+
+vi.mock('@/hooks/use-mobile', () => ({
+  useIsMobile: () => false,
 }))
 
 vi.mock('@/components/Toolbar', () => ({
@@ -37,12 +42,12 @@ vi.mock('@/components/ConflictList', () => ({
   ),
 }))
 
-vi.mock('@/components/Matrix/MatrixTable', () => ({
+vi.mock('@/components/schedule/MatrixTable', () => ({
   __esModule: true,
   default: ({ staff }: { staff: any[] }) => <div data-testid="matrix-table">rows-{staff.length}</div>,
 }))
 
-describe('MatrixRoute', () => {
+describe('SchedulePage', () => {
   it('renders matrix header and forwards actions', () => {
     const onGenerate = vi.fn()
     const onShuffle = vi.fn()
@@ -63,7 +68,7 @@ describe('MatrixRoute', () => {
     const summariesByStaffId = new Map<number, { counts: Record<string, number>; credit: number; dayCount: number; nightCount: number }>()
 
     render(
-      <MatrixRoute
+      <SchedulePage
         year={2024}
         month={9}
         setYear={setYear}
@@ -80,7 +85,7 @@ describe('MatrixRoute', () => {
         setFillHC={vi.fn()}
         canGenerate
         onValidate={onValidate}
-        onOpenFixedOff={onOpenFixedOff}
+        onFixedOff={onOpenFixedOff}
         days={[1]}
         staff={[]}
         assignmentIndex={assignmentIndex}
@@ -94,10 +99,11 @@ describe('MatrixRoute', () => {
         matrixError={null}
         fetchStaff={vi.fn()}
         validationConflicts={[{ id: 1 }, { id: 2 }]}
-      />,
+        toolbarActions={<div>extra</div>}
+      />, 
     )
 
-    expect(screen.getByRole('heading', { name: /ma trận phân ca/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /monthly schedule/i })).toBeInTheDocument()
     expect(screen.getByTestId('conflict-count')).toHaveTextContent('2')
 
     fireEvent.click(screen.getByText('header-generate'))

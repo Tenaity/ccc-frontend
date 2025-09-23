@@ -6,6 +6,15 @@ import { HashRouter } from 'react-router-dom'
 import App from '../src/App'
 import { UiProvider } from '../src/components/ui/UiProvider'
 
+vi.mock('../src/hooks/use-mobile', () => ({
+  useIsMobile: () => false,
+}))
+
+vi.mock('../src/pages/Dashboard', () => ({
+  __esModule: true,
+  default: () => <div data-testid="dashboard" />,
+}))
+
 vi.mock('../src/hooks/useScheduleData', () => ({
   useScheduleData: () => ({
     staff: [],
@@ -26,14 +35,16 @@ vi.mock('../src/hooks/useScheduleData', () => ({
     perDayDayNight: {},
     leaderErrors: [],
     perDayByPlace: {},
-    onGenerate: vi.fn(),
+    onGenerate: vi.fn().mockResolvedValue({ ok: true, conflicts: [] }),
     onShuffle: vi.fn(),
     onSave: vi.fn(),
     onResetSoft: vi.fn(),
     onResetHard: vi.fn(),
+    fetchStaff: vi.fn(),
     fetchFixed: vi.fn(),
     fetchOffdays: vi.fn(),
-    fetchValidate: vi.fn(),
+    fetchHolidays: vi.fn(),
+    fetchValidate: vi.fn().mockResolvedValue({ ok: true, conflicts: [] }),
     estimate: null,
     loadingEstimate: false,
     estimateError: null,
@@ -76,5 +87,5 @@ test('App renders inside UiProvider without crashing', () => {
     </UiProvider>,
   )
 
-  expect(screen.getByRole('heading', { name: /customer care center/i })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /dashboard/i })).toBeInTheDocument()
 })

@@ -5,6 +5,7 @@ import MatrixRow from "./MatrixRow";
 import TotalsRows from "./TotalsRows";
 const QuickEditDialog = React.lazy(() => import("../QuickEditDialog"));
 import { fmtYMD } from "@/utils/date";
+import { cn } from "@/lib/utils";
 import type {
   Staff,
   Assignment,
@@ -35,6 +36,8 @@ export default function MatrixTable({
   loading = false,
   error = null,
   onRetry,
+  withCard = true,
+  containerClassName,
 }: {
   year: number;
   month: number;
@@ -61,6 +64,8 @@ export default function MatrixTable({
   loading?: boolean;
   error?: string | null;
   onRetry?: () => void;
+  withCard?: boolean;
+  containerClassName?: string;
 }) {
   const [edit, setEdit] = React.useState<{ staff: Staff; day: number } | null>(
     null
@@ -95,69 +100,83 @@ export default function MatrixTable({
   const showEmpty = !loading && !error && members.length === 0;
   const monthLabel = `${String(month).padStart(2, "0")}/${year}`;
 
-  return (
-    <>
-      <Card className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-sm">
-        <CardContent className="p-0">
-          {loading ? (
-            <MatrixSkeleton dayCount={days.length} />
-          ) : error ? (
-            <div className="p-6">
-              <MatrixErrorState message={error} onRetry={onRetry} />
-            </div>
-          ) : showEmpty ? (
-            <div className="p-6">
-              <MatrixEmptyState />
-            </div>
-          ) : (
-            <TooltipProvider delayDuration={150}>
-              <ScrollArea className="max-h-[70vh]">
-                <div className="min-w-[1100px]">
-                  <Table
-                    className="border-separate border-spacing-0 text-sm text-foreground"
-                    stickyHeader
-                  >
-                    <TableCaption className="sr-only">
-                      Bảng phân công ca chi tiết cho tháng {monthLabel}
-                    </TableCaption>
-                    <MatrixHeader
+  const matrixView = (
+    <div className="p-0">
+      {loading ? (
+        <MatrixSkeleton dayCount={days.length} />
+      ) : error ? (
+        <div className="p-6">
+          <MatrixErrorState message={error} onRetry={onRetry} />
+        </div>
+      ) : showEmpty ? (
+        <div className="p-6">
+          <MatrixEmptyState />
+        </div>
+      ) : (
+        <TooltipProvider delayDuration={150}>
+          <ScrollArea className="max-h-[70vh]">
+            <div className="min-w-[1100px]">
+              <Table
+                className="border-separate border-spacing-0 text-sm text-foreground"
+                stickyHeader
+              >
+                <TableCaption className="sr-only">
+                  Bảng phân công ca chi tiết cho tháng {monthLabel}
+                </TableCaption>
+                <MatrixHeader
+                  year={year}
+                  month={month}
+                  days={days}
+                  perDayLeaders={perDayLeaders}
+                />
+                <TableBody>
+                  {members.map((member, idx) => (
+                    <MatrixRow
+                      key={member.id}
+                      staff={member}
+                      index={idx}
                       year={year}
                       month={month}
                       days={days}
-                      perDayLeaders={perDayLeaders}
+                      assignmentIndex={assignmentIndex}
+                      summariesByStaffId={summariesByStaffId}
+                      fixedByDayStaff={fixedByDayStaff}
+                      offByDayStaff={offByDayStaff}
+                      leaderCountsByDay={leaderCountsByDay}
+                      onEditCell={(st, day) => setEdit({ staff: st, day })}
                     />
-                    <TableBody>
-                      {members.map((member, idx) => (
-                        <MatrixRow
-                          key={member.id}
-                          staff={member}
-                          index={idx}
-                          year={year}
-                          month={month}
-                          days={days}
-                          assignmentIndex={assignmentIndex}
-                          summariesByStaffId={summariesByStaffId}
-                          fixedByDayStaff={fixedByDayStaff}
-                          offByDayStaff={offByDayStaff}
-                          leaderCountsByDay={leaderCountsByDay}
-                          onEditCell={(st, day) => setEdit({ staff: st, day })}
-                        />
-                      ))}
-                      <TotalsRows
-                        year={year}
-                        month={month}
-                        days={days}
-                        perDayByPlace={perDayByPlace}
-                        expectedByDay={expectedByDay}
-                      />
-                    </TableBody>
-                  </Table>
-                </div>
-              </ScrollArea>
-            </TooltipProvider>
-          )}
-        </CardContent>
-      </Card>
+                  ))}
+                  <TotalsRows
+                    year={year}
+                    month={month}
+                    days={days}
+                    perDayByPlace={perDayByPlace}
+                    expectedByDay={expectedByDay}
+                  />
+                </TableBody>
+              </Table>
+            </div>
+          </ScrollArea>
+        </TooltipProvider>
+      )}
+    </div>
+  );
+
+  const containerClasses = cn(
+    "overflow-hidden rounded-3xl border border-border/60 bg-card shadow-sm",
+    !withCard && "rounded-2xl border-border/40 bg-card/60 shadow-none",
+    containerClassName,
+  );
+
+  return (
+    <>
+      {withCard ? (
+        <Card className={containerClasses}>
+          <CardContent className="p-0">{matrixView}</CardContent>
+        </Card>
+      ) : (
+        <div className={containerClasses}>{matrixView}</div>
+      )}
       <div id="quick-edit" className="space-y-2">
         <div className="sr-only" aria-hidden="true">
           Hộp thoại chỉnh sửa nhanh
