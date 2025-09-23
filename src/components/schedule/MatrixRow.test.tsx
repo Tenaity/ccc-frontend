@@ -1,81 +1,83 @@
+import "@testing-library/jest-dom/vitest"
+
 import { render } from "@testing-library/react"
-import { expect, test } from "vitest"
+import { describe, expect, test, vi } from "vitest"
 
-import MatrixRow from "@/components/schedule/MatrixRow"
+import MatrixRow from "./MatrixRow"
 import { TooltipProvider } from "@/components/ui/tooltip"
-import type { Assignment, Staff } from "@/types"
+import type { Staff } from "@/types"
 
-const year = 2025
-const month = 5
-const days = [1, 2, 3]
-
-const staff: Staff = {
-  id: 42,
-  full_name: "Nguyễn Văn A",
-  role: "TC",
-  can_night: true,
-  base_quota: 18,
-  notes: "[CODE:1978][RANK:1]",
+function createAssignmentKey(staffId: number, day: string) {
+  return `${staffId}|${day}`
 }
 
-const dayKey = (day: number) =>
-  `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`
+describe("MatrixRow", () => {
+  test("matches snapshot with duplicate leaders and rank badge", () => {
+    const year = 2024
+    const month = 6
+    const days = [1, 2, 3]
 
-const assignmentIndex = new Map<
-  string,
-  { code: Assignment["shift_code"]; position: Assignment["position"] | null }
->()
-assignmentIndex.set(`${staff.id}|${dayKey(1)}`, { code: "K", position: "TD" })
-assignmentIndex.set(`${staff.id}|${dayKey(2)}`, { code: "Đ", position: "TD" })
+    const staff: Staff = {
+      id: 42,
+      full_name: "Nguyen Van A",
+      role: "TC",
+      can_night: true,
+      base_quota: 10,
+      notes: "[CODE:1978][RANK:1]",
+    }
 
-const summariesByStaffId = new Map<number, {
-  counts: Record<string, number>
-  credit: number
-  dayCount: number
-  nightCount: number
-}>()
-summariesByStaffId.set(staff.id, {
-  counts: { CA1: 1, CA2: 0, K: 1, HC: 0, Đ: 1, P: 1 },
-  credit: 12,
-  dayCount: 2,
-  nightCount: 1,
-})
+    const assignmentIndex = new Map([
+      [createAssignmentKey(staff.id, "2024-06-01"), { code: "K", position: "TD" }],
+      [createAssignmentKey(staff.id, "2024-06-02"), { code: "Đ", position: "TD" }],
+      [createAssignmentKey(staff.id, "2024-06-03"), { code: "CA1", position: null }],
+    ])
 
-const fixedByDayStaff = new Map<string, boolean>([
-  [`${staff.id}|${dayKey(1)}`, true],
-])
+    const summariesByStaffId = new Map([
+      [
+        staff.id,
+        {
+          counts: { CA1: 2, CA2: 1, K: 1, HC: 0, Đ: 1, P: 0 },
+          credit: 7,
+          dayCount: 4,
+          nightCount: 1,
+        },
+      ],
+    ])
 
-const offByDayStaff = new Map<string, boolean>([
-  [`${staff.id}|${dayKey(3)}`, true],
-])
+    const fixedByDayStaff = new Map([
+      [createAssignmentKey(staff.id, "2024-06-03"), true],
+    ])
 
-const leaderCountsByDay = new Map<number, { day: number; night: number }>([
-  [1, { day: 2, night: 0 }],
-  [2, { day: 0, night: 1 }],
-  [3, { day: 0, night: 0 }],
-])
+    const offByDayStaff = new Map<string, boolean>()
 
-test("renders schedule matrix row with badges and totals", () => {
-  const { asFragment } = render(
-    <TooltipProvider>
-      <table>
-        <tbody>
-          <MatrixRow
-            staff={staff}
-            index={0}
-            year={year}
-            month={month}
-            days={days}
-            assignmentIndex={assignmentIndex}
-            summariesByStaffId={summariesByStaffId}
-            fixedByDayStaff={fixedByDayStaff}
-            offByDayStaff={offByDayStaff}
-            leaderCountsByDay={leaderCountsByDay}
-          />
-        </tbody>
-      </table>
-    </TooltipProvider>,
-  )
+    const leaderCountsByDay = new Map([
+      [1, { day: 2, night: 0 }],
+      [2, { day: 0, night: 2 }],
+      [3, { day: 1, night: 0 }],
+    ])
 
-  expect(asFragment()).toMatchSnapshot()
+    const { asFragment } = render(
+      <TooltipProvider>
+        <table>
+          <tbody>
+            <MatrixRow
+              staff={staff}
+              index={0}
+              year={year}
+              month={month}
+              days={days}
+              assignmentIndex={assignmentIndex}
+              summariesByStaffId={summariesByStaffId}
+              fixedByDayStaff={fixedByDayStaff}
+              offByDayStaff={offByDayStaff}
+              leaderCountsByDay={leaderCountsByDay}
+              onEditCell={vi.fn()}
+            />
+          </tbody>
+        </table>
+      </TooltipProvider>,
+    )
+
+    expect(asFragment()).toMatchSnapshot()
+  })
 })
