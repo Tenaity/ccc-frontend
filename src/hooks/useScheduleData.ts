@@ -13,6 +13,7 @@ import type {
 import { DAY_SHIFTS, NIGHT_SHIFTS, SHIFT_CREDIT } from "../utils/schedule"; // giữ nguyên nguồn constants/credit hiện tại
 import { fmtYMD, parseYMD } from "../utils/date";
 import { buildCellIndex, type Cell } from "../utils/mergeCellIndex";
+import { generateSchedule, validateSchedule } from "@/lib/api";
 
 
 /** safeJSON: đọc Response an toàn, ném Error message gọn gàng khi !ok */
@@ -164,24 +165,10 @@ export function useScheduleData(year: number, month: number) {
   };
 
   const fetchValidate = async (): Promise<{ ok: boolean; conflicts: any[] }> => {
-    const res = await fetch(`/api/schedule/validate?year=${year}&month=${month}`);
-    const json = await safeJSON<{ ok: boolean; conflicts: any }>(res);
-    const items: any[] = [];
-    let dup = false;
-    const conf = json.conflicts || {};
-    if (Array.isArray(conf)) {
-      for (const c of conf) items.push(c);
-    } else {
-      for (const [k, arr] of Object.entries(conf)) {
-        if ((k === "leader_day_dup" || k === "leader_night_dup") && Array.isArray(arr) && arr.length > 0) {
-          dup = true;
-        }
-        for (const c of arr as any[]) items.push({ ...c, type: k });
-      }
-    }
-    const normalized = { ok: json.ok, conflicts: items };
+    const result = await validateSchedule(year, month);
+    const normalized = { ok: result.ok, conflicts: result.conflicts };
     setValidation(normalized);
-    setHasLeaderDup(dup);
+    setHasLeaderDup(result.hasLeaderDup);
     return normalized;
   };
 
@@ -241,14 +228,14 @@ export function useScheduleData(year: number, month: number) {
       if (!valid.ok) return valid;
       const shuffle = !!opts?.shuffle;
       const seed = shuffle ? Date.now() : null;
-      const body = { year, month, shuffle, seed, save: false, fill_hc: fillHC };
-
-      const res = await fetch("/api/schedule/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+      const result = await generateSchedule({
+        year,
+        month,
+        shuffle,
+        seed,
+        save: false,
+        fillHC,
       });
-      const result = await safeJSON<{ ok?: boolean; planned?: Assignment[]; error?: string }>(res);
 
       setAssignments(result?.ok === false ? [] : (result.planned ?? []));
       setLastOptions({ year, month, shuffle, seed, fillHC });
@@ -270,16 +257,10 @@ export function useScheduleData(year: number, month: number) {
     if (!lastOptions) { alert("Hãy Generate hoặc Shuffle trước khi Save."); return; }
     setLoadingGen(true);
     try {
-      const body = { ...lastOptions, save: true, fill_hc: lastOptions.fillHC };
-      const res = await fetch("/api/schedule/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      await safeJSON(res);
-      await fetchAssignments();
-      await fetchEstimate();
-      await fetchExpected();
+    await generateSchedule({ ...lastOptions, save: true });
+    await fetchAssignments();
+    await fetchEstimate();
+    await fetchExpected();
       alert("Đã lưu lịch vào DB.");
     } finally {
       setLoadingGen(false);

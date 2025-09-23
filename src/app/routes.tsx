@@ -1,4 +1,4 @@
-import { CalendarClockIcon, LayoutDashboardIcon } from "lucide-react"
+import { CalendarIcon, LayoutDashboardIcon } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
 export type AppRoute = {
@@ -19,7 +19,7 @@ export const appRoutes: AppRoute[] = [
     path: "/schedule",
     label: "Schedule",
     description: "Quản lý lịch phân ca dạng ma trận",
-    icon: CalendarClockIcon,
+    icon: CalendarIcon,
   },
 ]
 

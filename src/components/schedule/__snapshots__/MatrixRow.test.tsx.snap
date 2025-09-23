@@ -1,0 +1,220 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renders schedule matrix row with badges and totals 1`] = `
+<DocumentFragment>
+  <table>
+    <tbody>
+      <tr
+        class="border-b border-border/60 transition-colors hover:bg-muted/50 bg-card"
+      >
+        <th
+          class="sticky left-0 z-20 min-w-[220px] border-r border-border/60 bg-background px-4 py-3 text-left shadow-[4px_0_12px_-8px_rgba(15,23,42,0.25)]"
+          scope="row"
+        >
+          <div
+            class="flex items-baseline justify-between gap-3"
+          >
+            <div>
+              <div
+                class="text-sm font-semibold text-foreground"
+              >
+                Nguyễn Văn A
+              </div>
+              <div
+                class="flex items-center gap-2 text-xs text-muted-foreground"
+              >
+                <span>
+                  TC
+                </span>
+                <span
+                  class="rounded bg-muted px-1 py-0.5"
+                >
+                  #1978
+                </span>
+                <span
+                  class="ml-2 inline-flex items-center rounded-full border px-1.5 text-[11px] font-semibold border-primary/70 bg-primary/10 text-primary"
+                >
+                  Rank 1
+                </span>
+              </div>
+            </div>
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-shield-check h-4 w-4 text-primary"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+              />
+              <path
+                d="m9 12 2 2 4-4"
+              />
+            </svg>
+          </div>
+        </th>
+        <td
+          class="p-3 align-middle text-sm relative h-16 min-w-[64px] border-r border-border/40 px-1 py-1 text-center"
+        >
+          <div
+            class="flex h-full w-full items-center justify-center"
+            data-state="closed"
+          >
+            <div
+              class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary/10 text-primary inline-flex min-w-[3rem] items-center justify-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold uppercase tracking-tight transition-colors border border-primary/60"
+            >
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-pin h-3.5 w-3.5 text-primary"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 17v5"
+                />
+                <path
+                  d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"
+                />
+              </svg>
+              <span>
+                K
+              </span>
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-crown h-3.5 w-3.5 text-amber-500"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"
+                />
+                <path
+                  d="M5 21h14"
+                />
+              </svg>
+            </div>
+          </div>
+        </td>
+        <td
+          class="p-3 align-middle text-sm relative h-16 min-w-[64px] border-r border-border/40 px-1 py-1 text-center"
+        >
+          <div
+            class="flex h-full w-full items-center justify-center"
+            data-state="closed"
+          >
+            <div
+              class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-slate-900 text-slate-50 shadow-[0_1px_0_rgba(15,23,42,0.55)] inline-flex min-w-[3rem] items-center justify-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold uppercase tracking-tight transition-colors border border-primary/60"
+            >
+              <span>
+                Đ
+              </span>
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-crown h-3.5 w-3.5 text-amber-500"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"
+                />
+                <path
+                  d="M5 21h14"
+                />
+              </svg>
+            </div>
+          </div>
+        </td>
+        <td
+          class="p-3 align-middle text-sm relative h-16 min-w-[64px] border-r border-border/40 px-1 py-1 text-center bg-amber-50/60"
+        >
+          <div
+            class="flex h-full w-full items-center justify-center"
+            data-state="closed"
+          >
+            <div
+              class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-muted text-muted-foreground inline-flex min-w-[3rem] items-center justify-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold uppercase tracking-tight transition-colors border border-transparent"
+            >
+              <span>
+                OFF
+              </span>
+            </div>
+          </div>
+        </td>
+        <td
+          class="p-3 align-middle text-center text-sm font-medium text-foreground"
+        >
+          1
+        </td>
+        <td
+          class="p-3 align-middle text-center text-sm font-medium text-foreground"
+        >
+          0
+        </td>
+        <td
+          class="p-3 align-middle text-center text-sm font-medium text-foreground"
+        >
+          1
+        </td>
+        <td
+          class="p-3 align-middle text-center text-sm font-medium text-foreground"
+        >
+          0
+        </td>
+        <td
+          class="p-3 align-middle text-center text-sm font-medium text-foreground"
+        >
+          1
+        </td>
+        <td
+          class="p-3 align-middle text-center text-sm font-medium text-foreground"
+        >
+          1
+        </td>
+        <td
+          class="p-3 align-middle bg-muted/40 text-center text-sm font-semibold text-foreground"
+        >
+          2
+        </td>
+        <td
+          class="p-3 align-middle bg-muted/40 text-center text-sm font-semibold text-foreground"
+        >
+          1
+        </td>
+        <td
+          class="p-3 align-middle bg-muted/60 text-center text-sm font-bold text-foreground"
+        >
+          12
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</DocumentFragment>
+`;
