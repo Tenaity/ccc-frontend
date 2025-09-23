@@ -23,6 +23,7 @@ export default function App() {
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth() + 1)
   const [showFixedOff, setShowFixedOff] = useState(false)
+  const [isValidating, setIsValidating] = useState(false)
   const { toast } = useToast()
   const location = useLocation()
 
@@ -59,16 +60,6 @@ export default function App() {
     [month, year]
   )
 
-  const headerActions = useMemo(
-    () => (
-      <div className="flex flex-col items-end gap-1 text-xs text-muted-foreground sm:text-sm">
-        <span>Tháng hiện tại: {monthLabel}</span>
-        <span>{staff.length} nhân sự</span>
-      </div>
-    ),
-    [monthLabel, staff.length]
-  )
-
   const matrixLoading = loadingStaff || (loadingGen && staff.length === 0)
   const matrixError = staffError
   const conflictCount = validation.conflicts.length
@@ -100,6 +91,11 @@ export default function App() {
   }, [exportCsv, year, month])
 
   const handleValidate = React.useCallback(async () => {
+    if (isValidating) {
+      return
+    }
+
+    setIsValidating(true)
     try {
       const result = await fetchValidate()
       if (result.ok) {
@@ -123,8 +119,10 @@ export default function App() {
         title: "Validate thất bại",
         description: message,
       })
+    } finally {
+      setIsValidating(false)
     }
-  }, [fetchValidate, toast])
+  }, [fetchValidate, isValidating, toast])
 
   const handleGenerate = React.useCallback(async () => {
     try {
@@ -161,6 +159,63 @@ export default function App() {
     },
     [setFillHC],
   )
+
+  const headerActions = useMemo(() => {
+    const stats = (
+      <div className="flex flex-col items-end gap-1 text-xs text-muted-foreground sm:text-sm">
+        <span>Tháng hiện tại: {monthLabel}</span>
+        <span>{staff.length} nhân sự</span>
+      </div>
+    )
+
+    if (routeMeta.path !== "/schedule") {
+      return stats
+    }
+
+    return (
+      <div className="flex flex-col items-end gap-2">
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleExport}
+            disabled={isExporting}
+            data-testid="header-export"
+          >
+            {isExporting ? "Đang xuất..." : "Export CSV"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleValidate}
+            disabled={loadingGen || isValidating}
+            data-testid="header-validate"
+          >
+            {isValidating ? "Đang kiểm tra..." : "Validate"}
+          </Button>
+          <Button
+            size="sm"
+            onClick={handleGenerate}
+            disabled={loadingGen}
+            data-testid="header-generate"
+          >
+            {loadingGen ? "Đang tạo..." : "Generate"}
+          </Button>
+        </div>
+        {stats}
+      </div>
+    )
+  }, [
+    handleExport,
+    handleGenerate,
+    handleValidate,
+    isExporting,
+    isValidating,
+    loadingGen,
+    monthLabel,
+    routeMeta.path,
+    staff.length,
+  ])
 
   const scheduleToolbar = (
     <>
