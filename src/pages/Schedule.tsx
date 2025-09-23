@@ -2,7 +2,13 @@ import { useCallback, useMemo, useState, type ReactNode } from "react"
 
 import MatrixTable from "@/components/schedule/MatrixTable"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import type { DayPlaceSummary, ExpectedByDay, Staff } from "@/types"
 import type { Cell } from "@/utils/mergeCellIndex"
 
@@ -93,46 +99,49 @@ export default function SchedulePage({
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-16 lg:px-6">
-      <section aria-labelledby="schedule-heading" className="space-y-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <h2 id="schedule-heading" className="text-lg font-semibold text-foreground sm:text-xl">
-              Schedule
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Ma trận phân ca cho tháng {monthLabel}. Theo dõi nhanh trạng thái ca và cảnh báo vi phạm.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              variant="secondary"
-              onClick={handleExport}
-              disabled={exporting}
-              data-testid="schedule-export"
-            >
-              {exporting ? "Đang xuất..." : "Export CSV"}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleValidate}
-              disabled={loadingGen || isValidating}
-              data-testid="schedule-validate"
-            >
-              {isValidating ? "Đang kiểm tra..." : "Validate"}
-            </Button>
-            <Button onClick={handleGenerate} disabled={loadingGen} data-testid="schedule-generate">
-              {loadingGen ? "Đang tạo..." : "Generate"}
-            </Button>
-          </div>
-        </div>
-
-        {toolbarActions ? (
-          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-            {toolbarActions}
-          </div>
-        ) : null}
-
+      <section aria-labelledby="schedule-heading">
         <Card className="border-border/60 shadow-sm">
+          <CardHeader className="gap-4 pb-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="space-y-1">
+                <CardTitle
+                  id="schedule-heading"
+                  className="text-lg font-semibold text-foreground sm:text-xl"
+                >
+                  Schedule
+                </CardTitle>
+                <CardDescription>
+                  Ma trận phân ca cho tháng {monthLabel}. Theo dõi nhanh trạng thái ca và cảnh báo vi phạm.
+                </CardDescription>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={handleExport}
+                  disabled={exporting}
+                  data-testid="schedule-export"
+                >
+                  {exporting ? "Đang xuất..." : "Export CSV"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleValidate}
+                  disabled={loadingGen || isValidating}
+                  data-testid="schedule-validate"
+                >
+                  {isValidating ? "Đang kiểm tra..." : "Validate"}
+                </Button>
+                <Button onClick={handleGenerate} disabled={loadingGen} data-testid="schedule-generate">
+                  {loadingGen ? "Đang tạo..." : "Generate"}
+                </Button>
+              </div>
+            </div>
+            {toolbarActions ? (
+              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                {toolbarActions}
+              </div>
+            ) : null}
+          </CardHeader>
           <CardContent className="p-0">
             <MatrixTable
               year={year}
