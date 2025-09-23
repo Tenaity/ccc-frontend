@@ -26,6 +26,8 @@ export default function App() {
   const [isValidating, setIsValidating] = useState(false)
   const { toast } = useToast()
   const location = useLocation()
+  const routeMeta = matchRoute(location.pathname) ?? matchRoute("/")!
+  const scheduleEnabled = routeMeta.path === "/schedule"
 
   const {
     staff,
@@ -51,7 +53,7 @@ export default function App() {
     leaderErrors,
     fillHC,
     setFillHC,
-  } = useScheduleData(year, month)
+  } = useScheduleData(year, month, { enabled: scheduleEnabled })
 
   const { exportCsv, isExporting } = useExportCsv()
 
@@ -79,8 +81,6 @@ export default function App() {
       <Legend label="TC đêm (Đ + 👑, position=TD & role=TC)" bg="#FFE6EA" />
     </div>
   )
-
-  const routeMeta = matchRoute(location.pathname) ?? matchRoute("/")!
 
   const openFixedOffPanel = React.useCallback(() => {
     setShowFixedOff(true)
@@ -161,10 +161,16 @@ export default function App() {
   )
 
   const headerActions = useMemo(() => {
+    const staffSummary = scheduleEnabled
+      ? loadingStaff
+        ? "Đang tải nhân sự…"
+        : `${staff.length} nhân sự`
+      : "— nhân sự"
+
     const stats = (
       <div className="flex flex-col items-end gap-1 text-xs text-muted-foreground sm:text-sm">
         <span>Tháng hiện tại: {monthLabel}</span>
-        <span>{staff.length} nhân sự</span>
+        <span>{staffSummary}</span>
       </div>
     )
 
@@ -212,8 +218,10 @@ export default function App() {
     isExporting,
     isValidating,
     loadingGen,
+    loadingStaff,
     monthLabel,
     routeMeta.path,
+    scheduleEnabled,
     staff.length,
   ])
 

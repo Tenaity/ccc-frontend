@@ -35,7 +35,16 @@ async function safeJSON<T>(res: Response): Promise<T> {
  * - Cung cấp các action (generate/shuffle/save/reset)
  * - Tính các chỉ số tổng hợp (perDayCounts, perDayLeaders, perDayByPlace, summariesByStaffId, …)
  */
-export function useScheduleData(year: number, month: number) {
+export function isScheduleEnabled(options?: { enabled?: boolean }): boolean {
+  return options?.enabled ?? true;
+}
+
+export function useScheduleData(
+  year: number,
+  month: number,
+  options?: { enabled?: boolean },
+) {
+  const isEnabled = isScheduleEnabled(options);
   // ====== RAW DATA ======
   const [staff, setStaff] = useState<Staff[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -43,7 +52,7 @@ export function useScheduleData(year: number, month: number) {
   const [offdays, setOffdays] = useState<OffDay[]>([]);
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [loadingGen, setLoadingGen] = useState(false);
-  const [loadingStaff, setLoadingStaff] = useState(true);
+  const [loadingStaff, setLoadingStaff] = useState(isEnabled);
   const [staffError, setStaffError] = useState<string | null>(null);
   const [validation, setValidation] = useState<{ ok: boolean; conflicts: any[] }>({ ok: true, conflicts: [] });
   const [hasLeaderDup, setHasLeaderDup] = useState(false);
@@ -119,6 +128,11 @@ export function useScheduleData(year: number, month: number) {
 
   // ====== LOADERS ======
   const fetchStaff = useCallback(async () => {
+    if (!isEnabled) {
+      setLoadingStaff(false);
+      return;
+    }
+
     setLoadingStaff(true);
     setStaffError(null);
     try {
@@ -135,45 +149,64 @@ export function useScheduleData(year: number, month: number) {
     } finally {
       setLoadingStaff(false);
     }
-  }, []);
+  }, [isEnabled]);
 
   useEffect(() => {
     void fetchStaff();
   }, [fetchStaff]);
 
   /** fetchAssignments: tải lịch đã lưu (DB) theo (year,month) */
-  const fetchAssignments = async () => {
+  const fetchAssignments = useCallback(async () => {
+    if (!isEnabled) {
+      return;
+    }
     const res = await fetch(`/api/assignments?year=${year}&month=${month}`);
     setAssignments(await safeJSON<Assignment[]>(res));
-  };
+  }, [isEnabled, month, year]);
 
   /** fetchFixed: tải các ca cố định theo (year,month) */
-  const fetchFixed = async () => {
+  const fetchFixed = useCallback(async () => {
+    if (!isEnabled) {
+      return;
+    }
     const res = await fetch(`/api/fixed?year=${year}&month=${month}`);
     setFixed(await safeJSON<FixedAssignment[]>(res));
-  };
+  }, [isEnabled, month, year]);
 
   /** fetchOffdays: tải danh sách xin nghỉ theo (year,month) */
-  const fetchOffdays = async () => {
+  const fetchOffdays = useCallback(async () => {
+    if (!isEnabled) {
+      return;
+    }
     const res = await fetch(`/api/offdays?year=${year}&month=${month}`);
     setOffdays(await safeJSON<OffDay[]>(res));
-  };
+  }, [isEnabled, month, year]);
 
-  const fetchHolidays = async () => {
+  const fetchHolidays = useCallback(async () => {
+    if (!isEnabled) {
+      return;
+    }
     const res = await fetch(`/api/holidays?year=${year}&month=${month}`);
     setHolidays(await safeJSON<Holiday[]>(res));
-  };
+  }, [isEnabled, month, year]);
 
-  const fetchValidate = async (): Promise<{ ok: boolean; conflicts: any[] }> => {
+  const fetchValidate = useCallback(async (): Promise<{ ok: boolean; conflicts: any[] }> => {
+    if (!isEnabled) {
+      return validation;
+    }
     const result = await validateSchedule(year, month);
     const normalized = { ok: result.ok, conflicts: result.conflicts };
     setValidation(normalized);
     setHasLeaderDup(result.hasLeaderDup);
     return normalized;
-  };
+  }, [isEnabled, month, validation, year]);
 
   /** fetchExpected: tải rule “chuẩn” từng ngày trong tháng (để đối chiếu UI nếu cần) */
-  const fetchExpected = async () => {
+  const fetchExpected = useCallback(async () => {
+    if (!isEnabled) {
+      setLoadingExpected(false);
+      return;
+    }
     setLoadingExpected(true);
     setExpectedError(null);
     try {
@@ -186,10 +219,14 @@ export function useScheduleData(year: number, month: number) {
     } finally {
       setLoadingExpected(false);
     }
-  };
+  }, [isEnabled, month, year]);
 
   /** fetchEstimate: tải estimate (nhu cầu/cung) cho tháng đang chọn */
-  const fetchEstimate = async () => {
+  const fetchEstimate = useCallback(async () => {
+    if (!isEnabled) {
+      setLoadingEstimate(false);
+      return;
+    }
     setLoadingEstimate(true);
     setEstimateError(null);
     try {
@@ -202,10 +239,14 @@ export function useScheduleData(year: number, month: number) {
     } finally {
       setLoadingEstimate(false);
     }
-  };
+  }, [isEnabled, month, year]);
 
   // Khi đổi (year,month): refresh assignments + fixed/off + estimate + expected
   useEffect(() => {
+    if (!isEnabled) {
+      return;
+    }
+
     (async () => {
       await fetchAssignments();
       await fetchFixed();
@@ -214,8 +255,19 @@ export function useScheduleData(year: number, month: number) {
       await fetchEstimate();
       await fetchExpected();
       await fetchValidate();
-    })(); // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [year, month]);
+    })();
+  }, [
+    fetchAssignments,
+    fetchEstimate,
+    fetchExpected,
+    fetchFixed,
+    fetchHolidays,
+    fetchOffdays,
+    fetchValidate,
+    isEnabled,
+    month,
+    year,
+  ]);
 
   // ====== ACTIONS (Generate/Shuffle/Save/Reset) ======
   /** onGenerate: chạy engine để xem preview (không lưu DB) */
