@@ -1,15 +1,15 @@
-import React, { useMemo, useState } from "react";
+import React, { lazy, useMemo, useState, Suspense } from "react";
+import { Navigate, NavLink, Route, Routes, useLocation } from "react-router-dom";
 import AppShell, { type AppShellBreadcrumbItem } from "./components/layout/AppShell";
-import CalendarHeader from "./components/CalendarHeader";
-import ConflictList from "./components/ConflictList";
 import Legend from "./components/Legend";
-import MatrixTable from "./components/Matrix/MatrixTable";
-import EstimatePanel from "./components/Estimate/EstimatePanel";
 import { useScheduleData } from "./hooks/useScheduleData";
-import { FixedOffPanel } from "./components/fixed-off";
 import { useExportCsv } from "./hooks/useExportCsv";
-import Toolbar from "./components/Toolbar";
 import { useToast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
+
+const OverviewRoute = lazy(() => import("./routes/OverviewRoute"));
+const MatrixRoute = lazy(() => import("./routes/MatrixRoute"));
+const FixedOffPanel = lazy(() => import("./components/fixed-off/FixedOffPanel"));
 
 export default function App() {
     const today = new Date();
@@ -52,26 +52,50 @@ export default function App() {
     } = useScheduleData(year, month);
 
     const { exportCsv, isExporting } = useExportCsv();
+    const location = useLocation();
 
     const onExport = React.useCallback(() => {
         void exportCsv(year, month);
     }, [exportCsv, year, month]);
 
     const monthLabel = useMemo(() => `${String(month).padStart(2, "0")}/${year}`, [month, year]);
-    const breadcrumbs: AppShellBreadcrumbItem[] = useMemo(
-        () => [
-            { label: "Trang chủ", href: "#overview" },
-            { label: "Lịch phân ca", href: "#matrix" },
-            { label: `Tháng ${monthLabel}`, current: true },
-        ],
-        [monthLabel],
-    );
+    const normalizedPath = location.pathname === "/" ? "/overview" : location.pathname;
+    const breadcrumbs: AppShellBreadcrumbItem[] = useMemo(() => {
+        if (normalizedPath === "/matrix") {
+            return [
+                { label: "Trang chủ", href: "#/overview" },
+                { label: "Lịch phân ca", href: "#/matrix" },
+                { label: `Tháng ${monthLabel}`, current: true },
+            ];
+        }
+
+        return [
+            { label: "Trang chủ", href: "#/overview", current: true },
+            { label: "Lịch phân ca", href: "#/matrix" },
+            { label: `Tháng ${monthLabel}` },
+        ];
+    }, [monthLabel, normalizedPath]);
 
     const conflictCount = validation.conflicts.length;
     const leaderWarningCount = leaderErrors.length;
     const duplicateLabel = hasLeaderDup ? "Có" : "Không";
     const matrixLoading = loadingStaff || (loadingGen && staff.length === 0);
     const matrixError = staffError;
+    const navLinkClass = React.useCallback(
+        ({ isActive }: { isActive: boolean }) =>
+            cn(
+                "rounded-md px-3 py-2 font-medium text-sidebar-foreground transition-colors",
+                "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : undefined,
+            ),
+        [],
+    );
+
+    const routesFallback = (
+        <div className="flex justify-center py-10" aria-live="polite">
+            <span className="text-sm text-muted-foreground">Đang tải nội dung…</span>
+        </div>
+    );
 
     return (
         <AppShell
@@ -94,24 +118,19 @@ export default function App() {
                             Điều hướng
                         </h2>
                         <nav aria-labelledby="sidebar-navigation" className="flex flex-col gap-2 text-sm">
-                            <a
-                                className="rounded-md px-3 py-2 font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                                href="#overview"
-                            >
+                            <NavLink to="/overview" className={navLinkClass} end>
                                 Tổng quan
-                            </a>
-                            <a
-                                className="rounded-md px-3 py-2 font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                                href="#matrix"
-                            >
+                            </NavLink>
+                            <NavLink to="/matrix" className={navLinkClass}>
                                 Ma trận phân ca
-                            </a>
-                            <a
-                                className="rounded-md px-3 py-2 font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                                href="#fixed-off"
+                            </NavLink>
+                            <button
+                                type="button"
+                                className="rounded-md px-3 py-2 text-left font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                                onClick={() => setShowFixedOff(true)}
                             >
                                 Cố định &amp; Nghỉ
-                            </a>
+                            </button>
                         </nav>
                     </section>
 
@@ -162,129 +181,95 @@ export default function App() {
                 </div>
             }
         >
-            <section id="overview" aria-labelledby="overview-heading" className="space-y-4">
-                <div>
-                    <h2 id="overview-heading" className="text-base font-semibold text-foreground">
-                        Tổng quan nhu cầu
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                        Theo dõi ước tính nhu cầu công và cảnh báo thiếu trưởng ca
-                    </p>
-                </div>
-                <EstimatePanel data={estimate} loading={loadingEstimate} error={estimateError} />
-
-                {leaderErrors.length > 0 ? (
-                    <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900" id="alerts">
-                        <strong className="font-semibold">Cảnh báo:</strong> Có {leaderErrors.length} ngày không đúng số lượng
-                        <em className="px-1">Trưởng ca ngày</em> (K, position=TD).
-                        <div className="mt-2 flex flex-wrap gap-2">
-                            {leaderErrors.slice(0, 10).map(error => (
-                                <code
-                                    key={error.day}
-                                    className="rounded bg-white px-2 py-1 text-xs font-semibold text-amber-900"
-                                >
-                                    D{error.day}: {error.count}
-                                </code>
-                            ))}
-                            {leaderErrors.length > 10 ? <span>…</span> : null}
-                        </div>
-                    </div>
-                ) : null}
-
-                {hasLeaderDup ? (
-                    <div className="rounded-lg border border-rose-300 bg-rose-50 p-4 text-sm text-rose-900">
-                        <strong className="font-semibold">Cảnh báo:</strong> Có ngày có &gt;1 trưởng ca
-                    </div>
-                ) : null}
-            </section>
-
-            <section id="matrix" aria-labelledby="matrix-heading" className="space-y-4">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                        <h2 id="matrix-heading" className="text-base font-semibold text-foreground">
-                            Ma trận phân ca
-                        </h2>
-                        <p className="text-sm text-muted-foreground">
-                            Chỉnh sửa, sinh ca và xuất báo cáo CSV
-                        </p>
-                    </div>
-                </div>
-
-                <CalendarHeader
-                    year={year}
-                    month={month}
-                    setYear={setYear}
-                    setMonth={setMonth}
-                    loading={loadingGen}
-                    onGenerate={onGenerate}
-                    onShuffle={onShuffle}
-                    onSave={onSave}
-                    onResetSoft={onResetSoft}
-                    onResetHard={onResetHard}
-                    onExport={onExport}
-                    exporting={isExporting}
-                    fillHC={fillHC}
-                    setFillHC={setFillHC}
-                    canGenerate={validation.ok}
-                    onOpenFixedOff={() => setShowFixedOff(true)}
-                />
-
-                <Toolbar
-                    onGenerate={onGenerate}
-                    onValidate={() => fetchValidate()}
-                    onExport={onExport}
-                    onFixedOff={() => setShowFixedOff(true)}
-                    disabled={loadingGen}
-                    exporting={isExporting}
-                />
-
-                <div id="conflicts" className="space-y-4">
-                    <ConflictList conflicts={validation.conflicts} />
-                </div>
-
-                <div id="matrix-table" className="overflow-x-auto">
-                    <MatrixTable
-                        year={year}
-                        month={month}
-                        days={days}
-                        staff={staff}
-                        assignmentIndex={assignmentIndex}
-                        summariesByStaffId={summariesByStaffId}
-                        perDayLeaders={perDayLeaders}
-                        perDayByPlace={perDayByPlace}
-                        expectedByDay={expectedByDay}
-                        fixedByDayStaff={fixedByDayStaff}
-                        offByDayStaff={offByDayStaff}
-                        loading={matrixLoading}
-                        error={matrixError}
-                        onRetry={fetchStaff}
+            <Suspense fallback={routesFallback}>
+                <Routes>
+                    <Route path="/" element={<Navigate to="/overview" replace />} />
+                    <Route
+                        path="/overview"
+                        element={
+                            <OverviewRoute
+                                estimate={estimate}
+                                loadingEstimate={loadingEstimate}
+                                estimateError={estimateError}
+                                leaderErrors={leaderErrors}
+                                hasLeaderDup={hasLeaderDup}
+                            />
+                        }
                     />
-                </div>
-            </section>
+                    <Route
+                        path="/matrix"
+                        element={
+                            <MatrixRoute
+                                year={year}
+                                month={month}
+                                setYear={setYear}
+                                setMonth={setMonth}
+                                loadingGen={loadingGen}
+                                onGenerate={onGenerate}
+                                onShuffle={onShuffle}
+                                onSave={onSave}
+                                onResetSoft={onResetSoft}
+                                onResetHard={onResetHard}
+                                onExport={onExport}
+                                exporting={isExporting}
+                                fillHC={fillHC}
+                                setFillHC={setFillHC}
+                                canGenerate={validation.ok}
+                                onValidate={fetchValidate}
+                                onOpenFixedOff={() => setShowFixedOff(true)}
+                                days={days}
+                                staff={staff}
+                                assignmentIndex={assignmentIndex}
+                                summariesByStaffId={summariesByStaffId}
+                                perDayLeaders={perDayLeaders}
+                                perDayByPlace={perDayByPlace}
+                                expectedByDay={expectedByDay}
+                                fixedByDayStaff={fixedByDayStaff}
+                                offByDayStaff={offByDayStaff}
+                                matrixLoading={matrixLoading}
+                                matrixError={matrixError}
+                                fetchStaff={fetchStaff}
+                                validationConflicts={validation.conflicts}
+                            />
+                        }
+                    />
+                    <Route path="*" element={<Navigate to="/overview" replace />} />
+                </Routes>
+            </Suspense>
 
             <div id="fixed-off" className="space-y-4">
                 <div className="sr-only" aria-hidden="true">
                     Điểm neo cố định/off
                 </div>
-                <FixedOffPanel
-                    year={year}
-                    month={month}
-                    open={showFixedOff}
-                    onClose={() => setShowFixedOff(false)}
-                    onExportCsv={onExport}
-                    exporting={isExporting}
-                    onToast={(message, options) =>
-                        toast({
-                            description: message,
-                            ...options,
-                        })
+                <Suspense
+                    fallback={
+                        <div className="text-sm text-muted-foreground" aria-live="polite">
+                            Đang tải bảng cố định…
+                        </div>
                     }
-                    onRefresh={async () => {
-                        await fetchFixed();
-                        await fetchOffdays();
-                        await fetchHolidays();
-                    }}
-                />
+                >
+                    {showFixedOff ? (
+                        <FixedOffPanel
+                            year={year}
+                            month={month}
+                            open={showFixedOff}
+                            onClose={() => setShowFixedOff(false)}
+                            onExportCsv={onExport}
+                            exporting={isExporting}
+                            onToast={(message, options) =>
+                                toast({
+                                    description: message,
+                                    ...options,
+                                })
+                            }
+                            onRefresh={async () => {
+                                await fetchFixed();
+                                await fetchOffdays();
+                                await fetchHolidays();
+                            }}
+                        />
+                    ) : null}
+                </Suspense>
             </div>
         </AppShell>
     );

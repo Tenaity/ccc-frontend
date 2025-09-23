@@ -3,7 +3,7 @@ import React from "react";
 import MatrixHeader from "./MatrixHeader";
 import MatrixRow from "./MatrixRow";
 import TotalsRows from "./TotalsRows";
-import QuickEditDialog from "../QuickEditDialog";
+const QuickEditDialog = React.lazy(() => import("../QuickEditDialog"));
 import { fmtYMD } from "@/utils/date";
 import type {
   Staff,
@@ -158,18 +158,33 @@ export default function MatrixTable({
           )}
         </CardContent>
       </Card>
-      {edit && (
-        <QuickEditDialog
-          open={!!edit}
-          day={fmtYMD(year, month, edit.day)}
-          current={edit.staff}
-          candidates={candidates}
-          fixed={fixedByDayStaff.has(
-            `${edit.staff.id}|${fmtYMD(year, month, edit.day)}`
-          )}
-          onClose={() => setEdit(null)}
-        />
-      )}
+      <div id="quick-edit" className="space-y-2">
+        <div className="sr-only" aria-hidden="true">
+          Hộp thoại chỉnh sửa nhanh
+        </div>
+        <React.Suspense
+          fallback={
+            edit ? (
+              <div aria-live="polite" className="text-sm text-muted-foreground">
+                Đang tải hộp thoại chỉnh sửa…
+              </div>
+            ) : null
+          }
+        >
+          {edit ? (
+            <QuickEditDialog
+              open={!!edit}
+              day={fmtYMD(year, month, edit.day)}
+              current={edit.staff}
+              candidates={candidates}
+              fixed={fixedByDayStaff.has(
+                `${edit.staff.id}|${fmtYMD(year, month, edit.day)}`
+              )}
+              onClose={() => setEdit(null)}
+            />
+          ) : null}
+        </React.Suspense>
+      </div>
     </>
   );
 }

@@ -1,4 +1,5 @@
 import React from "react";
+import { HashRouter } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
@@ -14,7 +15,9 @@ if (import.meta.env.MODE !== "production") {
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <UiProvider>
-      <App />
+      <HashRouter>
+        <App />
+      </HashRouter>
     </UiProvider>
   </React.StrictMode>
 );

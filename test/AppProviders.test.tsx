@@ -1,6 +1,7 @@
 import React from 'react'
 import { beforeAll, expect, test, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { HashRouter } from 'react-router-dom'
 
 import App from '../src/App'
 import { UiProvider } from '../src/components/ui/UiProvider'
@@ -45,8 +46,9 @@ vi.mock('../src/hooks/useScheduleData', () => ({
   }),
 }))
 
-vi.mock('../src/components/fixed-off', () => ({
-  FixedOffPanel: () => null,
+vi.mock('../src/components/fixed-off/FixedOffPanel', () => ({
+  __esModule: true,
+  default: () => null,
 }))
 
 beforeAll(() => {
@@ -68,7 +70,9 @@ beforeAll(() => {
 test('App renders inside UiProvider without crashing', () => {
   render(
     <UiProvider>
-      <App />
+      <HashRouter>
+        <App />
+      </HashRouter>
     </UiProvider>,
   )
 
