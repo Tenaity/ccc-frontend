@@ -1,4 +1,5 @@
 import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
 
 import { cn } from "@/lib/utils"
 
@@ -48,21 +49,29 @@ const BreadcrumbItem = React.forwardRef<
 ))
 BreadcrumbItem.displayName = "BreadcrumbItem"
 
-const BreadcrumbLink = React.forwardRef<
-  HTMLAnchorElement,
-  React.ComponentPropsWithoutRef<"a">
->(({ className, children, ...props }, ref) => (
-  <a
-    ref={ref}
-    className={cn(
-      "inline-flex items-center gap-1 transition-colors hover:text-foreground",
-      className
-    )}
-    {...props}
-  >
-    {children}
-  </a>
-))
+export interface BreadcrumbLinkProps
+  extends React.ComponentPropsWithoutRef<"a"> {
+  asChild?: boolean
+}
+
+const BreadcrumbLink = React.forwardRef<HTMLAnchorElement, BreadcrumbLinkProps>(
+  ({ className, children, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "a"
+
+    return (
+      <Comp
+        ref={ref}
+        className={cn(
+          "inline-flex items-center gap-1 transition-colors hover:text-foreground",
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </Comp>
+    )
+  }
+)
 BreadcrumbLink.displayName = "BreadcrumbLink"
 
 const BreadcrumbPage = React.forwardRef<

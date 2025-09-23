@@ -18,6 +18,8 @@ import DashboardPage from "./pages/Dashboard"
 const SchedulePage = lazy(() => import("./pages/Schedule"))
 const FixedOffPanel = lazy(() => import("./components/fixed-off/FixedOffPanel"))
 
+const MAIN_CONTENT_ID = "app-main-content"
+
 export default function App() {
   const today = new Date()
   const [year, setYear] = useState(today.getFullYear())
@@ -28,6 +30,31 @@ export default function App() {
   const location = useLocation()
   const routeMeta = matchRoute(location.pathname) ?? matchRoute("/")!
   const scheduleEnabled = routeMeta.path === "/schedule"
+
+  const handleSkipToContent = React.useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>) => {
+      event.preventDefault()
+      if (typeof document === "undefined") {
+        return
+      }
+
+      const main = document.getElementById(MAIN_CONTENT_ID)
+      if (!(main instanceof HTMLElement)) {
+        return
+      }
+
+      if (typeof main.focus === "function") {
+        main.focus({ preventScroll: true })
+      }
+      if (typeof main.scrollIntoView === "function") {
+        main.scrollIntoView({ behavior: "smooth", block: "start" })
+      }
+      if (typeof window !== "undefined" && MAIN_CONTENT_ID) {
+        window.location.hash = `#${MAIN_CONTENT_ID}`
+      }
+    },
+    []
+  )
 
   const {
     staff,
@@ -61,6 +88,17 @@ export default function App() {
     () => `${String(month).padStart(2, "0")}/${year}`,
     [month, year]
   )
+
+  const breadcrumbs = useMemo(() => {
+    if (routeMeta.path === "/") {
+      return [{ label: routeMeta.label }]
+    }
+
+    return [
+      { label: "Dashboard", href: "/" },
+      { label: routeMeta.label },
+    ]
+  }, [routeMeta.label, routeMeta.path])
 
   const matrixLoading = loadingStaff || (loadingGen && staff.length === 0)
   const matrixError = staffError
@@ -261,14 +299,26 @@ export default function App() {
 
   return (
     <SidebarProvider>
+      <a
+        className="sr-only focus:not-sr-only focus:absolute focus:left-6 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
+        href={`#${MAIN_CONTENT_ID}`}
+        onClick={handleSkipToContent}
+      >
+        Bỏ qua tới nội dung chính
+      </a>
       <AppSidebar />
-      <SidebarInset>
+      <SidebarInset
+        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        id={MAIN_CONTENT_ID}
+        tabIndex={-1}
+      >
         <SiteHeader
           title={routeMeta.label}
           description={routeMeta.description}
           actions={headerActions}
+          breadcrumbs={breadcrumbs}
         />
-        <main className="flex flex-1 flex-col gap-6 pb-10">
+        <div className="flex flex-1 flex-col gap-6 pb-10">
           <Suspense
             fallback={
               <div className="flex justify-center py-10" aria-live="polite">
@@ -310,7 +360,7 @@ export default function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
-        </main>
+        </div>
 
         <Suspense>
           {showFixedOff ? (
