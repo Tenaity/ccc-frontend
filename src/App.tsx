@@ -5,6 +5,9 @@ import { matchRoute } from "@/app/routes"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { useExportCsv } from "@/hooks/useExportCsv"
 import { useScheduleData } from "@/hooks/useScheduleData"
 import { useToast } from "@/components/ui/use-toast"
@@ -39,10 +42,6 @@ export default function App() {
     fixedByDayStaff,
     offByDayStaff,
     onGenerate,
-    onShuffle,
-    onSave,
-    onResetSoft,
-    onResetHard,
     fetchStaff,
     fetchFixed,
     fetchOffdays,
@@ -91,6 +90,10 @@ export default function App() {
   )
 
   const routeMeta = matchRoute(location.pathname) ?? matchRoute("/")!
+
+  const openFixedOffPanel = React.useCallback(() => {
+    setShowFixedOff(true)
+  }, [setShowFixedOff])
 
   const handleExport = React.useCallback(() => {
     void exportCsv(year, month)
@@ -150,6 +153,49 @@ export default function App() {
     }
   }, [monthLabel, onGenerate, toast])
 
+  const autoFillHintId = "auto-fill-hc-hint"
+
+  const handleToggleFillHC = React.useCallback(
+    (checked: boolean) => {
+      setFillHC(checked)
+    },
+    [setFillHC],
+  )
+
+  const scheduleToolbar = (
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={openFixedOffPanel}
+        aria-haspopup="dialog"
+      >
+        Fixed / Off / Holiday
+      </Button>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Switch
+          id="auto-fill-hc"
+          checked={fillHC}
+          onCheckedChange={handleToggleFillHC}
+          aria-describedby={autoFillHintId}
+        />
+        <Label htmlFor="auto-fill-hc" className="text-sm font-medium text-foreground">
+          Tự động bù HC
+        </Label>
+        <span id={autoFillHintId} className="sr-only">
+          Bật để tự động bù ca hành chính khi sinh hoặc xáo lịch.
+        </span>
+      </div>
+      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+        <span>{conflictCount} cảnh báo</span>
+        <span>{hasLeaderDup ? "Trùng trưởng ca" : "Không trùng trưởng ca"}</span>
+        <span>{leaderErrors.length} ngày thiếu trưởng ca</span>
+        {legend}
+      </div>
+    </>
+  )
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -177,21 +223,11 @@ export default function App() {
                   <SchedulePage
                     year={year}
                     month={month}
-                    setYear={setYear}
-                    setMonth={setMonth}
                     loadingGen={loadingGen}
                     onGenerate={handleGenerate}
                     onValidate={handleValidate}
                     onExport={handleExport}
-                    onFixedOff={() => setShowFixedOff(true)}
-                    onShuffle={onShuffle}
-                    onSave={onSave}
-                    onResetSoft={onResetSoft}
-                    onResetHard={onResetHard}
                     exporting={isExporting}
-                    fillHC={fillHC}
-                    setFillHC={setFillHC}
-                    canGenerate={validation.ok}
                     days={days}
                     staff={staff}
                     assignmentIndex={assignmentIndex}
@@ -204,15 +240,7 @@ export default function App() {
                     matrixLoading={matrixLoading}
                     matrixError={matrixError}
                     fetchStaff={fetchStaff}
-                    validationConflicts={validation.conflicts}
-                    toolbarActions={
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                        <span>{conflictCount} cảnh báo</span>
-                        <span>{hasLeaderDup ? "Trùng trưởng ca" : "Không trùng trưởng ca"}</span>
-                        <span>{leaderErrors.length} ngày thiếu trưởng ca</span>
-                        {legend}
-                      </div>
-                    }
+                    toolbarActions={scheduleToolbar}
                   />
                 }
               />

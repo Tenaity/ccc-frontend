@@ -1,14 +1,12 @@
-import type { ReactNode } from "react"
+import { useCallback, useMemo, useState, type ReactNode } from "react"
 
-import CalendarHeader from "@/components/CalendarHeader"
-import ConflictList from "@/components/ConflictList"
-import Toolbar from "@/components/Toolbar"
 import MatrixTable from "@/components/schedule/MatrixTable"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import type { DayPlaceSummary, ExpectedByDay, Staff } from "@/types"
 import type { Cell } from "@/utils/mergeCellIndex"
 
-interface StaffSummary {
+type StaffSummary = {
   counts: Record<string, number>
   credit: number
   dayCount: number
@@ -18,21 +16,11 @@ interface StaffSummary {
 export interface SchedulePageProps {
   year: number
   month: number
-  setYear: (year: number) => void
-  setMonth: (month: number) => void
   loadingGen: boolean
-  onGenerate: () => Promise<{ ok: boolean; conflicts: any[] } | void> | void
+  onGenerate: () => Promise<unknown> | unknown
   onValidate: () => Promise<unknown> | unknown
   onExport: () => void
-  onFixedOff: () => void
-  onShuffle: () => void
-  onSave: () => void
-  onResetSoft: () => void
-  onResetHard: () => void
   exporting: boolean
-  fillHC: boolean
-  setFillHC: (value: boolean) => void
-  canGenerate: boolean
   days: number[]
   staff: Staff[]
   assignmentIndex: Map<string, Cell>
@@ -45,28 +33,17 @@ export interface SchedulePageProps {
   matrixLoading: boolean
   matrixError: string | null
   fetchStaff: () => void
-  validationConflicts: any[]
   toolbarActions?: ReactNode
 }
 
 export default function SchedulePage({
   year,
   month,
-  setYear,
-  setMonth,
   loadingGen,
   onGenerate,
   onValidate,
   onExport,
-  onFixedOff,
-  onShuffle,
-  onSave,
-  onResetSoft,
-  onResetHard,
   exporting,
-  fillHC,
-  setFillHC,
-  canGenerate,
   days,
   staff,
   assignmentIndex,
@@ -79,60 +56,84 @@ export default function SchedulePage({
   matrixLoading,
   matrixError,
   fetchStaff,
-  validationConflicts,
   toolbarActions,
 }: SchedulePageProps) {
+  const [isValidating, setIsValidating] = useState(false)
+
+  const monthLabel = useMemo(
+    () => `${String(month).padStart(2, "0")}/${year}`,
+    [month, year],
+  )
+
+  const handleGenerate = useCallback(() => {
+    if (loadingGen) {
+      return
+    }
+    void onGenerate()
+  }, [loadingGen, onGenerate])
+
+  const handleValidate = useCallback(async () => {
+    if (loadingGen || isValidating) {
+      return
+    }
+    try {
+      setIsValidating(true)
+      await Promise.resolve(onValidate())
+    } finally {
+      setIsValidating(false)
+    }
+  }, [isValidating, loadingGen, onValidate])
+
+  const handleExport = useCallback(() => {
+    if (exporting) {
+      return
+    }
+    onExport()
+  }, [exporting, onExport])
+
   return (
     <div className="flex flex-col gap-6 px-4 pb-16 lg:px-6">
-      <section id="schedule" aria-labelledby="schedule-heading" className="space-y-6">
-        <div className="flex flex-col gap-2">
-          <h2 id="schedule-heading" className="text-base font-semibold text-foreground">
-            Monthly schedule
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Quản lý ma trận phân ca, rà soát xung đột và xuất báo cáo CSV.
-          </p>
+      <section aria-labelledby="schedule-heading" className="space-y-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <h2 id="schedule-heading" className="text-lg font-semibold text-foreground sm:text-xl">
+              Schedule
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Ma trận phân ca cho tháng {monthLabel}. Theo dõi nhanh trạng thái ca và cảnh báo vi phạm.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="secondary"
+              onClick={handleExport}
+              disabled={exporting}
+              data-testid="schedule-export"
+            >
+              {exporting ? "Đang xuất..." : "Export CSV"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleValidate}
+              disabled={loadingGen || isValidating}
+              data-testid="schedule-validate"
+            >
+              {isValidating ? "Đang kiểm tra..." : "Validate"}
+            </Button>
+            <Button onClick={handleGenerate} disabled={loadingGen} data-testid="schedule-generate">
+              {loadingGen ? "Đang tạo..." : "Generate"}
+            </Button>
+          </div>
         </div>
 
-        <CalendarHeader
-          year={year}
-          month={month}
-          setYear={setYear}
-          setMonth={setMonth}
-          loading={loadingGen}
-          onGenerate={() => {
-            void onGenerate()
-          }}
-          onShuffle={onShuffle}
-          onSave={onSave}
-          onResetSoft={onResetSoft}
-          onResetHard={onResetHard}
-          onExport={onExport}
-          exporting={exporting}
-          fillHC={fillHC}
-          setFillHC={setFillHC}
-          canGenerate={canGenerate}
-          onOpenFixedOff={onFixedOff}
-        />
+        {toolbarActions ? (
+          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+            {toolbarActions}
+          </div>
+        ) : null}
 
         <Card className="border-border/60 shadow-sm">
-          <CardContent className="space-y-6 p-6">
-            <Toolbar
-              onGenerate={() => {
-                void onGenerate()
-              }}
-              onValidate={() => {
-                void onValidate()
-              }}
-              onExport={onExport}
-              onFixedOff={onFixedOff}
-              disabled={loadingGen}
-              exporting={exporting}
-            />
-            {toolbarActions}
-            <div id="conflicts" className="space-y-4">
-              <ConflictList conflicts={validationConflicts} />
-            </div>
+          <CardContent className="p-0">
             <MatrixTable
               year={year}
               month={month}
@@ -149,6 +150,7 @@ export default function SchedulePage({
               error={matrixError}
               onRetry={fetchStaff}
               withCard={false}
+              containerClassName="rounded-none border-0 bg-transparent shadow-none"
             />
           </CardContent>
         </Card>

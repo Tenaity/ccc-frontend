@@ -163,8 +163,10 @@ export default function MatrixTable({
   );
 
   const containerClasses = cn(
-    "overflow-hidden rounded-3xl border border-border/60 bg-card shadow-sm",
-    !withCard && "rounded-2xl border-border/40 bg-card/60 shadow-none",
+    "overflow-hidden",
+    withCard
+      ? "rounded-3xl border border-border/60 bg-card shadow-sm"
+      : "rounded-none border-0 bg-transparent shadow-none",
     containerClassName,
   );
 
