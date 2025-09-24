@@ -110,15 +110,15 @@ describe("App schedule actions", () => {
     renderScheduleApp()
     const user = userEvent.setup()
 
-    const generateButton = await screen.findByTestId("header-generate")
+    const generateButton = await screen.findByTestId("schedule-generate")
     await user.click(generateButton)
     await screen.findByText(/Đã sinh lịch tạm thời/i)
 
-    const validateButton = screen.getByTestId("header-validate")
+    const validateButton = screen.getByTestId("schedule-validate")
     await user.click(validateButton)
     await screen.findByText(/Lịch hợp lệ/i)
 
-    const exportButton = screen.getByTestId("header-export")
+    const exportButton = screen.getByTestId("schedule-export")
     await user.click(exportButton)
     await screen.findByText(/Export success/i)
   })
@@ -129,7 +129,7 @@ describe("App schedule actions", () => {
     renderScheduleApp()
     const user = userEvent.setup()
 
-    const generateButton = await screen.findByTestId("header-generate")
+    const generateButton = await screen.findByTestId("schedule-generate")
     await user.click(generateButton)
 
     await waitFor(() => {

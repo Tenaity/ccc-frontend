@@ -5,7 +5,6 @@ import { matchRoute } from "@/app/routes"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useExportCsv } from "@/hooks/useExportCsv"
@@ -195,84 +194,22 @@ export default function App() {
     [setFillHC],
   )
 
-  const headerActions = useMemo(() => {
-    const staffSummary = scheduleEnabled
-      ? loadingStaff
-        ? "Đang tải nhân sự…"
-        : `${staff.length} nhân sự`
-      : "— nhân sự"
-
-    const stats = (
-      <div className="flex flex-col items-end gap-1 text-xs text-muted-foreground sm:text-sm">
-        <span>Tháng hiện tại: {monthLabel}</span>
-        <span>{staffSummary}</span>
-      </div>
-    )
-
-    if (routeMeta.path !== "/schedule") {
-      return stats
-    }
-
-    return (
-      <div className="flex flex-col items-end gap-2">
-        <div className="flex flex-wrap justify-end gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleExport}
-            disabled={isExporting}
-            data-testid="header-export"
-          >
-            {isExporting ? "Đang xuất..." : "Export CSV"}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleValidate}
-            disabled={loadingGen || isValidating}
-            data-testid="header-validate"
-          >
-            {isValidating ? "Đang kiểm tra..." : "Validate"}
-          </Button>
-          <Button
-            size="sm"
-            onClick={handleGenerate}
-            disabled={loadingGen}
-            data-testid="header-generate"
-          >
-            {loadingGen ? "Đang tạo..." : "Generate"}
-          </Button>
-        </div>
-        {stats}
-      </div>
-    )
-  }, [
-    handleExport,
-    handleGenerate,
-    handleValidate,
-    isExporting,
-    isValidating,
-    loadingGen,
-    loadingStaff,
-    monthLabel,
-    routeMeta.path,
-    scheduleEnabled,
-    staff.length,
-  ])
+  const schedulePrimaryActions = (
+    <FixedOffHolidayBtn
+      year={year}
+      month={month}
+      aria-label="Fixed / Off / Holiday"
+      onRefresh={async () => {
+        await fetchFixed()
+        await fetchOffdays()
+        await fetchHolidays()
+      }}
+    />
+  )
 
   const scheduleToolbar = (
     <>
-      <FixedOffHolidayBtn
-        year={year}
-        month={month}
-        aria-label="Fixed / Off / Holiday"
-        onRefresh={async () => {
-          await fetchFixed()
-          await fetchOffdays()
-          await fetchHolidays()
-        }}
-      />
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         <Switch
           id="auto-fill-hc"
           checked={fillHC}
@@ -313,7 +250,6 @@ export default function App() {
         <SiteHeader
           title={routeMeta.label}
           description={routeMeta.description}
-          actions={headerActions}
           breadcrumbs={breadcrumbs}
         />
         <Suspense
@@ -348,6 +284,14 @@ export default function App() {
                     loading={matrixLoading}
                     error={matrixError}
                     onRetry={fetchStaff}
+                    staffLoading={loadingStaff}
+                    onExport={handleExport}
+                    onValidate={handleValidate}
+                    onGenerate={handleGenerate}
+                    exporting={isExporting}
+                    validating={isValidating}
+                    generating={loadingGen}
+                    extraPrimaryActions={schedulePrimaryActions}
                     toolbarActions={scheduleToolbar}
                   />
                 }

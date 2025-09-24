@@ -100,9 +100,9 @@ describe("App header actions", () => {
       </UiProvider>,
     )
 
-    const validateButton = await screen.findByTestId("header-validate")
-    const generateButton = screen.getByTestId("header-generate")
-    const exportButton = screen.getByTestId("header-export")
+    const validateButton = await screen.findByTestId("schedule-validate")
+    const generateButton = screen.getByTestId("schedule-generate")
+    const exportButton = screen.getByTestId("schedule-export")
 
     await user.click(validateButton)
     await user.click(generateButton)
