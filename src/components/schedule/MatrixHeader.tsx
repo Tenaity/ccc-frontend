@@ -21,7 +21,7 @@ export default function MatrixHeader({
         <TableHead
           rowSpan={3}
           scope="col"
-          className="sticky left-0 top-0 z-40 min-w-[220px] rounded-tl-2xl border-r border-border/60 bg-muted/70 px-4 py-3 text-left text-sm font-semibold text-foreground shadow-[4px_0_12px_-8px_rgba(15,23,42,0.3)]"
+          className="sticky left-0 top-0 z-40 min-w-[220px] rounded-tl-2xl border-r border-border/60 bg-background/95 px-4 py-3 text-left text-sm font-semibold text-foreground shadow-[4px_0_12px_-8px_rgba(15,23,42,0.3)] backdrop-blur-sm"
         >
           Nhân viên
         </TableHead>

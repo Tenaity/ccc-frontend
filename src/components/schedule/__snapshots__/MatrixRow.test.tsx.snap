@@ -8,7 +8,7 @@ exports[`MatrixRow > matches snapshot with duplicate leaders and rank badge 1`] 
         class="border-b border-border/60 transition-colors hover:bg-primary/15 bg-primary/5"
       >
         <th
-          class="sticky left-0 z-20 min-w-[220px] border-r border-border/60 px-4 py-3 text-left shadow-[4px_0_12px_-8px_rgba(15,23,42,0.25)] bg-primary/5"
+          class="sticky left-0 z-20 min-w-[220px] border-r border-border/60 bg-background/95 px-4 py-3 text-left shadow-[4px_0_12px_-8px_rgba(15,23,42,0.25)] backdrop-blur-sm"
           scope="row"
         >
           <div
