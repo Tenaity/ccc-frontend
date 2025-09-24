@@ -12,7 +12,6 @@ import type {
   ExpectedPerDay,
   DayPlaceSummary,
 } from "@/types";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCaption } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -114,7 +113,11 @@ export default function MatrixTable({
         </div>
       ) : (
         <TooltipProvider delayDuration={150}>
-          <ScrollArea className="max-h-[70vh]">
+          <div
+            className="max-h-[calc(100vh-220px)] overflow-y-auto overflow-x-auto"
+            role="region"
+            aria-label={`Bảng phân ca tháng ${monthLabel}`}
+          >
             <div className="min-w-[1100px]">
               <Table
                 className="border-separate border-spacing-0 text-sm text-foreground"
@@ -156,7 +159,7 @@ export default function MatrixTable({
                 </TableBody>
               </Table>
             </div>
-          </ScrollArea>
+          </div>
         </TooltipProvider>
       )}
     </div>
