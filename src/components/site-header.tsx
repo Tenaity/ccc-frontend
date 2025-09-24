@@ -39,7 +39,7 @@ export function SiteHeader({
               {title}
             </h1>
             {description ? (
-              <p className="text-xs text-muted-foreground sm:text-sm">
+              <p className="text-sm text-muted-foreground line-clamp-2 md:line-clamp-none">
                 {description}
               </p>
             ) : null}

@@ -12,9 +12,9 @@ export default function DashboardPage() {
   const documents = useMemo(() => dataArraySchema.parse(documentsData), [])
 
   return (
-    <div className="flex flex-col gap-6 pb-10">
+    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-6 px-3 pb-10 md:px-6">
       <SectionCards />
-      <div className="@container/main grid gap-6 px-4 lg:grid-cols-5 lg:px-6">
+      <div className="@container/main grid gap-6 lg:grid-cols-5">
         <div className="lg:col-span-3">
           <ChartAreaInteractive />
         </div>
