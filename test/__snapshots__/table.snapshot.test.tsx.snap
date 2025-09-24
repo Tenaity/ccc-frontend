@@ -14,7 +14,7 @@ exports[`basic table snapshot 1`] = `
       Team assignments
     </caption>
     <thead
-      class="[&_tr]:border-b sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
+      class="[&_tr]:border-b sticky top-0 z-10 bg-background/95"
       data-sticky="true"
     >
       <tr

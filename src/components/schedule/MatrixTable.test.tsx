@@ -103,14 +103,22 @@ describe("MatrixTable", () => {
     const staffCell = screen.getByRole("rowheader", { name: /Trần Thị B/ })
     expect(staffCell).toHaveClass("sticky")
     expect(staffCell).toHaveClass("left-0")
-    expect(staffCell).toHaveClass("bg-background")
-    expect(staffCell).toHaveClass("backdrop-blur-sm")
+    expect(staffCell).toHaveClass("bg-background/95")
+    expect(staffCell).toHaveClass("border-border")
+    expect(staffCell).toHaveClass("backdrop-blur-[2px]")
+    expect(staffCell).toHaveClass(
+      "supports-[backdrop-filter]:bg-background/60",
+    )
 
     const headerCell = screen.getByRole("columnheader", { name: "Nhân viên" })
     expect(headerCell).toHaveClass("sticky")
     expect(headerCell).toHaveClass("left-0")
     expect(headerCell).toHaveClass("bg-background/95")
-    expect(headerCell).toHaveClass("backdrop-blur-sm")
+    expect(headerCell).toHaveClass("border-border")
+    expect(headerCell).toHaveClass("backdrop-blur-[2px]")
+    expect(headerCell).toHaveClass(
+      "supports-[backdrop-filter]:bg-background/60",
+    )
   })
 })
 

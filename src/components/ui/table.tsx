@@ -37,8 +37,7 @@ const TableHeader = React.forwardRef<
     data-sticky={sticky ? "true" : undefined}
     className={cn(
       "[&_tr]:border-b",
-      sticky &&
-        "sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80",
+      sticky && "sticky top-0 z-10 bg-background/95",
       className
     )}
     {...props}

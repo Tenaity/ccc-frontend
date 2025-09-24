@@ -18,6 +18,8 @@ export default function TotalsRows({
   perDayByPlace: Record<number, DayPlaceSummary>;
   expectedByDay: ExpectedByDay;
 }) {
+  const stickyColumnBase =
+    "sticky left-0 z-20 min-w-[220px] border-r border-border bg-background/95 backdrop-blur-[2px] supports-[backdrop-filter]:bg-background/60";
   const weekendClass = (day: number) =>
     isWeekend(getDow(year, month, day)) ? "bg-amber-50/60" : "";
 
@@ -41,7 +43,8 @@ export default function TotalsRows({
       <th
         scope="row"
         className={cn(
-          "sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2 font-medium",
+          stickyColumnBase,
+          "px-4 py-2 font-medium",
           options.expected && "text-xs italic text-muted-foreground"
         )}
       >
@@ -68,7 +71,7 @@ export default function TotalsRows({
       <TableRow className="bg-sky-50/60 text-sm font-semibold">
         <th
           scope="row"
-          className="sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2"
+          className={cn(stickyColumnBase, "px-4 py-2")}
         >
           — TỔNG ĐÀI (TD) —
         </th>
@@ -139,7 +142,7 @@ export default function TotalsRows({
       <TableRow className="bg-rose-50 text-sm font-semibold">
         <th
           scope="row"
-          className="sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2"
+          className={cn(stickyColumnBase, "px-4 py-2")}
         >
           — PHÒNG GIAO DỊCH (PGD) —
         </th>
@@ -196,7 +199,7 @@ export default function TotalsRows({
       <TableRow className="bg-blue-100/50 font-semibold">
         <th
           scope="row"
-          className="sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2"
+          className={cn(stickyColumnBase, "px-4 py-2")}
         >
           TỔNG TD
         </th>
@@ -214,7 +217,7 @@ export default function TotalsRows({
       </TableRow>
 
       <TableRow className="bg-rose-100/50 font-semibold">
-        <TableCell className="sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2">
+        <TableCell className={cn(stickyColumnBase, "px-4 py-2")}>
           TỔNG PGD
         </TableCell>
         {days.map((day) => (
@@ -231,7 +234,7 @@ export default function TotalsRows({
       </TableRow>
 
       <TableRow className="bg-muted/60 font-semibold">
-        <TableCell className="sticky left-0 z-10 min-w-[220px] border-r border-border/40 bg-background px-4 py-2">
+        <TableCell className={cn(stickyColumnBase, "px-4 py-2")}>
           TỔNG (TD + PGD)
         </TableCell>
         {days.map((day) => (

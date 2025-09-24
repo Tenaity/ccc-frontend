@@ -84,7 +84,7 @@ describe("MatrixRow", () => {
     expect(asFragment()).toMatchSnapshot()
   })
 
-  test("keeps sticky staff cell opaque when scrolling horizontally", () => {
+  test("keeps sticky staff cell readable when scrolling horizontally", () => {
     const staff: Staff = {
       id: 1,
       full_name: "Nguyen Van A",
@@ -130,7 +130,11 @@ describe("MatrixRow", () => {
     )
 
     const rowHeader = screen.getByRole("rowheader", { name: /nguyen van a/i })
-    expect(rowHeader.className).toContain("bg-background")
-    expect(rowHeader.className).not.toContain("bg-background/95")
+    expect(rowHeader).toHaveClass("bg-background/95")
+    expect(rowHeader).toHaveClass("border-border")
+    expect(rowHeader).toHaveClass("backdrop-blur-[2px]")
+    expect(rowHeader).toHaveClass(
+      "supports-[backdrop-filter]:bg-background/60",
+    )
   })
 })
