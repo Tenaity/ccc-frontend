@@ -1,5 +1,5 @@
 import React from "react"
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { vi } from "vitest"
 
@@ -49,13 +49,14 @@ describe("SchedulePage", () => {
       matrixError: null,
       fetchStaff: vi.fn(),
       toolbarActions: <div data-testid="extra">extra</div>,
+      legend: <div data-testid="legend">legend</div>,
       ...overrides,
     }
 
     return render(<SchedulePage {...props} />)
   }
 
-  it("renders header actions and triggers handlers", async () => {
+  it("keeps header minimal and renders stats with toolbar in the body", async () => {
     const onGenerate = vi.fn()
     const onValidate = vi.fn().mockResolvedValue(undefined)
     const onExport = vi.fn()
@@ -63,9 +64,17 @@ describe("SchedulePage", () => {
 
     renderPage({ onGenerate, onValidate, onExport })
 
-    expect(screen.getByRole("heading", { name: /schedule/i })).toBeInTheDocument()
+    const header = screen.getByTestId("schedule-header")
+    const heading = within(header).getByRole("heading", { name: /schedule/i })
+    expect(header).toHaveTextContent(/^\s*Schedule\s*$/)
+    expect(heading).toBeInTheDocument()
+
+    const body = screen.getByTestId("schedule-body")
+    expect(within(body).getByText(/Tháng hiện tại/i)).toBeInTheDocument()
+    expect(within(body).getByText(/Số nhân sự/i)).toBeInTheDocument()
+    expect(within(body).getByTestId("extra")).toBeInTheDocument()
+    expect(within(body).getByTestId("legend")).toBeInTheDocument()
     expect(screen.getByText(/ma trận phân ca/i)).toBeInTheDocument()
-    expect(screen.getByTestId("extra")).toBeInTheDocument()
     expect(screen.getByTestId("matrix-table")).toHaveTextContent("rows-0")
 
     await user.click(screen.getByRole("button", { name: /export csv/i }))

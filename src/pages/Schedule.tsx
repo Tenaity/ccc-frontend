@@ -1,14 +1,6 @@
 import { useCallback, useMemo, useState, type ReactNode } from "react"
 
-import MatrixTable from "@/components/schedule/MatrixTable"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import ScheduleMatrixRoute from "@/routes/ScheduleMatrixRoute"
 import type { DayPlaceSummary, ExpectedByDay, Staff } from "@/types"
 import type { Cell } from "@/utils/mergeCellIndex"
 
@@ -40,6 +32,7 @@ export interface SchedulePageProps {
   matrixError: string | null
   fetchStaff: () => void
   toolbarActions?: ReactNode
+  legend?: ReactNode
 }
 
 export default function SchedulePage({
@@ -63,6 +56,7 @@ export default function SchedulePage({
   matrixError,
   fetchStaff,
   toolbarActions,
+  legend,
 }: SchedulePageProps) {
   const [isValidating, setIsValidating] = useState(false)
 
@@ -98,79 +92,29 @@ export default function SchedulePage({
   }, [exporting, onExport])
 
   return (
-    <div className="flex flex-col gap-6">
-      <section aria-labelledby="schedule-heading">
-        <Card className="border-border/60 shadow-sm">
-          <CardHeader className="gap-4 pb-4">
-            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-              <div className="space-y-1">
-                <CardTitle
-                  id="schedule-heading"
-                  className="text-lg font-semibold text-foreground sm:text-xl"
-                >
-                  Schedule
-                </CardTitle>
-                <CardDescription>
-                  Ma trận phân ca cho tháng {monthLabel}. Theo dõi nhanh trạng thái ca và cảnh báo vi phạm.
-                </CardDescription>
-              </div>
-              <div className="grid grid-rows-2 auto-cols-fr grid-flow-col gap-2 md:flex md:flex-nowrap md:items-center md:justify-end">
-                <Button
-                  variant="secondary"
-                  onClick={handleExport}
-                  disabled={exporting}
-                  data-testid="schedule-export"
-                  className="w-full md:w-auto"
-                >
-                  {exporting ? "Đang xuất..." : "Export CSV"}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleValidate}
-                  disabled={loadingGen || isValidating}
-                  data-testid="schedule-validate"
-                  className="w-full md:w-auto"
-                >
-                  {isValidating ? "Đang kiểm tra..." : "Validate"}
-                </Button>
-                <Button
-                  onClick={handleGenerate}
-                  disabled={loadingGen}
-                  data-testid="schedule-generate"
-                  className="w-full md:w-auto"
-                >
-                  {loadingGen ? "Đang tạo..." : "Generate"}
-                </Button>
-              </div>
-            </div>
-            {toolbarActions ? (
-              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                {toolbarActions}
-              </div>
-            ) : null}
-          </CardHeader>
-          <CardContent className="p-0">
-            <MatrixTable
-              year={year}
-              month={month}
-              days={days}
-              staff={staff}
-              assignmentIndex={assignmentIndex}
-              summariesByStaffId={summariesByStaffId}
-              perDayLeaders={perDayLeaders}
-              perDayByPlace={perDayByPlace}
-              expectedByDay={expectedByDay}
-              fixedByDayStaff={fixedByDayStaff}
-              offByDayStaff={offByDayStaff}
-              loading={matrixLoading}
-              error={matrixError}
-              onRetry={fetchStaff}
-              withCard={false}
-              containerClassName="rounded-none border-0 bg-transparent shadow-none"
-            />
-          </CardContent>
-        </Card>
-      </section>
-    </div>
+    <ScheduleMatrixRoute
+      year={year}
+      month={month}
+      days={days}
+      staff={staff}
+      assignmentIndex={assignmentIndex}
+      summariesByStaffId={summariesByStaffId}
+      perDayLeaders={perDayLeaders}
+      perDayByPlace={perDayByPlace}
+      expectedByDay={expectedByDay}
+      fixedByDayStaff={fixedByDayStaff}
+      offByDayStaff={offByDayStaff}
+      loading={matrixLoading}
+      error={matrixError}
+      onRetry={fetchStaff}
+      toolbarActions={toolbarActions}
+      legend={legend}
+      onExport={handleExport}
+      onValidate={handleValidate}
+      onGenerate={handleGenerate}
+      exporting={exporting}
+      validating={isValidating}
+      generating={loadingGen}
+    />
   )
 }

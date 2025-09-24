@@ -104,7 +104,7 @@ export default function App() {
   const matrixError = staffError
   const conflictCount = validation.conflicts.length
 
-  const legend = (
+  const scheduleLegend = (
     <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
       <Legend label="CA1" bg="#E6F0FF" />
       <Legend label="CA2" bg="#FFE8CC" />
@@ -227,7 +227,6 @@ export default function App() {
         <span>{conflictCount} cảnh báo</span>
         <span>{hasLeaderDup ? "Trùng trưởng ca" : "Không trùng trưởng ca"}</span>
         <span>{leaderErrors.length} ngày thiếu trưởng ca</span>
-        {legend}
       </div>
     </>
   )
@@ -293,6 +292,7 @@ export default function App() {
                     generating={loadingGen}
                     extraPrimaryActions={schedulePrimaryActions}
                     toolbarActions={scheduleToolbar}
+                    legend={scheduleLegend}
                   />
                 }
               />

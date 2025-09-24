@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest"
 
-import { render } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import { describe, expect, test, vi } from "vitest"
 
 import MatrixRow from "./MatrixRow"
@@ -82,5 +82,55 @@ describe("MatrixRow", () => {
     )
 
     expect(asFragment()).toMatchSnapshot()
+  })
+
+  test("keeps sticky staff cell opaque when scrolling horizontally", () => {
+    const staff: Staff = {
+      id: 1,
+      full_name: "Nguyen Van A",
+      role: "TC",
+      can_night: true,
+      base_quota: 10,
+    }
+
+    const year = 2024
+    const month = 6
+    const days = [1]
+
+    const assignmentIndex = new Map<
+      string,
+      { code: ShiftCode; position: Position | null }
+    >()
+    const summariesByStaffId = new Map([
+      [
+        staff.id,
+        { counts: {}, credit: 0, dayCount: 0, nightCount: 0 },
+      ],
+    ])
+
+    render(
+      <TooltipProvider>
+        <table>
+          <tbody>
+            <MatrixRow
+              staff={staff}
+              index={0}
+              year={year}
+              month={month}
+              days={days}
+              assignmentIndex={assignmentIndex}
+              summariesByStaffId={summariesByStaffId}
+              fixedByDayStaff={new Map()}
+              offByDayStaff={new Map()}
+              leaderCountsByDay={new Map([[1, { day: 0, night: 0 }]])}
+            />
+          </tbody>
+        </table>
+      </TooltipProvider>,
+    )
+
+    const rowHeader = screen.getByRole("rowheader", { name: /nguyen van a/i })
+    expect(rowHeader.className).toContain("bg-background")
+    expect(rowHeader.className).not.toContain("bg-background/95")
   })
 })

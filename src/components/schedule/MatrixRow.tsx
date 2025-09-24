@@ -89,7 +89,7 @@ export default function MatrixRow({
     >
       <th
         scope="row"
-        className="sticky left-0 z-20 min-w-[220px] border-r border-border/60 bg-background/95 px-4 py-3 text-left shadow-[4px_0_12px_-8px_rgba(15,23,42,0.25)] backdrop-blur-sm"
+        className="sticky left-0 z-20 min-w-[220px] border-r border-border/60 bg-background px-4 py-3 text-left shadow-[4px_0_12px_-8px_rgba(15,23,42,0.25)] backdrop-blur-sm"
       >
         <div className="flex items-baseline justify-between gap-3">
           <div>

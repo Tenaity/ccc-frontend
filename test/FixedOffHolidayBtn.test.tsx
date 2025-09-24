@@ -159,6 +159,36 @@ afterAll(() => {
 })
 
 describe("FixedOffHolidayBtn", () => {
+  test("dialog overlay is visible with background styles", async () => {
+    const user = userEvent.setup()
+
+    server.use(
+      http.get("/api/staff", () => HttpResponse.json([])),
+      http.get("/api/fixed", () => HttpResponse.json([])),
+      http.get("/api/off", () => HttpResponse.json([])),
+      http.get("/api/holidays", () => HttpResponse.json([])),
+    )
+
+    render(
+      <UiProvider>
+        <FixedOffHolidayBtn year={2025} month={9} />
+      </UiProvider>,
+    )
+
+    await user.click(
+      screen.getByRole("button", { name: /fixed \/ off \/ holiday/i }),
+    )
+
+    const dialog = await screen.findByRole("dialog")
+    expect(dialog.className).toContain("bg-background")
+
+    const overlay = document.querySelector(
+      '[data-slot="dialog-overlay"]',
+    ) as HTMLElement | null
+    expect(overlay).not.toBeNull()
+    expect(overlay?.className).toContain("bg-black/50")
+  })
+
   test("opens dialog, submits fixed assignment, shows toast, and refreshes on close", async () => {
     const user = userEvent.setup()
 
