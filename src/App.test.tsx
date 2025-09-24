@@ -1,13 +1,13 @@
 import "@testing-library/jest-dom/vitest"
 
 import { MemoryRouter } from "react-router-dom"
-import { render, screen, waitFor } from "@testing-library/react"
+import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, test, vi } from "vitest"
 
 import App from "./App"
 import { UiProvider } from "@/components/ui/UiProvider"
-import type { DayPlaceSummary } from "@/types"
+import type { DayPlaceSummary, Staff } from "@/types"
 
 const mockOnGenerate = vi.fn()
 const mockFetchValidate = vi.fn()
@@ -75,14 +75,22 @@ vi.mock("@/hooks/useExportCsv", async () => {
   }
 })
 
-function renderScheduleApp() {
+vi.mock("./pages/Dashboard", () => ({
+  default: () => null,
+}))
+
+function renderApp(initialEntries: string[] = ["/schedule"]) {
   return render(
     <UiProvider>
-      <MemoryRouter initialEntries={["/schedule"]}>
+      <MemoryRouter initialEntries={initialEntries}>
         <App />
       </MemoryRouter>
     </UiProvider>,
   )
+}
+
+function renderScheduleApp() {
+  return renderApp(["/schedule"])
 }
 
 describe("App schedule actions", () => {
@@ -128,5 +136,68 @@ describe("App schedule actions", () => {
       expect(screen.getByText(/Sinh lịch thất bại/i)).toBeInTheDocument()
       expect(screen.getByText(/2 xung đột/i)).toBeInTheDocument()
     })
+  })
+})
+
+describe("App schedule navigation", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    scheduleDataValue = createScheduleData()
+  })
+
+  test("navigates via sidebar and shows sticky headers on schedule matrix", async () => {
+    const sampleStaff: Staff = {
+      id: 7,
+      full_name: "Tran Thi B",
+      role: "TC",
+      can_night: true,
+      base_quota: 12,
+      notes: "[CODE:777][RANK:1]",
+    }
+
+    scheduleDataValue = {
+      ...scheduleDataValue,
+      staff: [sampleStaff],
+      days: [1],
+      perDayLeaders: { 1: 1 },
+      summariesByStaffId: new Map([
+        [
+          sampleStaff.id,
+          {
+            counts: { CA1: 0, CA2: 0, K: 0, HC: 0, "Đ": 0, P: 0 },
+            credit: 0,
+            dayCount: 0,
+            nightCount: 0,
+          },
+        ],
+      ]),
+    }
+
+    const user = userEvent.setup()
+    renderApp(["/"])
+
+    const scheduleLink = await screen.findByRole("link", { name: /schedule/i })
+    await user.click(scheduleLink)
+
+    const pageHeading = await screen.findByRole("heading", {
+      level: 1,
+      name: /Schedule/i,
+    })
+    expect(pageHeading).toBeVisible()
+
+    const table = await screen.findByRole("table")
+    const staffHeader = within(table).getByRole("columnheader", {
+      name: /Nhân viên/i,
+    })
+    expect(staffHeader).toHaveClass("sticky")
+    expect(staffHeader).toHaveClass("left-0", { exact: false })
+
+    const columnHeaders = within(table).getAllByRole("columnheader")
+    expect(columnHeaders.length).toBeGreaterThan(1)
+
+    const dayHeader = columnHeaders[1]
+    expect(dayHeader).toHaveTextContent(/1/)
+    expect(dayHeader).toHaveClass("sticky")
+    expect(dayHeader).toHaveClass("top-0", { exact: false })
   })
 })
