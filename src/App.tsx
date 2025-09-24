@@ -316,16 +316,18 @@ export default function App() {
           actions={headerActions}
           breadcrumbs={breadcrumbs}
         />
-        <div className="flex flex-1 flex-col gap-6 pb-10">
-          <Suspense
-            fallback={
+        <Suspense
+          fallback={
+            <div className="mx-auto w-full max-w-[1400px] px-3 md:px-6">
               <div className="flex justify-center py-10" aria-live="polite">
                 <span className="text-sm text-muted-foreground">
                   Đang tải nội dung…
                 </span>
               </div>
-            }
-          >
+            </div>
+          }
+        >
+          <div className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col gap-6 px-3 pb-10 md:px-6">
             <Routes>
               <Route path="/" element={<DashboardPage />} />
               <Route
@@ -352,8 +354,8 @@ export default function App() {
               />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-          </Suspense>
-        </div>
+          </div>
+        </Suspense>
 
       </SidebarInset>
     </SidebarProvider>

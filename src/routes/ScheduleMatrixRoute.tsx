@@ -19,7 +19,7 @@ export default function ScheduleMatrixRoute({
   )
 
   return (
-    <div className="flex flex-col gap-6 px-4 pb-16 lg:px-6">
+    <div className="flex flex-col gap-6">
       <section aria-labelledby="schedule-heading" className="space-y-4">
         <div className="space-y-1">
           <h2

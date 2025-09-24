@@ -98,7 +98,7 @@ export default function SchedulePage({
   }, [exporting, onExport])
 
   return (
-    <div className="flex flex-col gap-6 px-4 pb-16 lg:px-6">
+    <div className="flex flex-col gap-6">
       <section aria-labelledby="schedule-heading">
         <Card className="border-border/60 shadow-sm">
           <CardHeader className="gap-4 pb-4">
