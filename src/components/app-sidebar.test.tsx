@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest"
 
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
 import { expect, test } from "vitest"
@@ -19,12 +19,21 @@ function renderSidebar(initialPath = "/schedule") {
   )
 }
 
-test("renders Schedule nav item and marks it active on /schedule", async () => {
+test("renders Schedule nav item, marks it active, and truncates the label", async () => {
   const { container } = renderSidebar("/schedule")
 
   const scheduleLink = screen.getByRole("link", { name: /schedule/i })
   expect(scheduleLink).toBeInTheDocument()
   expect(scheduleLink).toHaveAttribute("data-active", "true")
+  expect(scheduleLink).toHaveClass("min-w-0")
+
+  const scheduleText = within(scheduleLink).getByText(/schedule/i)
+  expect(scheduleText).toHaveClass("truncate")
+
+  const scrollViewport = container.querySelector(
+    "[data-radix-scroll-area-viewport]",
+  )
+  expect(scrollViewport).not.toBeNull()
 
   const results = await axe(container)
   expect(results.violations).toHaveLength(0)

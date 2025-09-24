@@ -17,6 +17,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 
 const secondaryNav = [
   {
@@ -46,9 +47,13 @@ function SidebarNavItem({ route }: { route: AppRoute }) {
   return (
     <SidebarMenuItem key={route.path}>
       <SidebarMenuButton asChild tooltip={route.label} isActive={!!match}>
-        <NavLink to={route.path} end={route.path === "/"}>
-          <route.icon className="size-4" />
-          <span>{route.label}</span>
+        <NavLink
+          to={route.path}
+          end={route.path === "/"}
+          className="flex w-full min-w-0 items-center gap-2"
+        >
+          <route.icon className="size-4 shrink-0" />
+          <span className="truncate">{route.label}</span>
         </NavLink>
       </SidebarMenuButton>
     </SidebarMenuItem>
@@ -79,11 +84,14 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {appRoutes.map((route) => (
-                <SidebarNavItem key={route.path} route={route} />
-              ))}
-            </SidebarMenu>
+            <ScrollArea className="h-[calc(100vh-160px)] pr-1">
+              <SidebarMenu>
+                {appRoutes.map((route) => (
+                  <SidebarNavItem key={route.path} route={route} />
+                ))}
+              </SidebarMenu>
+              <ScrollBar orientation="vertical" />
+            </ScrollArea>
           </SidebarGroupContent>
         </SidebarGroup>
         <NavSecondary items={secondaryNav} className="mt-auto" />
