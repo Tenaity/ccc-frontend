@@ -15,11 +15,6 @@ vi.mock("../src/pages/Dashboard", () => ({
   default: () => <div data-testid="dashboard-page" />,
 }))
 
-vi.mock("../src/pages/Schedule", () => ({
-  __esModule: true,
-  default: () => <div data-testid="schedule-page" />,
-}))
-
 vi.mock("../src/hooks/useScheduleData", () => ({
   useScheduleData: (...args: unknown[]) => useScheduleDataMock(...args),
 }))
@@ -116,10 +111,10 @@ describe("App accessibility", () => {
     expect(brandLink).toHaveFocus()
   })
 
-  it("renders breadcrumb navigation for the current route", () => {
+  it("renders breadcrumb navigation for the current route", async () => {
     renderApp()
 
-    const breadcrumbNav = screen.getByRole("navigation", { name: /breadcrumb/i })
+    const breadcrumbNav = await screen.findByRole("navigation", { name: /breadcrumb/i })
     expect(breadcrumbNav).toBeInTheDocument()
     expect(breadcrumbNav).toHaveTextContent("Dashboard")
     expect(breadcrumbNav).toHaveTextContent("Schedule")

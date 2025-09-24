@@ -37,6 +37,7 @@ export type ScheduleMatrixRouteProps = React.ComponentProps<
   validating?: boolean
   generating?: boolean
   legend?: ReactNode
+  intro?: ReactNode
 }
 
 export default function ScheduleMatrixRoute({
@@ -50,6 +51,7 @@ export default function ScheduleMatrixRoute({
   validating = false,
   generating = false,
   legend,
+  intro,
   ...matrixProps
 }: ScheduleMatrixRouteProps) {
   const monthLabel = useMemo(
@@ -75,6 +77,7 @@ export default function ScheduleMatrixRoute({
 
         <div data-testid="schedule-body" className="space-y-6">
           <div className="space-y-5 rounded-3xl border border-border/60 bg-card p-4 shadow-sm sm:p-6">
+            {intro}
             <p className="text-sm text-muted-foreground">
               Ma trận phân ca cho tháng {monthLabel}. Theo dõi nhanh trạng thái ca
               và cảnh báo vi phạm.

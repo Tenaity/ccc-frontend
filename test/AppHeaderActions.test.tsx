@@ -17,11 +17,6 @@ vi.mock("../src/pages/Dashboard", () => ({
   default: () => <div data-testid="dashboard-page" />,
 }))
 
-vi.mock("../src/pages/Schedule", () => ({
-  __esModule: true,
-  default: () => <div data-testid="schedule-page" />,
-}))
-
 vi.mock("../src/hooks/useScheduleData", () => ({
   useScheduleData: (...args: unknown[]) => useScheduleDataMock(...args),
 }))
@@ -101,8 +96,8 @@ describe("App header actions", () => {
     )
 
     const validateButton = await screen.findByTestId("schedule-validate")
-    const generateButton = screen.getByTestId("schedule-generate")
-    const exportButton = screen.getByTestId("schedule-export")
+    const generateButton = await screen.findByTestId("schedule-generate")
+    const exportButton = await screen.findByTestId("schedule-export")
 
     await user.click(validateButton)
     await user.click(generateButton)

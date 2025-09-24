@@ -186,7 +186,8 @@ describe("FixedOffHolidayBtn", () => {
       '[data-slot="dialog-overlay"]',
     ) as HTMLElement | null
     expect(overlay).not.toBeNull()
-    expect(overlay?.className).toContain("bg-black/50")
+    expect(overlay?.className).toContain("bg-black/45")
+    expect(overlay?.className).toContain("backdrop-blur-sm")
   })
 
   test("opens dialog, submits fixed assignment, shows toast, and refreshes on close", async () => {

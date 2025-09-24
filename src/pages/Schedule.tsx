@@ -1,6 +1,15 @@
-import { useCallback, useMemo, useState, type ReactNode } from "react"
+import { useCallback, useState, type ReactNode } from "react"
+import { Link } from "react-router-dom"
 
 import ScheduleMatrixRoute from "@/routes/ScheduleMatrixRoute"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import type { DayPlaceSummary, ExpectedByDay, Staff } from "@/types"
 import type { Cell } from "@/utils/mergeCellIndex"
 
@@ -9,6 +18,11 @@ type StaffSummary = {
   credit: number
   dayCount: number
   nightCount: number
+}
+
+type ScheduleBreadcrumb = {
+  label: string
+  href?: string
 }
 
 export interface SchedulePageProps {
@@ -33,6 +47,10 @@ export interface SchedulePageProps {
   fetchStaff: () => void
   toolbarActions?: ReactNode
   legend?: ReactNode
+  staffLoading?: boolean
+  extraPrimaryActions?: ReactNode
+  breadcrumbs?: ScheduleBreadcrumb[]
+  description?: string
 }
 
 export default function SchedulePage({
@@ -57,13 +75,45 @@ export default function SchedulePage({
   fetchStaff,
   toolbarActions,
   legend,
+  staffLoading = false,
+  extraPrimaryActions,
+  breadcrumbs,
+  description,
 }: SchedulePageProps) {
   const [isValidating, setIsValidating] = useState(false)
 
-  const monthLabel = useMemo(
-    () => `${String(month).padStart(2, "0")}/${year}`,
-    [month, year],
-  )
+  const breadcrumbItems = breadcrumbs ?? []
+  const hasBreadcrumbs = breadcrumbItems.length > 0
+
+  const introContent = hasBreadcrumbs || description ? (
+    <div className="space-y-2 text-sm">
+      {hasBreadcrumbs ? (
+        <Breadcrumb>
+          <BreadcrumbList>
+            {breadcrumbItems.map((item, index) => {
+              const isLast = index === breadcrumbItems.length - 1
+
+              return (
+                <BreadcrumbItem key={`${item.label}-${index}`}>
+                  {isLast || !item.href ? (
+                    <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                  ) : (
+                    <BreadcrumbLink asChild>
+                      <Link to={item.href}>{item.label}</Link>
+                    </BreadcrumbLink>
+                  )}
+                  {!isLast ? <BreadcrumbSeparator /> : null}
+                </BreadcrumbItem>
+              )
+            })}
+          </BreadcrumbList>
+        </Breadcrumb>
+      ) : null}
+      {description ? (
+        <p className="text-muted-foreground">{description}</p>
+      ) : null}
+    </div>
+  ) : null
 
   const handleGenerate = useCallback(() => {
     if (loadingGen) {
@@ -109,12 +159,15 @@ export default function SchedulePage({
       onRetry={fetchStaff}
       toolbarActions={toolbarActions}
       legend={legend}
+      staffLoading={staffLoading}
+      extraPrimaryActions={extraPrimaryActions}
       onExport={handleExport}
       onValidate={handleValidate}
       onGenerate={handleGenerate}
       exporting={exporting}
       validating={isValidating}
       generating={loadingGen}
+      intro={introContent}
     />
   )
 }

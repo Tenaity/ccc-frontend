@@ -15,9 +15,7 @@ import Legend from "@/components/Legend"
 import DashboardPage from "./pages/Dashboard"
 import FixedOffHolidayBtn from "./components/schedule/FixedOffHolidayBtn"
 
-const ScheduleMatrixRoute = lazy(
-  () => import("./routes/ScheduleMatrixRoute"),
-)
+const SchedulePage = lazy(() => import("./pages/Schedule"))
 
 const MAIN_CONTENT_ID = "app-main-content"
 
@@ -25,7 +23,6 @@ export default function App() {
   const today = new Date()
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth() + 1)
-  const [isValidating, setIsValidating] = useState(false)
   const { toast } = useToast()
   const location = useLocation()
   const routeMeta = matchRoute(location.pathname) ?? matchRoute("/")!
@@ -125,11 +122,6 @@ export default function App() {
   }, [exportCsv, year, month])
 
   const handleValidate = React.useCallback(async () => {
-    if (isValidating) {
-      return
-    }
-
-    setIsValidating(true)
     try {
       const result = await fetchValidate()
       if (result.ok) {
@@ -153,10 +145,8 @@ export default function App() {
         title: "Validate thất bại",
         description: message,
       })
-    } finally {
-      setIsValidating(false)
     }
-  }, [fetchValidate, isValidating, toast])
+  }, [fetchValidate, toast])
 
   const handleGenerate = React.useCallback(async () => {
     try {
@@ -246,11 +236,7 @@ export default function App() {
         id={MAIN_CONTENT_ID}
         tabIndex={-1}
       >
-        <SiteHeader
-          title={routeMeta.label}
-          description={routeMeta.description}
-          breadcrumbs={breadcrumbs}
-        />
+        <SiteHeader title={routeMeta.label} />
         <Suspense
           fallback={
             <div className="mx-auto w-full max-w-[1400px] px-3 md:px-6">
@@ -268,7 +254,7 @@ export default function App() {
               <Route
                 path="/schedule"
                 element={
-                  <ScheduleMatrixRoute
+                  <SchedulePage
                     year={year}
                     month={month}
                     days={days}
@@ -280,19 +266,20 @@ export default function App() {
                     expectedByDay={expectedByDay}
                     fixedByDayStaff={fixedByDayStaff}
                     offByDayStaff={offByDayStaff}
-                    loading={matrixLoading}
-                    error={matrixError}
-                    onRetry={fetchStaff}
+                    matrixLoading={matrixLoading}
+                    matrixError={matrixError}
+                    fetchStaff={fetchStaff}
                     staffLoading={loadingStaff}
                     onExport={handleExport}
                     onValidate={handleValidate}
                     onGenerate={handleGenerate}
                     exporting={isExporting}
-                    validating={isValidating}
-                    generating={loadingGen}
+                    loadingGen={loadingGen}
                     extraPrimaryActions={schedulePrimaryActions}
                     toolbarActions={scheduleToolbar}
                     legend={scheduleLegend}
+                    breadcrumbs={breadcrumbs}
+                    description={routeMeta.description}
                   />
                 }
               />
