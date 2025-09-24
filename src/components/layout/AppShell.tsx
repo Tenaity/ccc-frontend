@@ -1,4 +1,4 @@
-import React from "react";
+import React, { type PropsWithChildren } from "react";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -15,15 +15,14 @@ export interface AppShellBreadcrumbItem {
     current?: boolean;
 }
 
-interface AppShellProps {
+type AppShellProps = PropsWithChildren<{
     title: string;
     description?: string;
     breadcrumbs?: AppShellBreadcrumbItem[];
     sidebar: React.ReactNode;
-    children: React.ReactNode;
     headerActions?: React.ReactNode;
     mainId?: string;
-}
+}>;
 
 const DEFAULT_MAIN_ID = "app-main-content";
 

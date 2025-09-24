@@ -31,11 +31,11 @@ function applyThemeClass(theme: Theme) {
   root.classList.add(theme)
 }
 
-export interface ThemeProviderProps {
+export type ThemeProviderProps = React.PropsWithChildren<{
   children: React.ReactNode
   defaultTheme?: ThemeMode
   storageKey?: string
-}
+}>
 
 export function ThemeProvider({
   children,

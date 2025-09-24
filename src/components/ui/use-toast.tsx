@@ -45,7 +45,11 @@ function showToast(id: string, toast: Omit<ToastRecord, "id">) {
   })
 }
 
-export function ToastStateProvider({ children }: { children: React.ReactNode }) {
+type ToastStateProviderProps = React.PropsWithChildren<{
+  children: React.ReactNode
+}>
+
+export function ToastStateProvider({ children }: ToastStateProviderProps) {
   const [toasts, setToasts] = React.useState<ToastRecord[]>([])
 
   const toast = React.useCallback((input: Omit<ToastRecord, "id">) => {

@@ -1,5 +1,10 @@
 import * as React from "react"
-import { ArrowUpCircleIcon, HelpCircleIcon, SettingsIcon } from "lucide-react"
+import {
+  ArrowUpCircleIcon,
+  HelpCircleIcon,
+  SettingsIcon,
+  type LucideIcon,
+} from "lucide-react"
 import { NavLink, useMatch } from "react-router-dom"
 
 import { appRoutes, type AppRoute } from "@/app/routes"
@@ -19,7 +24,13 @@ import {
 } from "@/components/ui/sidebar"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 
-const secondaryNav = [
+type SecondaryNavItem = {
+  title: string
+  url: string
+  icon: LucideIcon
+}
+
+const secondaryNav: SecondaryNavItem[] = [
   {
     title: "Settings",
     url: "#settings",
