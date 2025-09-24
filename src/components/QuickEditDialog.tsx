@@ -6,6 +6,10 @@ import { z } from "zod";
 import type { Staff } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+import {
   Form,
   FormControl,
   FormField,
@@ -148,97 +152,101 @@ export default function QuickEditDialog({
     : descriptionId;
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={titleId}
-      aria-describedby={describedBy}
-      className="w-full max-w-md space-y-4 rounded-lg border border-border/70 bg-background p-6 shadow-lg"
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen: boolean) => {
+        if (!nextOpen) {
+          onClose();
+        }
+      }}
     >
-      <div>
-        <h2 id={titleId} className="text-lg font-semibold text-foreground">
-          Quick Edit
-        </h2>
-        <p id={descriptionId} className="text-sm text-muted-foreground">
-          Ca hiện tại: <strong>{current.full_name}</strong>
-        </p>
-        {fixed ? (
-          <p
-            id={lockedId}
-            className="mt-2 text-sm font-medium text-destructive"
-          >
-            Đã khóa
+      <DialogContent
+        aria-labelledby={titleId}
+        aria-describedby={describedBy}
+        className="max-w-md"
+      >
+        <div className="space-y-2">
+          <h2 id={titleId} className="text-lg font-semibold text-foreground">
+            Quick Edit
+          </h2>
+          <p id={descriptionId} className="text-sm text-muted-foreground">
+            Ca hiện tại: <strong>{current.full_name}</strong>
           </p>
-        ) : null}
-      </div>
+          {fixed ? (
+            <p id={lockedId} className="text-sm font-medium text-destructive">
+              Đã khóa
+            </p>
+          ) : null}
+        </div>
 
-      <Form {...form}>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="staffId"
-            render={({ field }) => {
-              const staffIdMessage =
-                form.formState.errors.staffId?.message ??
-                (reasons.length > 0
-                  ? `Không thể gán: ${reasons.join(", ")}`
-                  : undefined)
+        <Form {...form}>
+          <form onSubmit={onSubmit} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="staffId"
+              render={({ field }) => {
+                const staffIdMessage =
+                  form.formState.errors.staffId?.message ??
+                  (reasons.length > 0
+                    ? `Không thể gán: ${reasons.join(", ")}`
+                    : undefined);
 
-              return (
-                <FormItem>
-                  <FormLabel>Nhân viên</FormLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={(value) => field.onChange(value)}
-                    disabled={!!fixed}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Chọn nhân viên" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {candidates.map((candidate) => (
-                        <SelectItem
-                          key={candidate.id}
-                          value={String(candidate.id)}
-                        >
-                          {candidate.full_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {reasons.length > 0 ? (
-                    <div
-                      role="alert"
-                      aria-live="assertive"
-                      className="space-y-1 text-sm text-destructive"
+                return (
+                  <FormItem>
+                    <FormLabel>Nhân viên</FormLabel>
+                    <Select
+                      value={field.value}
+                      onValueChange={(value) => field.onChange(value)}
+                      disabled={!!fixed}
                     >
-                      <FormMessage role="none">{staffIdMessage}</FormMessage>
-                      <ul className="list-disc space-y-1 pl-5">
-                        {reasons.map((reason) => (
-                          <li key={reason}>{reason}</li>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Chọn nhân viên" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {candidates.map((candidate) => (
+                          <SelectItem
+                            key={candidate.id}
+                            value={String(candidate.id)}
+                          >
+                            {candidate.full_name}
+                          </SelectItem>
                         ))}
-                      </ul>
-                    </div>
-                  ) : (
-                    <FormMessage />
-                  )}
-                </FormItem>
-              )
-            }}
-          />
+                      </SelectContent>
+                    </Select>
+                    {reasons.length > 0 ? (
+                      <div
+                        role="alert"
+                        aria-live="assertive"
+                        className="space-y-1 text-sm text-destructive"
+                      >
+                        <FormMessage role="none">{staffIdMessage}</FormMessage>
+                        <ul className="list-disc space-y-1 pl-5">
+                          {reasons.map((reason) => (
+                            <li key={reason}>{reason}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : (
+                      <FormMessage />
+                    )}
+                  </FormItem>
+                );
+              }}
+            />
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Đóng
-            </Button>
-            <Button type="submit" disabled={assignDisabled}>
-              Assign
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={onClose}>
+                Đóng
+              </Button>
+              <Button type="submit" disabled={assignDisabled}>
+                Assign
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }
