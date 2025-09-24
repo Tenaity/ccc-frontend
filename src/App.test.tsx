@@ -179,7 +179,8 @@ describe("App schedule navigation", () => {
     const scheduleLink = await screen.findByRole("link", { name: /schedule/i })
     await user.click(scheduleLink)
 
-    const pageHeading = await screen.findByRole("heading", {
+    const scheduleHeader = await screen.findByTestId("schedule-header")
+    const pageHeading = within(scheduleHeader).getByRole("heading", {
       level: 1,
       name: /Schedule/i,
     })

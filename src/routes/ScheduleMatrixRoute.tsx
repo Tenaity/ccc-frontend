@@ -1,28 +1,10 @@
 import { type ReactNode, useMemo } from "react"
 
+import { DownloadIcon } from "lucide-react"
+
 import MatrixTable from "@/components/schedule/MatrixTable"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ButtonGroup } from "@/components/ui/button-group"
-
-function StatCard({
-  label,
-  value,
-}: {
-  label: string
-  value: ReactNode
-}) {
-  return (
-    <Card className="border-border/50 bg-muted/40 shadow-none">
-      <CardContent className="flex flex-col gap-1 rounded-2xl p-4">
-        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {label}
-        </span>
-        <span className="text-base font-semibold text-foreground">{value}</span>
-      </CardContent>
-    </Card>
-  )
-}
 
 export type ScheduleMatrixRouteProps = React.ComponentProps<
   typeof MatrixTable
@@ -38,6 +20,7 @@ export type ScheduleMatrixRouteProps = React.ComponentProps<
   generating?: boolean
   legend?: ReactNode
   intro?: ReactNode
+  description?: string
 }
 
 export default function ScheduleMatrixRoute({
@@ -52,6 +35,7 @@ export default function ScheduleMatrixRoute({
   generating = false,
   legend,
   intro,
+  description,
   ...matrixProps
 }: ScheduleMatrixRouteProps) {
   const monthLabel = useMemo(
@@ -63,75 +47,83 @@ export default function ScheduleMatrixRoute({
     ? "Đang tải nhân sự…"
     : `${matrixProps.staff.length} nhân sự`
 
+  const headingDescription =
+    description ?? "Quản lý lịch phân ca dạng ma trận"
+
+  const actionButtonClass =
+    "h-10 px-4 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto w-full max-w-[1400px] space-y-6 px-3 pb-10 md:px-6">
       <section aria-labelledby="schedule-heading" className="space-y-6">
-        <header data-testid="schedule-header">
-          <h2
-            id="schedule-heading"
-            className="text-lg font-semibold text-foreground sm:text-xl"
-          >
-            Schedule
-          </h2>
+        <header data-testid="schedule-header" className="space-y-2">
+          {intro ? <div className="text-sm">{intro}</div> : null}
+          <div className="space-y-1">
+            <h1
+              id="schedule-heading"
+              className="text-xl font-semibold text-foreground"
+            >
+              Schedule
+            </h1>
+            <p className="text-sm text-muted-foreground">{headingDescription}</p>
+          </div>
         </header>
 
         <div data-testid="schedule-body" className="space-y-6">
-          <div className="space-y-5 rounded-3xl border border-border/60 bg-card p-4 shadow-sm sm:p-6">
-            {intro}
-            <p className="text-sm text-muted-foreground">
-              Ma trận phân ca cho tháng {monthLabel}. Theo dõi nhanh trạng thái ca
-              và cảnh báo vi phạm.
-            </p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <StatCard label="Tháng hiện tại" value={monthLabel} />
-              <StatCard label="Số nhân sự" value={staffSummary} />
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+              <span>Tháng hiện tại: {monthLabel}</span>
+              <span>{staffSummary}</span>
             </div>
-            {legend ? (
-              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                {legend}
-              </div>
-            ) : null}
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <ButtonGroup className="w-full justify-between gap-1 sm:justify-start lg:w-auto">
+            <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-end md:w-auto md:items-center">
+              <div className="flex flex-wrap gap-2 sm:justify-end">
                 <Button
-                  variant="secondary"
+                  variant="outline"
                   onClick={onExport}
                   disabled={exporting}
                   data-testid="schedule-export"
-                  className="flex-1 sm:flex-none"
+                  className={actionButtonClass}
                 >
+                  <DownloadIcon className="h-4 w-4" aria-hidden="true" />
                   {exporting ? "Đang xuất..." : "Export CSV"}
                 </Button>
                 <Button
-                  variant="outline"
-                  onClick={onValidate}
-                  disabled={generating || validating}
-                  data-testid="schedule-validate"
-                  className="flex-1 sm:flex-none"
-                >
-                  {validating ? "Đang kiểm tra..." : "Validate"}
-                </Button>
-                <Button
+                  variant="secondary"
                   onClick={onGenerate}
                   disabled={generating}
                   data-testid="schedule-generate"
-                  className="flex-1 sm:flex-none"
+                  className={actionButtonClass}
                 >
                   {generating ? "Đang tạo..." : "Generate"}
                 </Button>
-              </ButtonGroup>
+                <Button
+                  onClick={onValidate}
+                  disabled={generating || validating}
+                  data-testid="schedule-validate"
+                  className={actionButtonClass}
+                >
+                  {validating ? "Đang kiểm tra..." : "Validate"}
+                </Button>
+              </div>
               {extraPrimaryActions ? (
-                <div className="flex w-full justify-start gap-2 lg:w-auto lg:justify-end">
+                <div className="flex flex-wrap justify-end gap-2">
                   {extraPrimaryActions}
                 </div>
               ) : null}
             </div>
-            {toolbarActions ? (
-              <div className="flex flex-col gap-3 text-sm text-muted-foreground">
-                {toolbarActions}
-              </div>
-            ) : null}
           </div>
+
+          {toolbarActions ? (
+            <div className="flex flex-col gap-3 text-sm text-muted-foreground md:flex-row md:flex-wrap md:items-center md:justify-between">
+              {toolbarActions}
+            </div>
+          ) : null}
+
+          {legend ? (
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              {legend}
+            </div>
+          ) : null}
 
           <Card className="border-border/60 shadow-sm">
             <CardContent className="p-0">

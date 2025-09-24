@@ -65,16 +65,22 @@ describe("SchedulePage", () => {
     renderPage({ onGenerate, onValidate, onExport })
 
     const header = screen.getByTestId("schedule-header")
-    const heading = within(header).getByRole("heading", { name: /schedule/i })
-    expect(header).toHaveTextContent(/^\s*Schedule\s*$/)
+    const heading = within(header).getByRole("heading", {
+      level: 1,
+      name: /schedule/i,
+    })
     expect(heading).toBeInTheDocument()
+    expect(
+      within(header).getByText("Quản lý lịch phân ca dạng ma trận"),
+    ).toBeInTheDocument()
 
     const body = screen.getByTestId("schedule-body")
-    expect(within(body).getByText(/Tháng hiện tại/i)).toBeInTheDocument()
-    expect(within(body).getByText(/Số nhân sự/i)).toBeInTheDocument()
+    expect(
+      within(body).getByText(/Tháng hiện tại:\s*09\/2024/i),
+    ).toBeInTheDocument()
+    expect(within(body).getByText(/0\s+nhân sự/i)).toBeInTheDocument()
     expect(within(body).getByTestId("extra")).toBeInTheDocument()
     expect(within(body).getByTestId("legend")).toBeInTheDocument()
-    expect(screen.getByText(/ma trận phân ca/i)).toBeInTheDocument()
     expect(screen.getByTestId("matrix-table")).toHaveTextContent("rows-0")
 
     await user.click(screen.getByRole("button", { name: /export csv/i }))

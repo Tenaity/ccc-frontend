@@ -85,34 +85,27 @@ export default function SchedulePage({
   const breadcrumbItems = breadcrumbs ?? []
   const hasBreadcrumbs = breadcrumbItems.length > 0
 
-  const introContent = hasBreadcrumbs || description ? (
-    <div className="space-y-2 text-sm">
-      {hasBreadcrumbs ? (
-        <Breadcrumb>
-          <BreadcrumbList>
-            {breadcrumbItems.map((item, index) => {
-              const isLast = index === breadcrumbItems.length - 1
+  const introContent = hasBreadcrumbs ? (
+    <Breadcrumb>
+      <BreadcrumbList>
+        {breadcrumbItems.map((item, index) => {
+          const isLast = index === breadcrumbItems.length - 1
 
-              return (
-                <BreadcrumbItem key={`${item.label}-${index}`}>
-                  {isLast || !item.href ? (
-                    <BreadcrumbPage>{item.label}</BreadcrumbPage>
-                  ) : (
-                    <BreadcrumbLink asChild>
-                      <Link to={item.href}>{item.label}</Link>
-                    </BreadcrumbLink>
-                  )}
-                  {!isLast ? <BreadcrumbSeparator /> : null}
-                </BreadcrumbItem>
-              )
-            })}
-          </BreadcrumbList>
-        </Breadcrumb>
-      ) : null}
-      {description ? (
-        <p className="text-muted-foreground">{description}</p>
-      ) : null}
-    </div>
+          return (
+            <BreadcrumbItem key={`${item.label}-${index}`}>
+              {isLast || !item.href ? (
+                <BreadcrumbPage>{item.label}</BreadcrumbPage>
+              ) : (
+                <BreadcrumbLink asChild>
+                  <Link to={item.href}>{item.label}</Link>
+                </BreadcrumbLink>
+              )}
+              {!isLast ? <BreadcrumbSeparator /> : null}
+            </BreadcrumbItem>
+          )
+        })}
+      </BreadcrumbList>
+    </Breadcrumb>
   ) : null
 
   const handleGenerate = useCallback(() => {
@@ -168,6 +161,7 @@ export default function SchedulePage({
       validating={isValidating}
       generating={loadingGen}
       intro={introContent}
+      description={description}
     />
   )
 }
