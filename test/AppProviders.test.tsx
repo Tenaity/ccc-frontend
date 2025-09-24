@@ -57,11 +57,6 @@ vi.mock('../src/hooks/useScheduleData', () => ({
   }),
 }))
 
-vi.mock('../src/components/fixed-off/FixedOffPanel', () => ({
-  __esModule: true,
-  default: () => null,
-}))
-
 beforeAll(() => {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,

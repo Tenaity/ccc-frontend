@@ -34,6 +34,26 @@ if (typeof window !== 'undefined') {
     configurable: true,
     value: matchMediaMock,
   })
+
+  if (!('ResizeObserver' in window)) {
+    class ResizeObserverMock {
+      callback: ResizeObserverCallback
+
+      constructor(callback: ResizeObserverCallback) {
+        this.callback = callback
+      }
+
+      observe(): void {}
+      unobserve(): void {}
+      disconnect(): void {}
+    }
+
+    Object.defineProperty(window, 'ResizeObserver', {
+      writable: true,
+      configurable: true,
+      value: ResizeObserverMock,
+    })
+  }
 }
 
 vi.mock('html2canvas', () => ({ default: vi.fn(async () => ({})) }), { virtual: true })

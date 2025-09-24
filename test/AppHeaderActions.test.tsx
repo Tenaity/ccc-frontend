@@ -22,11 +22,6 @@ vi.mock("../src/pages/Schedule", () => ({
   default: () => <div data-testid="schedule-page" />,
 }))
 
-vi.mock("../src/components/fixed-off/FixedOffPanel", () => ({
-  __esModule: true,
-  default: () => null,
-}))
-
 vi.mock("../src/hooks/useScheduleData", () => ({
   useScheduleData: (...args: unknown[]) => useScheduleDataMock(...args),
 }))

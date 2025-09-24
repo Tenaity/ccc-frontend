@@ -14,11 +14,11 @@ import { useToast } from "@/components/ui/use-toast"
 import Legend from "@/components/Legend"
 
 import DashboardPage from "./pages/Dashboard"
+import FixedOffHolidayBtn from "./components/schedule/FixedOffHolidayBtn"
 
 const ScheduleMatrixRoute = lazy(
   () => import("./routes/ScheduleMatrixRoute"),
 )
-const FixedOffPanel = lazy(() => import("./components/fixed-off/FixedOffPanel"))
 
 const MAIN_CONTENT_ID = "app-main-content"
 
@@ -26,7 +26,6 @@ export default function App() {
   const today = new Date()
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth() + 1)
-  const [showFixedOff, setShowFixedOff] = useState(false)
   const [isValidating, setIsValidating] = useState(false)
   const { toast } = useToast()
   const location = useLocation()
@@ -121,10 +120,6 @@ export default function App() {
       <Legend label="TC đêm (Đ + 👑, position=TD & role=TC)" bg="#FFE6EA" />
     </div>
   )
-
-  const openFixedOffPanel = React.useCallback(() => {
-    setShowFixedOff(true)
-  }, [setShowFixedOff])
 
   const handleExport = React.useCallback(() => {
     void exportCsv(year, month)
@@ -267,15 +262,16 @@ export default function App() {
 
   const scheduleToolbar = (
     <>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={openFixedOffPanel}
-        aria-haspopup="dialog"
-      >
-        Fixed / Off / Holiday
-      </Button>
+      <FixedOffHolidayBtn
+        year={year}
+        month={month}
+        aria-label="Fixed / Off / Holiday"
+        onRefresh={async () => {
+          await fetchFixed()
+          await fetchOffdays()
+          await fetchHolidays()
+        }}
+      />
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Switch
           id="auto-fill-hc"
@@ -359,29 +355,6 @@ export default function App() {
           </Suspense>
         </div>
 
-        <Suspense>
-          {showFixedOff ? (
-            <FixedOffPanel
-              year={year}
-              month={month}
-              open={showFixedOff}
-              onClose={() => setShowFixedOff(false)}
-              onExportCsv={handleExport}
-              exporting={isExporting}
-              onToast={(message, options) =>
-                toast({
-                  description: message,
-                  ...options,
-                })
-              }
-              onRefresh={async () => {
-                await fetchFixed()
-                await fetchOffdays()
-                await fetchHolidays()
-              }}
-            />
-          ) : null}
-        </Suspense>
       </SidebarInset>
     </SidebarProvider>
   )
