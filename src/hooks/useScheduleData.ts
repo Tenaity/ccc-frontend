@@ -1,5 +1,5 @@
 // src/hooks/useScheduleData.ts
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   Staff,
   Assignment,
@@ -56,6 +56,7 @@ export function useScheduleData(
   const [staffError, setStaffError] = useState<string | null>(null);
   const [validation, setValidation] = useState<{ ok: boolean; conflicts: any[] }>({ ok: true, conflicts: [] });
   const [hasLeaderDup, setHasLeaderDup] = useState(false);
+  const validationRef = useRef(validation);
 
   // Rule expected per-day (dùng cho so sánh với planned khi cần)
   const [expectedByDay, setExpectedByDay] = useState<ExpectedByDay>({});
@@ -190,16 +191,20 @@ export function useScheduleData(
     setHolidays(await safeJSON<Holiday[]>(res));
   }, [isEnabled, month, year]);
 
+  useEffect(() => {
+    validationRef.current = validation;
+  }, [validation]);
+
   const fetchValidate = useCallback(async (): Promise<{ ok: boolean; conflicts: any[] }> => {
     if (!isEnabled) {
-      return validation;
+      return validationRef.current;
     }
     const result = await validateSchedule(year, month);
     const normalized = { ok: result.ok, conflicts: result.conflicts };
     setValidation(normalized);
     setHasLeaderDup(result.hasLeaderDup);
     return normalized;
-  }, [isEnabled, month, validation, year]);
+  }, [isEnabled, month, year]);
 
   /** fetchExpected: tải rule “chuẩn” từng ngày trong tháng (để đối chiếu UI nếu cần) */
   const fetchExpected = useCallback(async () => {

@@ -177,42 +177,57 @@ export default function QuickEditDialog({
           <FormField
             control={form.control}
             name="staffId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nhân viên</FormLabel>
-                <Select
-                  value={field.value}
-                  onValueChange={(value) => field.onChange(value)}
-                  disabled={!!fixed}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Chọn nhân viên" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {candidates.map((candidate) => (
-                      <SelectItem
-                        key={candidate.id}
-                        value={String(candidate.id)}
-                      >
-                        {candidate.full_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            render={({ field }) => {
+              const staffIdMessage =
+                form.formState.errors.staffId?.message ??
+                (reasons.length > 0
+                  ? `Không thể gán: ${reasons.join(", ")}`
+                  : undefined)
 
-            {reasons.length > 0 ? (
-              <ul className="list-disc space-y-1 pl-5 text-sm text-destructive">
-              {reasons.map((reason) => (
-                <li key={reason}>{reason}</li>
-              ))}
-            </ul>
-          ) : null}
+              return (
+                <FormItem>
+                  <FormLabel>Nhân viên</FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => field.onChange(value)}
+                    disabled={!!fixed}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Chọn nhân viên" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {candidates.map((candidate) => (
+                        <SelectItem
+                          key={candidate.id}
+                          value={String(candidate.id)}
+                        >
+                          {candidate.full_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {reasons.length > 0 ? (
+                    <div
+                      role="alert"
+                      aria-live="assertive"
+                      className="space-y-1 text-sm text-destructive"
+                    >
+                      <FormMessage role="none">{staffIdMessage}</FormMessage>
+                      <ul className="list-disc space-y-1 pl-5">
+                        {reasons.map((reason) => (
+                          <li key={reason}>{reason}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : (
+                    <FormMessage />
+                  )}
+                </FormItem>
+              )
+            }}
+          />
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>

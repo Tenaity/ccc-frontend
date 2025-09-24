@@ -19,20 +19,8 @@ export default defineConfig(async () => {
     server: {
       port: 5173,
       proxy: {
-        '/api': { target: 'http://localhost:5001', changeOrigin: true }
-      }
+        '/api': { target: 'http://localhost:5001', changeOrigin: true },
+      },
     },
-    test: {
-      globals: true,
-      environment: 'jsdom',
-      setupFiles: ['./vitest.setup.ts', 'src/test/setup.ts'],
-      restoreMocks: true,
-      poolOptions: {
-        threads: {
-          maxThreads: 2,
-          minThreads: 1
-        }
-      }
-    }
   }
 })

@@ -2,6 +2,10 @@ import '@testing-library/jest-dom/vitest'
 import { expect, vi } from 'vitest'
 import { toHaveNoViolations } from 'vitest-axe/matchers'
 
+// Ensure React's testing utilities detect an act-enabled environment
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+;(globalThis as any).IS_REACT_ACT_ENVIRONMENT = true
+
 expect.extend({ toHaveNoViolations })
 
 type MatchMedia = (query: string) => {
