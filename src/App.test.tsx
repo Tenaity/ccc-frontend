@@ -22,7 +22,7 @@ function createScheduleData() {
   const expectedByDay = {} as const
 
   return {
-    staff: [],
+    staff: [] as Staff[],
     loadingGen: false,
     loadingStaff: false,
     staffError: null as string | null,
