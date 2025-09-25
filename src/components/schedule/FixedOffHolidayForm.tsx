@@ -347,140 +347,155 @@ export default function FixedOffHolidayForm({
       <Separator className="mt-4" />
       <ScrollArea className="h-[60vh] px-6 py-4 sm:h-[55vh]">
         <TabsContent value="fixed" className="space-y-6">
-          {staffError ? (
-            <Alert variant="destructive">
-              <AlertTitle>Lỗi tải nhân sự</AlertTitle>
-              <AlertDescription>{staffError}</AlertDescription>
-            </Alert>
-          ) : null}
-          {staffLoading ? (
-            <div className="space-y-2">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-            </div>
-          ) : null}
-          <Form {...fixedForm}>
-            <form onSubmit={handleFixedSubmit} className="space-y-4">
-              <FormField
-                control={fixedForm.control}
-                name="staffId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nhân viên</FormLabel>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      disabled={staffLoading || staffOptions.length === 0}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn nhân viên" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {staffOptions.map((staffMember) => (
-                          <SelectItem
-                            key={staffMember.id}
-                            value={String(staffMember.id)}
-                          >
-                            #{staffMember.id} · {staffMember.full_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="grid gap-4 sm:grid-cols-2">
-              <FormField
-                control={fixedForm.control}
-                name="day"
-                render={({ field, fieldState }) => (
-                  <FormItem>
-                    <FormLabel>Ngày</FormLabel>
-                    <FormControl>
-                      <DatePicker value={field.value} onChange={field.onChange} />
-                    </FormControl>
-                    <FormMessage>
-                      {fieldState.error ? REQUIRED_MESSAGE : null}
-                    </FormMessage>
-                  </FormItem>
-                )}
-              />
+          <section
+            aria-labelledby="fixed-form-heading"
+            className="space-y-4 rounded-2xl border border-border/60 bg-card/40 p-5 shadow-sm"
+          >
+            <header className="space-y-1">
+              <h3 id="fixed-form-heading" className="text-base font-semibold text-foreground">
+                Thêm ca cố định
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Chọn nhân sự, ngày và mã ca để gán ca cố định cho lịch.
+              </p>
+            </header>
+            {staffError ? (
+              <Alert variant="destructive">
+                <AlertTitle>Lỗi tải nhân sự</AlertTitle>
+                <AlertDescription>{staffError}</AlertDescription>
+              </Alert>
+            ) : null}
+            {staffLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ) : null}
+            <Form {...fixedForm}>
+              <form onSubmit={handleFixedSubmit} className="space-y-4">
                 <FormField
                   control={fixedForm.control}
-                  name="shift"
-                render={({ field, fieldState }) => (
-                  <FormItem>
-                    <FormLabel>Mã ca</FormLabel>
-                    <Select
-                      value={field.value ?? undefined}
-                      onValueChange={field.onChange}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn ca" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {SHIFT_OPTIONS.map((shift) => (
-                          <SelectItem key={shift} value={shift}>
-                            {shift}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage>
-                      {fieldState.error ? REQUIRED_MESSAGE : null}
-                    </FormMessage>
-                  </FormItem>
-                )}
-              />
-              </div>
-              <FormField
-                control={fixedForm.control}
-                name="position"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Vị trí</FormLabel>
-                    <Select
-                      value={field.value ?? "__none__"}
-                      onValueChange={(value) =>
-                        field.onChange(
-                          value === "__none__" ? null : (value as Position),
-                        )
-                      }
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Không" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="__none__">Không</SelectItem>
-                        {POSITION_OPTIONS.map((option) => (
-                          <SelectItem key={option} value={option}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="flex justify-end">
-                <Button
-                  type="submit"
-                  disabled={!fixedForm.formState.isValid || fixedForm.formState.isSubmitting}
-                >
-                  {fixedForm.formState.isSubmitting ? "Đang lưu..." : "Lưu ca cố định"}
-                </Button>
-              </div>
-            </form>
-          </Form>
+                  name="staffId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nhân viên</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        disabled={staffLoading || staffOptions.length === 0}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Chọn nhân viên" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {staffOptions.map((staffMember) => (
+                            <SelectItem
+                              key={staffMember.id}
+                              value={String(staffMember.id)}
+                            >
+                              #{staffMember.id} · {staffMember.full_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={fixedForm.control}
+                    name="day"
+                    render={({ field, fieldState }) => (
+                      <FormItem>
+                        <FormLabel>Ngày</FormLabel>
+                        <FormControl>
+                          <DatePicker value={field.value} onChange={field.onChange} />
+                        </FormControl>
+                        <FormMessage>
+                          {fieldState.error ? REQUIRED_MESSAGE : null}
+                        </FormMessage>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={fixedForm.control}
+                    name="shift"
+                    render={({ field, fieldState }) => (
+                      <FormItem>
+                        <FormLabel>Mã ca</FormLabel>
+                        <Select
+                          value={field.value ?? undefined}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Chọn ca" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {SHIFT_OPTIONS.map((shift) => (
+                              <SelectItem key={shift} value={shift}>
+                                {shift}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage>
+                          {fieldState.error ? REQUIRED_MESSAGE : null}
+                        </FormMessage>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={fixedForm.control}
+                  name="position"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Vị trí</FormLabel>
+                      <Select
+                        value={field.value ?? "__none__"}
+                        onValueChange={(value) =>
+                          field.onChange(
+                            value === "__none__" ? null : (value as Position),
+                          )
+                        }
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Không" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="__none__">Không</SelectItem>
+                          {POSITION_OPTIONS.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex justify-end gap-2">
+                  <Button
+                    type="submit"
+                    disabled={
+                      !fixedForm.formState.isValid || fixedForm.formState.isSubmitting
+                    }
+                  >
+                    {fixedForm.formState.isSubmitting ? "Đang lưu..." : "Lưu ca cố định"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </section>
           <section aria-labelledby="fixed-list-heading" className="space-y-3">
             <h3
               id="fixed-list-heading"
@@ -530,93 +545,106 @@ export default function FixedOffHolidayForm({
         </TabsContent>
 
         <TabsContent value="off" className="space-y-6">
-          {staffError ? (
-            <Alert variant="destructive">
-              <AlertTitle>Lỗi tải nhân sự</AlertTitle>
-              <AlertDescription>{staffError}</AlertDescription>
-            </Alert>
-          ) : null}
-          {staffLoading ? (
-            <div className="space-y-2">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-            </div>
-          ) : null}
-          <Form {...offForm}>
-            <form onSubmit={handleOffSubmit} className="space-y-4">
-              <FormField
-                control={offForm.control}
-                name="staffId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nhân viên</FormLabel>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      disabled={staffLoading || staffOptions.length === 0}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn nhân viên" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {staffOptions.map((staffMember) => (
-                          <SelectItem
-                            key={staffMember.id}
-                            value={String(staffMember.id)}
-                          >
-                            #{staffMember.id} · {staffMember.full_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={offForm.control}
-                name="day"
-                render={({ field, fieldState }) => (
-                  <FormItem>
-                    <FormLabel>Ngày nghỉ</FormLabel>
-                    <FormControl>
-                      <DatePicker value={field.value} onChange={field.onChange} />
-                    </FormControl>
-                    <FormMessage>
-                      {fieldState.error ? REQUIRED_MESSAGE : null}
-                    </FormMessage>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={offForm.control}
-                name="reason"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Lý do (tuỳ chọn)</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Ghi chú lý do"
-                        value={field.value ?? ""}
-                        onChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="flex justify-end">
-                <Button
-                  type="submit"
-                  disabled={!offForm.formState.isValid || offForm.formState.isSubmitting}
-                >
-                  {offForm.formState.isSubmitting ? "Đang lưu..." : "Lưu ngày nghỉ"}
-                </Button>
+          <section
+            aria-labelledby="off-form-heading"
+            className="space-y-4 rounded-2xl border border-border/60 bg-card/40 p-5 shadow-sm"
+          >
+            <header className="space-y-1">
+              <h3 id="off-form-heading" className="text-base font-semibold text-foreground">
+                Thêm ngày nghỉ
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Ghi nhận lịch nghỉ có lý do rõ ràng để tránh trùng lặp ca.
+              </p>
+            </header>
+            {staffError ? (
+              <Alert variant="destructive">
+                <AlertTitle>Lỗi tải nhân sự</AlertTitle>
+                <AlertDescription>{staffError}</AlertDescription>
+              </Alert>
+            ) : null}
+            {staffLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
               </div>
-            </form>
-          </Form>
+            ) : null}
+            <Form {...offForm}>
+              <form onSubmit={handleOffSubmit} className="space-y-4">
+                <FormField
+                  control={offForm.control}
+                  name="staffId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nhân viên</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        disabled={staffLoading || staffOptions.length === 0}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Chọn nhân viên" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {staffOptions.map((staffMember) => (
+                            <SelectItem
+                              key={staffMember.id}
+                              value={String(staffMember.id)}
+                            >
+                              #{staffMember.id} · {staffMember.full_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={offForm.control}
+                  name="day"
+                  render={({ field, fieldState }) => (
+                    <FormItem>
+                      <FormLabel>Ngày nghỉ</FormLabel>
+                      <FormControl>
+                        <DatePicker value={field.value} onChange={field.onChange} />
+                      </FormControl>
+                      <FormMessage>
+                        {fieldState.error ? REQUIRED_MESSAGE : null}
+                      </FormMessage>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={offForm.control}
+                  name="reason"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Lý do (tuỳ chọn)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Ghi chú lý do"
+                          value={field.value ?? ""}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex justify-end gap-2">
+                  <Button
+                    type="submit"
+                    disabled={!offForm.formState.isValid || offForm.formState.isSubmitting}
+                  >
+                    {offForm.formState.isSubmitting ? "Đang lưu..." : "Lưu ngày nghỉ"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </section>
           <section aria-labelledby="off-list-heading" className="space-y-3">
             <h3
               id="off-list-heading"
@@ -666,48 +694,68 @@ export default function FixedOffHolidayForm({
         </TabsContent>
 
         <TabsContent value="holiday" className="space-y-6">
-          <Form {...holidayForm}>
-            <form onSubmit={handleHolidaySubmit} className="space-y-4">
-              <FormField
-                control={holidayForm.control}
-                name="day"
-                render={({ field, fieldState }) => (
-                  <FormItem>
-                    <FormLabel>Ngày lễ</FormLabel>
-                    <FormControl>
-                      <DatePicker value={field.value} onChange={field.onChange} />
-                    </FormControl>
-                    <FormMessage>
-                      {fieldState.error ? REQUIRED_MESSAGE : null}
-                    </FormMessage>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={holidayForm.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tên ngày lễ (tuỳ chọn)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ví dụ: Giỗ tổ" value={field.value ?? ""} onChange={field.onChange} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="flex justify-end">
-                <Button
-                  type="submit"
-                  disabled={
-                    !holidayForm.formState.isValid || holidayForm.formState.isSubmitting
-                  }
-                >
-                  {holidayForm.formState.isSubmitting ? "Đang lưu..." : "Lưu ngày lễ"}
-                </Button>
-              </div>
-            </form>
-          </Form>
+          <section
+            aria-labelledby="holiday-form-heading"
+            className="space-y-4 rounded-2xl border border-border/60 bg-card/40 p-5 shadow-sm"
+          >
+            <header className="space-y-1">
+              <h3
+                id="holiday-form-heading"
+                className="text-base font-semibold text-foreground"
+              >
+                Thêm ngày lễ toàn trung tâm
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Ghi chú ngày lễ giúp tất cả lịch làm việc được đồng bộ.
+              </p>
+            </header>
+            <Form {...holidayForm}>
+              <form onSubmit={handleHolidaySubmit} className="space-y-4">
+                <FormField
+                  control={holidayForm.control}
+                  name="day"
+                  render={({ field, fieldState }) => (
+                    <FormItem>
+                      <FormLabel>Ngày lễ</FormLabel>
+                      <FormControl>
+                        <DatePicker value={field.value} onChange={field.onChange} />
+                      </FormControl>
+                      <FormMessage>
+                        {fieldState.error ? REQUIRED_MESSAGE : null}
+                      </FormMessage>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={holidayForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tên ngày lễ (tuỳ chọn)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Ví dụ: Giỗ tổ"
+                          value={field.value ?? ""}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex justify-end gap-2">
+                  <Button
+                    type="submit"
+                    disabled={
+                      !holidayForm.formState.isValid || holidayForm.formState.isSubmitting
+                    }
+                  >
+                    {holidayForm.formState.isSubmitting ? "Đang lưu..." : "Lưu ngày lễ"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </section>
           <section aria-labelledby="holiday-list-heading" className="space-y-3">
             <h3
               id="holiday-list-heading"

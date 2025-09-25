@@ -2,7 +2,7 @@
   color-scheme: light;
   --radius: 0.75rem;
 
-  /* semantic surface tokens */
+  /* semantic surface tokens (OKLCH) */
   --bg: 1 0 89.9;
   --fg: 0.1371 0.036 258.5;
   --muted: 0.9684 0.0068 247.9;
@@ -11,7 +11,7 @@
   --input: 0.929 0.0126 255.5;
   --ring: 0.546 0.2153 262.9;
 
-  /* semantic interactive tokens */
+  /* semantic interactive tokens (OKLCH) */
   --primary: 0.546 0.2153 262.9;
   --primary-foreground: 0.9838 0.0035 247.9;
   --secondary: 0.9684 0.0068 247.9;
@@ -21,28 +21,11 @@
   --destructive: 0.6368 0.2078 25.3;
   --destructive-foreground: 0.9838 0.0035 247.9;
 
-  /* derived aliases for existing components */
-  --background: var(--bg);
-  --foreground: var(--fg);
-  --card: var(--bg);
-  --card-foreground: var(--fg);
-  --popover: var(--bg);
-  --popover-foreground: var(--fg);
-
   --chart-1: 0.6231 0.188 259.8;
   --chart-2: 0.7137 0.1434 254.6;
   --chart-3: 0.5461 0.2152 262.9;
   --chart-4: 0.4882 0.2172 264.4;
   --chart-5: 0.4244 0.1809 265.6;
-
-  --sidebar: var(--muted);
-  --sidebar-foreground: var(--fg);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: var(--accent);
-  --sidebar-accent-foreground: var(--accent-foreground);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--ring);
 }
 
 .dark {
@@ -65,25 +48,9 @@
   --destructive: 0.3959 0.1331 25.7;
   --destructive-foreground: 0.9838 0.0035 247.9;
 
-  --background: var(--bg);
-  --foreground: var(--fg);
-  --card: var(--bg);
-  --card-foreground: var(--fg);
-  --popover: var(--bg);
-  --popover-foreground: var(--fg);
-
   --chart-1: 0.6231 0.188 259.8;
   --chart-2: 0.7137 0.1434 254.6;
   --chart-3: 0.5461 0.2152 262.9;
   --chart-4: 0.4882 0.2172 264.4;
   --chart-5: 0.4244 0.1809 265.6;
-
-  --sidebar: var(--muted);
-  --sidebar-foreground: var(--fg);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: var(--accent);
-  --sidebar-accent-foreground: var(--accent-foreground);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--ring);
 }

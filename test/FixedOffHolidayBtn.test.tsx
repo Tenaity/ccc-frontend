@@ -186,7 +186,7 @@ describe("FixedOffHolidayBtn", () => {
       '[data-slot="dialog-overlay"]',
     ) as HTMLElement | null
     expect(overlay).not.toBeNull()
-    expect(overlay?.className).toContain("bg-black/45")
+    expect(overlay?.className).toContain("bg-[hsl(var(--modal-overlay))]")
     expect(overlay?.className).toContain("backdrop-blur-sm")
   })
 

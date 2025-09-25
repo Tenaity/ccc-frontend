@@ -59,6 +59,6 @@ test("renders a styled quick edit dialog with a blurred overlay", async () => {
 
   const overlay = document.querySelector('[data-slot="dialog-overlay"]')
   expect(overlay).toBeInTheDocument()
-  expect(overlay).toHaveClass("bg-black/45")
+  expect(overlay).toHaveClass("bg-[hsl(var(--modal-overlay))]")
   expect(overlay).toHaveClass("backdrop-blur-sm")
 })
