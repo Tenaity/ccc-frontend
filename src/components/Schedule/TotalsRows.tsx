@@ -1,4 +1,4 @@
-// src/components/schedule/TotalsRows.tsx
+// src/components/Schedule/TotalsRows.tsx
 import React from "react";
 import { getDow, isWeekend } from "@/utils/date";
 import type { ExpectedByDay, DayPlaceSummary } from "@/types";

@@ -13,7 +13,7 @@ import { useToast } from "@/components/ui/use-toast"
 import Legend from "@/components/Legend"
 
 import DashboardPage from "./pages/Dashboard"
-import FixedOffHolidayBtn from "./components/schedule/FixedOffHolidayBtn"
+import FixedOffHolidayBtn from "./components/Schedule/FixedOffHolidayBtn"
 
 const SchedulePage = lazy(() => import("./pages/Schedule"))
 

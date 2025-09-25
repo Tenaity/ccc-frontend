@@ -7,7 +7,7 @@ import SchedulePage from "../../src/pages/Schedule"
 import type { DayPlaceSummary, ExpectedByDay } from "../../src/types"
 import type { Cell } from "../../src/utils/mergeCellIndex"
 
-vi.mock("@/components/schedule/MatrixTable", () => ({
+vi.mock("@/components/Schedule/MatrixTable", () => ({
   __esModule: true,
   default: ({ staff }: { staff: any[] }) => (
     <div data-testid="matrix-table">rows-{staff.length}</div>

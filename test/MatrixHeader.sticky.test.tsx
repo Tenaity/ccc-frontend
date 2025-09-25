@@ -3,7 +3,7 @@ import "@testing-library/jest-dom/vitest"
 import { render } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
-import MatrixHeader from "@/components/schedule/MatrixHeader"
+import MatrixHeader from "@/components/Schedule/MatrixHeader"
 
 describe("MatrixHeader sticky positioning", () => {
   it("keeps the first column pinned on scroll", () => {
