@@ -1,4 +1,4 @@
-// src/components/schedule/MatrixTable.tsx
+// src/components/Schedule/MatrixTable.tsx
 import React from "react";
 import MatrixHeader from "./MatrixHeader";
 import MatrixRow from "./MatrixRow";

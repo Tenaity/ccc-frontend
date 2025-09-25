@@ -1,4 +1,4 @@
-// src/components/schedule/ControlBar.tsx
+// src/components/Schedule/ControlBar.tsx
 import React from "react";
 import { useScheduleData } from "../../hooks/useScheduleData";
 

@@ -1,4 +1,4 @@
-// src/components/schedule/MatrixRow.tsx
+// src/components/Schedule/MatrixRow.tsx
 import React from "react";
 import type { Staff, Assignment } from "@/types";
 import { fmtYMD, getDow, isWeekend } from "@/utils/date";

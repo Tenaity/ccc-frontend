@@ -2,7 +2,7 @@ import { type ReactNode, useMemo } from "react"
 
 import { DownloadIcon } from "lucide-react"
 
-import MatrixTable from "@/components/schedule/MatrixTable"
+import MatrixTable from "@/components/Schedule/MatrixTable"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 
