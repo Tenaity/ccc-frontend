@@ -6,7 +6,7 @@ import { setupServer } from "msw/node"
 import { http, HttpResponse } from "msw"
 
 import type { FixedAssignment, Holiday, OffDay, Staff } from "../src/types"
-import FixedOffHolidayBtn from "../src/components/schedule/FixedOffHolidayBtn"
+import FixedOffHolidayBtn from "../src/components/Schedule/FixedOffHolidayBtn"
 import { UiProvider } from "../src/components/ui/UiProvider"
 
 vi.mock("@/components/ui/date-picker", () => {

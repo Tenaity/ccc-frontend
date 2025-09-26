@@ -9,11 +9,21 @@
     "resolveJsonModule": true,
     "allowJs": false,
     "noEmit": true,
-    "types": ["vite/client", "react", "react-dom", "node"],
+    "types": [
+      "vite/client",
+      "react",
+      "react-dom",
+      "node"
+    ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
-    }
+      "@/*": [
+        "src/*"
+      ]
+    },
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*"
+  ]
 }

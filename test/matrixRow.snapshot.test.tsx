@@ -3,7 +3,7 @@ import { afterEach, expect, test } from "vitest"
 import { cleanup, render } from "@testing-library/react"
 import { axe } from "vitest-axe"
 
-import MatrixRow from "@/components/schedule/MatrixRow"
+import MatrixRow from "@/components/Schedule/MatrixRow"
 import type { Assignment, Staff } from "@/types"
 import { StaffRole } from "@/types"
 import { TooltipProvider } from "@/components/ui/tooltip"

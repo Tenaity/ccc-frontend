@@ -3,7 +3,7 @@ import "@testing-library/jest-dom/vitest"
 import { render, screen } from "@testing-library/react"
 import { afterEach, describe, it } from "vitest"
 
-import MatrixTable from "../src/components/schedule/MatrixTable"
+import MatrixTable from "../src/components/Schedule/MatrixTable"
 import { makeEmptyDayPlaceSummary } from "../src/types"
 
 afterEach(() => {
