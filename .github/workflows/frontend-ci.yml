@@ -24,7 +24,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.15.1
-          cache: npm
 
       - name: Generate package lock for CI
         run: npm install --package-lock-only
