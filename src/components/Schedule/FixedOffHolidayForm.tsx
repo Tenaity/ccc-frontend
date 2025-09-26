@@ -78,7 +78,10 @@ type FixedOffHolidayFormProps = {
 }
 
 function toISODate(input: Date) {
-  return input.toISOString().slice(0, 10)
+  const year = input.getFullYear()
+  const month = String(input.getMonth() + 1).padStart(2, "0")
+  const day = String(input.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
 }
 
 export default function FixedOffHolidayForm({
