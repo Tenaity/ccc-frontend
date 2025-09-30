@@ -3,6 +3,7 @@ import {
   ArrowUpCircleIcon,
   HelpCircleIcon,
   SettingsIcon,
+  ChevronRight,
   type LucideIcon,
 } from "lucide-react"
 import { NavLink, useMatch } from "react-router-dom"
@@ -21,8 +22,12 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
 } from "@/components/ui/sidebar"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
 type SecondaryNavItem = {
   title: string
@@ -55,12 +60,56 @@ function SidebarNavItem({ route }: { route: AppRoute }) {
     end: route.path === "/",
   })
 
+  const [open, setOpen] = React.useState(!!match)
+
+  if (route.children && route.children.length > 0) {
+    return (
+      <Collapsible
+        key={route.path}
+        asChild
+        open={open}
+        onOpenChange={setOpen}
+        className="group/collapsible"
+      >
+        <SidebarMenuItem>
+          <CollapsibleTrigger asChild>
+            <SidebarMenuButton tooltip={route.label} isActive={!!match}>
+              <route.icon className="size-4 shrink-0" />
+              <span className="truncate">{route.label}</span>
+              <ChevronRight className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+            </SidebarMenuButton>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <SidebarMenuSub>
+              {route.children.map((child) => {
+                const childMatch = useMatch({
+                  path: child.path,
+                  end: true,
+                })
+                return (
+                  <SidebarMenuSubItem key={child.path}>
+                    <SidebarMenuSubButton asChild isActive={!!childMatch}>
+                      <NavLink to={child.path}>
+                        <child.icon className="size-4 shrink-0" />
+                        <span className="truncate">{child.label}</span>
+                      </NavLink>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                )
+              })}
+            </SidebarMenuSub>
+          </CollapsibleContent>
+        </SidebarMenuItem>
+      </Collapsible>
+    )
+  }
+
   return (
     <SidebarMenuItem key={route.path}>
       <SidebarMenuButton asChild tooltip={route.label} isActive={!!match}>
         <NavLink
           to={route.path}
-          end={route.path === "/"}
+          end
           className="flex w-full min-w-0 items-center gap-2"
         >
           <route.icon className="size-4 shrink-0" />
