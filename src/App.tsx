@@ -16,6 +16,9 @@ import DashboardPage from "./pages/Dashboard"
 import FixedOffHolidayBtn from "./components/Schedule/FixedOffHolidayBtn"
 
 const SchedulePage = lazy(() => import("./pages/Schedule"))
+const ChatbotCRUDPage = lazy(() => import("./pages/ChatbotCRUD"))
+const ChatbotUploadPage = lazy(() => import("./pages/ChatbotUpload"))
+const ChatbotChunkingPage = lazy(() => import("./pages/ChatbotChunking"))
 
 const MAIN_CONTENT_ID = "app-main-content"
 
@@ -283,6 +286,9 @@ export default function App() {
                   />
                 }
               />
+              <Route path="/chatbot" element={<ChatbotCRUDPage />} />
+              <Route path="/chatbot/upload" element={<ChatbotUploadPage />} />
+              <Route path="/chatbot/chunking" element={<ChatbotChunkingPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>
