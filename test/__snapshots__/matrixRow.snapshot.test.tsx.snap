@@ -3,35 +3,37 @@
 exports[`matrix row renders leader badges and duplicate highlighting 1`] = `
 <tbody>
   <tr
-    class="border-b border-border/60 transition-colors hover:bg-primary/15 bg-primary/5"
+    class="border-b border-border/60 transition-all duration-200 backdrop-blur-sm hover:bg-primary/20 dark:hover:bg-primary/15 bg-white/40 dark:bg-slate-900/40"
   >
     <th
-      class="sticky left-0 z-20 min-w-[220px] border-r border-border bg-background/95 px-4 py-3 text-left shadow-[4px_0_12px_-8px_rgba(15,23,42,0.25)] backdrop-blur-[2px] supports-[backdrop-filter]:bg-background/60"
+      class="sticky left-0 z-20 min-w-[240px] border-r-0 border-b border-white/10 dark:border-white/5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-3xl backdrop-saturate-150 px-6 py-4 text-left shadow-[8px_0_24px_-8px_rgba(0,0,0,0.12)] dark:shadow-[8px_0_24px_-8px_rgba(0,0,0,0.4)] transition-all duration-300"
       scope="row"
     >
       <div
-        class="flex items-baseline justify-between gap-3"
+        class="flex items-baseline justify-between gap-4"
       >
         <div>
           <div
-            class="text-sm font-semibold text-foreground"
+            class="text-sm font-bold text-foreground"
           >
             Nguyễn Văn A
           </div>
           <div
-            class="flex items-center gap-2 text-xs text-muted-foreground"
+            class="flex items-center gap-2 text-xs text-muted-foreground/90"
           >
-            <span>
+            <span
+              class="font-medium"
+            >
               TC
             </span>
             <span
-              class="rounded-md border border-primary/20 bg-primary/10 px-1.5 py-0.5 font-medium text-primary"
+              class="rounded-lg border-0 bg-primary/15 dark:bg-primary/25 px-2 py-1 font-bold text-primary backdrop-blur-sm"
             >
               #
               1978
             </span>
             <span
-              class="ml-2 inline-flex items-center rounded-full border px-1.5 text-[11px] font-semibold border-primary/70 bg-primary/10 text-primary"
+              class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold backdrop-blur-sm transition-all duration-200 border-0 bg-primary/90 text-white shadow-sm"
             >
               Rank 
               1
@@ -40,7 +42,7 @@ exports[`matrix row renders leader badges and duplicate highlighting 1`] = `
         </div>
         <svg
           aria-hidden="true"
-          class="lucide lucide-shield-check h-4 w-4 text-primary"
+          class="lucide lucide-shield-check h-5 w-5 text-primary drop-shadow-sm"
           fill="none"
           height="24"
           stroke="currentColor"
@@ -61,7 +63,7 @@ exports[`matrix row renders leader badges and duplicate highlighting 1`] = `
       </div>
     </th>
     <td
-      class="p-3 align-middle text-sm relative h-16 min-w-[64px] border-r border-border/40 px-1 py-1 text-center"
+      class="p-3 align-middle text-sm relative h-16 min-w-[72px] border-r-0 border-b border-white/10 dark:border-white/5 px-2 py-2 text-center transition-all duration-200"
     >
       <div
         class="flex h-full w-full items-center justify-center"
@@ -97,7 +99,7 @@ exports[`matrix row renders leader badges and duplicate highlighting 1`] = `
       </div>
     </td>
     <td
-      class="p-3 align-middle text-sm relative h-16 min-w-[64px] border-r border-border/40 px-1 py-1 text-center"
+      class="p-3 align-middle text-sm relative h-16 min-w-[72px] border-r-0 border-b border-white/10 dark:border-white/5 px-2 py-2 text-center transition-all duration-200"
     >
       <div
         class="flex h-full w-full items-center justify-center"
@@ -133,47 +135,47 @@ exports[`matrix row renders leader badges and duplicate highlighting 1`] = `
       </div>
     </td>
     <td
-      class="p-3 align-middle text-center text-sm font-medium text-foreground"
+      class="p-3 align-middle text-center text-sm font-semibold text-foreground border-b border-white/10 dark:border-white/5"
     >
       0
     </td>
     <td
-      class="p-3 align-middle text-center text-sm font-medium text-foreground"
+      class="p-3 align-middle text-center text-sm font-semibold text-foreground border-b border-white/10 dark:border-white/5"
     >
       0
     </td>
     <td
-      class="p-3 align-middle text-center text-sm font-medium text-foreground"
+      class="p-3 align-middle text-center text-sm font-semibold text-foreground border-b border-white/10 dark:border-white/5"
     >
       1
     </td>
     <td
-      class="p-3 align-middle text-center text-sm font-medium text-foreground"
+      class="p-3 align-middle text-center text-sm font-semibold text-foreground border-b border-white/10 dark:border-white/5"
     >
       0
     </td>
     <td
-      class="p-3 align-middle text-center text-sm font-medium text-foreground"
+      class="p-3 align-middle text-center text-sm font-semibold text-foreground border-b border-white/10 dark:border-white/5"
     >
       1
     </td>
     <td
-      class="p-3 align-middle text-center text-sm font-medium text-foreground"
+      class="p-3 align-middle text-center text-sm font-semibold text-foreground border-b border-white/10 dark:border-white/5"
     >
       0
     </td>
     <td
-      class="p-3 align-middle bg-muted/40 text-center text-sm font-semibold text-foreground"
+      class="p-3 align-middle text-center text-sm font-bold text-foreground border-b border-white/10 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm"
     >
       1
     </td>
     <td
-      class="p-3 align-middle bg-muted/40 text-center text-sm font-semibold text-foreground"
+      class="p-3 align-middle text-center text-sm font-bold text-foreground border-b border-white/10 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm"
     >
       1
     </td>
     <td
-      class="p-3 align-middle bg-muted/60 text-center text-sm font-bold text-foreground"
+      class="p-3 align-middle text-center text-sm font-extrabold text-foreground border-b border-white/10 dark:border-white/5 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md"
     >
       4
     </td>
