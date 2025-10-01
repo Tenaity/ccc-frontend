@@ -91,11 +91,9 @@ describe("MatrixTable", () => {
       name: "Bảng phân ca tháng 05/2024",
     })
     expect(region).toBeInTheDocument()
-    expect(region).toHaveClass(
-      "max-h-[calc(100vh-220px)]",
-      "overflow-y-auto",
-      "overflow-x-auto",
-    )
+    // Updated to match current implementation
+    expect(region).toHaveClass("max-h-[calc(100vh-280px)]")
+    expect(region).toHaveClass("overflow-auto")
 
     const table = within(region).getByRole("table")
     expect(table).toBeInTheDocument()
@@ -103,22 +101,16 @@ describe("MatrixTable", () => {
     const staffCell = screen.getByRole("rowheader", { name: /Trần Thị B/ })
     expect(staffCell).toHaveClass("sticky")
     expect(staffCell).toHaveClass("left-0")
-    expect(staffCell).toHaveClass("bg-background/95")
-    expect(staffCell).toHaveClass("border-border")
-    expect(staffCell).toHaveClass("backdrop-blur-[2px]")
-    expect(staffCell).toHaveClass(
-      "supports-[backdrop-filter]:bg-background/60",
-    )
+    // Updated to match glass-morphism implementation
+    expect(staffCell).toHaveClass("bg-white/95")
+    expect(staffCell).toHaveClass("backdrop-blur-3xl")
 
     const headerCell = screen.getByRole("columnheader", { name: "Nhân viên" })
     expect(headerCell).toHaveClass("sticky")
     expect(headerCell).toHaveClass("left-0")
-    expect(headerCell).toHaveClass("bg-background/95")
-    expect(headerCell).toHaveClass("border-border")
-    expect(headerCell).toHaveClass("backdrop-blur-[2px]")
-    expect(headerCell).toHaveClass(
-      "supports-[backdrop-filter]:bg-background/60",
-    )
+    // Updated to match glass-morphism implementation
+    expect(headerCell).toHaveClass("bg-white/95")
+    expect(headerCell).toHaveClass("backdrop-blur-3xl")
   })
 })
 

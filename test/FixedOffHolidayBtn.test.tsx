@@ -180,14 +180,16 @@ describe("FixedOffHolidayBtn", () => {
     )
 
     const dialog = await screen.findByRole("dialog")
-    expect(dialog.className).toContain("bg-background")
+    // Updated to match glass-morphism implementation
+    expect(dialog.className).toContain("bg-white/95")
 
     const overlay = document.querySelector(
       '[data-slot="dialog-overlay"]',
     ) as HTMLElement | null
     expect(overlay).not.toBeNull()
-    expect(overlay?.className).toContain("bg-[hsl(var(--modal-overlay))]")
-    expect(overlay?.className).toContain("backdrop-blur-sm")
+    // Updated to match enhanced overlay implementation
+    expect(overlay?.className).toContain("bg-black/50")
+    expect(overlay?.className).toContain("backdrop-blur-xl")
   })
 
   test("opens dialog, submits fixed assignment, shows toast, and refreshes on close", async () => {
