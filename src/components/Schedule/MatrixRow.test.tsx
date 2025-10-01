@@ -130,11 +130,10 @@ describe("MatrixRow", () => {
     )
 
     const rowHeader = screen.getByRole("rowheader", { name: /nguyen van a/i })
-    expect(rowHeader).toHaveClass("bg-background/95")
-    expect(rowHeader).toHaveClass("border-border")
-    expect(rowHeader).toHaveClass("backdrop-blur-[2px]")
-    expect(rowHeader).toHaveClass(
-      "supports-[backdrop-filter]:bg-background/60",
-    )
+    // Updated to match glass-morphism implementation
+    expect(rowHeader).toHaveClass("bg-white/95")
+    expect(rowHeader).toHaveClass("backdrop-blur-3xl")
+    expect(rowHeader).toHaveClass("sticky")
+    expect(rowHeader).toHaveClass("left-0")
   })
 })

@@ -55,7 +55,9 @@ describe("surface tokens", () => {
     )
 
     const listbox = await screen.findByRole("listbox")
-    expect(listbox).toHaveClass("bg-popover")
+    // Updated to match glass-morphism implementation
+    expect(listbox).toHaveClass("bg-white/95")
+    expect(listbox).toHaveClass("backdrop-blur-2xl")
     expect(listbox).toMatchSnapshot()
   })
 
@@ -70,7 +72,9 @@ describe("surface tokens", () => {
     )
 
     const content = await screen.findByTestId("popover-content")
-    expect(content).toHaveClass("bg-popover")
+    // Updated to match glass-morphism implementation
+    expect(content).toHaveClass("bg-white/95")
+    expect(content).toHaveClass("backdrop-blur-2xl")
     expect(content).toMatchSnapshot()
   })
 })

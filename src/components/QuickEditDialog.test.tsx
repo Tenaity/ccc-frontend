@@ -51,14 +51,15 @@ test("renders a styled quick edit dialog with a blurred overlay", async () => {
   )
 
   const dialog = await screen.findByRole("dialog", { name: /quick edit/i })
-  expect(dialog).toHaveClass("bg-background")
-  expect(dialog).toHaveClass("text-foreground")
-  expect(dialog).toHaveClass("shadow-xl")
+  // Updated to match glass-morphism implementation
+  expect(dialog).toHaveClass("bg-white/95")
+  expect(dialog).toHaveClass("backdrop-blur-3xl")
   expect(dialog).toHaveClass("border")
-  expect(dialog).toHaveClass("rounded-2xl")
+  expect(dialog).toHaveClass("rounded-3xl")
 
   const overlay = document.querySelector('[data-slot="dialog-overlay"]')
   expect(overlay).toBeInTheDocument()
-  expect(overlay).toHaveClass("bg-[hsl(var(--modal-overlay))]")
-  expect(overlay).toHaveClass("backdrop-blur-sm")
+  // Updated to match enhanced overlay implementation
+  expect(overlay).toHaveClass("bg-black/50")
+  expect(overlay).toHaveClass("backdrop-blur-xl")
 })
