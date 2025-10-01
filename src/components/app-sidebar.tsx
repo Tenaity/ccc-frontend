@@ -56,6 +56,37 @@ const currentUser = {
   avatar: "/avatars/shadcn.jpg",
 }
 
+function SidebarSubMenuItem({ child }: { child: AppRoute }) {
+  const childMatch = useMatch({
+    path: child.path,
+    end: true,
+  })
+
+  return (
+    <SidebarMenuSubItem>
+      <SidebarMenuSubButton
+        asChild
+        isActive={!!childMatch}
+        className={cn(
+          "transition-all duration-200",
+          "hover:bg-white/50 dark:hover:bg-white/10",
+          childMatch && "bg-primary/15 dark:bg-primary/20 font-medium text-primary shadow-sm"
+        )}
+      >
+        <NavLink to={child.path} className="flex items-center gap-2">
+          <div className={cn(
+            "flex items-center justify-center rounded p-1 transition-colors",
+            childMatch ? "bg-primary/15 text-primary" : "text-muted-foreground"
+          )}>
+            <child.icon className="size-3.5 shrink-0" />
+          </div>
+          <span className="truncate">{child.label}</span>
+        </NavLink>
+      </SidebarMenuSubButton>
+    </SidebarMenuSubItem>
+  )
+}
+
 function SidebarNavItem({ route }: { route: AppRoute }) {
   const match = useMatch({
     path: route.path === "/" ? "/" : `${route.path}/*`,
@@ -107,35 +138,9 @@ function SidebarNavItem({ route }: { route: AppRoute }) {
           </CollapsibleTrigger>
           <CollapsibleContent className="transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
             <SidebarMenuSub className="ml-2 border-l-2 border-border/50 pl-4">
-              {route.children.map((child) => {
-                const childMatch = useMatch({
-                  path: child.path,
-                  end: true,
-                })
-                return (
-                  <SidebarMenuSubItem key={child.path}>
-                    <SidebarMenuSubButton
-                      asChild
-                      isActive={!!childMatch}
-                      className={cn(
-                        "transition-all duration-200",
-                        "hover:bg-white/50 dark:hover:bg-white/10",
-                        childMatch && "bg-primary/15 dark:bg-primary/20 font-medium text-primary shadow-sm"
-                      )}
-                    >
-                      <NavLink to={child.path} className="flex items-center gap-2">
-                        <div className={cn(
-                          "flex items-center justify-center rounded p-1 transition-colors",
-                          childMatch ? "bg-primary/15 text-primary" : "text-muted-foreground"
-                        )}>
-                          <child.icon className="size-3.5 shrink-0" />
-                        </div>
-                        <span className="truncate">{child.label}</span>
-                      </NavLink>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                )
-              })}
+              {route.children.map((child) => (
+                <SidebarSubMenuItem key={child.path} child={child} />
+              ))}
             </SidebarMenuSub>
           </CollapsibleContent>
         </SidebarMenuItem>
