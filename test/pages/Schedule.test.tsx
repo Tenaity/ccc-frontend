@@ -75,10 +75,11 @@ describe("SchedulePage", () => {
     ).toBeInTheDocument()
 
     const body = screen.getByTestId("schedule-body")
-    expect(
-      within(body).getByText(/Tháng hiện tại:\s*09\/2024/i),
-    ).toBeInTheDocument()
-    expect(within(body).getByText(/0\s+nhân sự/i)).toBeInTheDocument()
+    // Updated to match new badge-based layout
+    expect(within(body).getByText("Tháng")).toBeInTheDocument()
+    expect(within(body).getByText("09/2024")).toBeInTheDocument()
+    expect(within(body).getByText("Nhân sự")).toBeInTheDocument()
+    expect(within(body).getByText("0 nhân sự")).toBeInTheDocument()
     expect(within(body).getByTestId("extra")).toBeInTheDocument()
     expect(within(body).getByTestId("legend")).toBeInTheDocument()
     expect(screen.getByTestId("matrix-table")).toHaveTextContent("rows-0")
