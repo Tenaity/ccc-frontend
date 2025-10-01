@@ -20,7 +20,13 @@ const DialogOverlay = React.forwardRef<
     ref={ref}
     data-slot="dialog-overlay"
     className={cn(
-      "fixed inset-0 z-50 bg-[hsl(var(--modal-overlay))] backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
+      "fixed inset-0 z-50",
+      // Enhanced overlay visibility with deeper backdrop
+      "bg-black/50 dark:bg-black/70",
+      "backdrop-blur-xl backdrop-saturate-150",
+      "data-[state=open]:animate-in data-[state=closed]:animate-out",
+      "data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
+      "transition-all duration-300",
       className
     )}
     {...props}
@@ -37,15 +43,42 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-1/2 top-1/2 z-50 grid -translate-x-1/2 -translate-y-1/2 gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        "w-[min(96vw,720px)] rounded-2xl border bg-background p-6 text-foreground shadow-xl sm:max-w-[720px]",
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95",
+        "fixed left-1/2 top-1/2 z-50 grid -translate-x-1/2 -translate-y-1/2 gap-4",
+        "w-[min(96vw,720px)] sm:max-w-[720px]",
+        "rounded-3xl p-6",
+        // Enhanced iOS-inspired glass effect with high visibility
+        "bg-white/95 dark:bg-slate-900/95",
+        "backdrop-blur-3xl backdrop-saturate-150",
+        "border border-white/30 dark:border-white/20",
+        "shadow-[0_16px_48px_rgba(0,0,0,0.18)] dark:shadow-[0_16px_48px_rgba(0,0,0,0.6)]",
+        // Animation
+        "data-[state=open]:animate-in data-[state=closed]:animate-out",
+        "data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
+        "data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95",
+        "data-[state=open]:slide-in-from-bottom-4 data-[state=closed]:slide-out-to-bottom-4",
+        "transition-all duration-300",
+        // Focus
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
         className
       )}
       {...props}
     >
       <DialogPrimitive.Close
-        className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-full border border-transparent bg-muted/60 text-muted-foreground transition hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className={cn(
+          "absolute right-4 top-4 z-10",
+          "inline-flex h-9 w-9 items-center justify-center",
+          "rounded-full",
+          // Enhanced glass close button
+          "bg-white/60 dark:bg-black/40",
+          "backdrop-blur-md backdrop-saturate-150",
+          "border border-white/40 dark:border-white/20",
+          "text-foreground/70 hover:text-foreground",
+          "transition-all duration-200",
+          "hover:bg-white/80 dark:hover:bg-black/60",
+          "hover:scale-105 active:scale-95",
+          "shadow-sm hover:shadow-md",
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+        )}
       >
         <X aria-hidden className="h-4 w-4" />
         <span className="sr-only">Close dialog</span>
