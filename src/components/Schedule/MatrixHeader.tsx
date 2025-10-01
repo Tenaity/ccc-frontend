@@ -17,11 +17,22 @@ export default function MatrixHeader({
 }) {
   return (
     <TableHeader sticky className="z-30">
-      <TableRow className="bg-muted/80">
+      <TableRow className={cn(
+        "bg-white/90 dark:bg-slate-900/90",
+        "backdrop-blur-2xl backdrop-saturate-150"
+      )}>
         <TableHead
           rowSpan={3}
           scope="col"
-          className="sticky left-0 top-0 z-40 min-w-[220px] rounded-tl-2xl border-r border-border bg-background/95 px-4 py-3 text-left text-sm font-semibold text-foreground shadow-[4px_0_12px_-8px_rgba(15,23,42,0.3)] backdrop-blur-[2px] supports-[backdrop-filter]:bg-background/60"
+          className={cn(
+            "sticky left-0 top-0 z-40 min-w-[240px] rounded-tl-3xl",
+            "border-r-0 border-b border-white/20 dark:border-white/10",
+            "bg-white/95 dark:bg-slate-900/95",
+            "backdrop-blur-3xl backdrop-saturate-150",
+            "px-6 py-4 text-left text-sm font-bold text-foreground",
+            "shadow-[8px_0_24px_-8px_rgba(0,0,0,0.12)] dark:shadow-[8px_0_24px_-8px_rgba(0,0,0,0.4)]",
+            "transition-all duration-300"
+          )}
         >
           Nhân viên
         </TableHead>
@@ -35,18 +46,23 @@ export default function MatrixHeader({
               key={`day-${day}`}
               scope="col"
               className={cn(
-                "sticky top-0 z-30 min-w-[64px] border-b border-border bg-muted/80 px-3 py-3 text-center text-sm font-semibold",
-                weekend && "bg-amber-100/70"
+                "sticky top-0 z-30 min-w-[72px]",
+                "border-b border-white/20 dark:border-white/10",
+                "px-4 py-3 text-center text-sm font-bold",
+                weekend
+                  ? "bg-amber-50/80 dark:bg-amber-900/20 backdrop-blur-2xl"
+                  : "bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl"
               )}
             >
               <div className="flex flex-col items-center gap-1">
-                <span>{day}</span>
+                <span className="text-base">{day}</span>
                 <span
                   className={cn(
-                    "inline-flex min-w-[48px] items-center justify-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase",
+                    "inline-flex min-w-[52px] items-center justify-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide",
+                    "backdrop-blur-sm transition-all duration-200",
                     ok
-                      ? "border-emerald-300 bg-emerald-100 text-emerald-800"
-                      : "border-destructive/50 bg-destructive/20 text-destructive"
+                      ? "border-0 bg-emerald-500/90 text-white shadow-sm"
+                      : "border-0 bg-destructive/90 text-white shadow-sm"
                   )}
                 >
                   {ok ? "OK" : `K=${leaderCount}`}
@@ -70,13 +86,22 @@ export default function MatrixHeader({
             key={label}
             rowSpan={3}
             scope="col"
-            className="sticky top-0 z-30 min-w-[72px] border-b border-border/60 bg-muted/70 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+            className={cn(
+              "sticky top-0 z-30 min-w-[80px]",
+              "border-b border-white/20 dark:border-white/10",
+              "bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl",
+              "px-4 py-3 text-center text-xs font-bold uppercase tracking-wider",
+              "text-foreground/80"
+            )}
           >
             {label}
           </TableHead>
         ))}
       </TableRow>
-      <TableRow className="bg-muted/70">
+      <TableRow className={cn(
+        "bg-white/85 dark:bg-slate-900/85",
+        "backdrop-blur-2xl"
+      )}>
         {days.map((day) => {
           const dow = getDow(year, month, day);
           const weekend = isWeekend(dow);
@@ -85,8 +110,12 @@ export default function MatrixHeader({
               key={`dow-${day}`}
               scope="col"
               className={cn(
-                "sticky top-[46px] z-30 border-b border-border bg-muted/70 px-2 py-1 text-center text-[11px] font-medium uppercase tracking-wide text-muted-foreground",
-                weekend && "bg-amber-100/70"
+                "sticky top-[52px] z-30",
+                "border-b border-white/20 dark:border-white/10",
+                "px-3 py-2 text-center text-[11px] font-bold uppercase tracking-wider",
+                weekend
+                  ? "bg-amber-50/70 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 backdrop-blur-xl"
+                  : "bg-white/70 dark:bg-slate-900/70 text-muted-foreground backdrop-blur-xl"
               )}
             >
               {DOW_LABEL[dow]}
@@ -94,7 +123,10 @@ export default function MatrixHeader({
           );
         })}
       </TableRow>
-      <TableRow className="bg-muted/60">
+      <TableRow className={cn(
+        "bg-white/80 dark:bg-slate-900/80",
+        "backdrop-blur-xl"
+      )}>
         {days.map((day) => {
           const weekend = isWeekend(getDow(year, month, day));
           const leaders = perDayLeaders[day] ?? 0;
@@ -103,8 +135,12 @@ export default function MatrixHeader({
               key={`leaders-${day}`}
               scope="col"
               className={cn(
-                "sticky top-[72px] z-30 border-b border-border bg-muted/60 px-2 py-1 text-center text-[11px] text-muted-foreground",
-                weekend && "bg-amber-100/60"
+                "sticky top-[84px] z-30",
+                "border-b border-white/20 dark:border-white/10",
+                "px-3 py-2 text-center text-[10px] font-semibold",
+                weekend
+                  ? "bg-amber-50/60 dark:bg-amber-900/15 text-amber-600 dark:text-amber-400 backdrop-blur-lg"
+                  : "bg-white/60 dark:bg-slate-900/60 text-muted-foreground backdrop-blur-lg"
               )}
             >
               Leader TD: {leaders}

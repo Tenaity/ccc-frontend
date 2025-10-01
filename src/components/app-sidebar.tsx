@@ -4,6 +4,7 @@ import {
   HelpCircleIcon,
   SettingsIcon,
   ChevronRight,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react"
 import { NavLink, useMatch } from "react-router-dom"
@@ -28,6 +29,7 @@ import {
 } from "@/components/ui/sidebar"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { cn } from "@/lib/utils"
 
 type SecondaryNavItem = {
   title: string
@@ -62,6 +64,13 @@ function SidebarNavItem({ route }: { route: AppRoute }) {
 
   const [open, setOpen] = React.useState(!!match)
 
+  // Auto-expand when navigating to child routes
+  React.useEffect(() => {
+    if (match && !open) {
+      setOpen(true)
+    }
+  }, [match, open])
+
   if (route.children && route.children.length > 0) {
     return (
       <Collapsible
@@ -73,14 +82,31 @@ function SidebarNavItem({ route }: { route: AppRoute }) {
       >
         <SidebarMenuItem>
           <CollapsibleTrigger asChild>
-            <SidebarMenuButton tooltip={route.label} isActive={!!match}>
-              <route.icon className="size-4 shrink-0" />
+            <SidebarMenuButton
+              tooltip={route.label}
+              isActive={!!match}
+              className={cn(
+                "group relative transition-all duration-200",
+                "hover:bg-white/60 dark:hover:bg-white/10",
+                match && "bg-primary/15 dark:bg-primary/20 font-medium shadow-sm"
+              )}
+            >
+              <div className={cn(
+                "flex items-center justify-center rounded-md p-1.5 transition-colors",
+                match ? "bg-primary/15 text-primary" : "text-muted-foreground group-hover:text-foreground"
+              )}>
+                <route.icon className="size-4 shrink-0" />
+              </div>
               <span className="truncate">{route.label}</span>
-              <ChevronRight className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+              <ChevronRight className={cn(
+                "ml-auto size-4 transition-all duration-200",
+                "group-data-[state=open]/collapsible:rotate-90",
+                match && "text-primary"
+              )} />
             </SidebarMenuButton>
           </CollapsibleTrigger>
-          <CollapsibleContent>
-            <SidebarMenuSub>
+          <CollapsibleContent className="transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+            <SidebarMenuSub className="ml-2 border-l-2 border-border/50 pl-4">
               {route.children.map((child) => {
                 const childMatch = useMatch({
                   path: child.path,
@@ -88,9 +114,22 @@ function SidebarNavItem({ route }: { route: AppRoute }) {
                 })
                 return (
                   <SidebarMenuSubItem key={child.path}>
-                    <SidebarMenuSubButton asChild isActive={!!childMatch}>
-                      <NavLink to={child.path}>
-                        <child.icon className="size-4 shrink-0" />
+                    <SidebarMenuSubButton
+                      asChild
+                      isActive={!!childMatch}
+                      className={cn(
+                        "transition-all duration-200",
+                        "hover:bg-white/50 dark:hover:bg-white/10",
+                        childMatch && "bg-primary/15 dark:bg-primary/20 font-medium text-primary shadow-sm"
+                      )}
+                    >
+                      <NavLink to={child.path} className="flex items-center gap-2">
+                        <div className={cn(
+                          "flex items-center justify-center rounded p-1 transition-colors",
+                          childMatch ? "bg-primary/15 text-primary" : "text-muted-foreground"
+                        )}>
+                          <child.icon className="size-3.5 shrink-0" />
+                        </div>
                         <span className="truncate">{child.label}</span>
                       </NavLink>
                     </SidebarMenuSubButton>
@@ -106,14 +145,31 @@ function SidebarNavItem({ route }: { route: AppRoute }) {
 
   return (
     <SidebarMenuItem key={route.path}>
-      <SidebarMenuButton asChild tooltip={route.label} isActive={!!match}>
+      <SidebarMenuButton
+        asChild
+        tooltip={route.label}
+        isActive={!!match}
+        className={cn(
+          "group relative transition-all duration-200",
+          "hover:bg-white/60 dark:hover:bg-white/10",
+          match && "bg-primary/15 dark:bg-primary/20 font-medium shadow-sm"
+        )}
+      >
         <NavLink
           to={route.path}
           end
           className="flex w-full min-w-0 items-center gap-2"
         >
-          <route.icon className="size-4 shrink-0" />
+          <div className={cn(
+            "flex items-center justify-center rounded-md p-1.5 transition-colors",
+            match ? "bg-primary/15 text-primary" : "text-muted-foreground group-hover:text-foreground"
+          )}>
+            <route.icon className="size-4 shrink-0" />
+          </div>
           <span className="truncate">{route.label}</span>
+          {match && route.path === "/" && (
+            <Sparkles className="ml-auto size-3 text-primary/60 animate-pulse" />
+          )}
         </NavLink>
       </SidebarMenuButton>
     </SidebarMenuItem>
@@ -122,19 +178,47 @@ function SidebarNavItem({ route }: { route: AppRoute }) {
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>
+    <Sidebar
+      collapsible="offcanvas"
+      {...props}
+      className={cn(
+        // Enhanced glass effect for sidebar with high visibility
+        "bg-white/85 dark:bg-slate-950/85",
+        "backdrop-blur-2xl backdrop-saturate-150",
+        "border-r border-white/30 dark:border-white/15",
+        "shadow-[4px_0_24px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.3)]",
+        props.className
+      )}
+    >
+      <SidebarHeader className="border-b border-white/20 dark:border-white/10">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
+              className={cn(
+                "data-[slot=sidebar-menu-button]:!p-2",
+                "hover:bg-white/60 dark:hover:bg-white/10",
+                "hover:backdrop-blur-sm",
+                "transition-all duration-200"
+              )}
             >
-              <a href="#brand">
-                <ArrowUpCircleIcon className="size-5" />
-                <span className="text-base font-semibold">
-                  Customer Care
-                </span>
+              <a href="#brand" className="flex items-center gap-3">
+                <div className={cn(
+                  "flex items-center justify-center rounded-xl p-2",
+                  "bg-gradient-to-br from-primary to-primary/80",
+                  "shadow-lg shadow-primary/20",
+                  "backdrop-blur-sm"
+                )}>
+                  <ArrowUpCircleIcon className="size-5 text-primary-foreground" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-base font-bold tracking-tight">
+                    Customer Care
+                  </span>
+                  <span className="text-xs text-muted-foreground/80">
+                    Operations Center
+                  </span>
+                </div>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

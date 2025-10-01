@@ -114,11 +114,15 @@ export default function MatrixTable({
       ) : (
         <TooltipProvider delayDuration={150}>
           <div
-            className="max-h-[calc(100vh-220px)] overflow-y-auto overflow-x-auto"
+            className={cn(
+              "relative max-h-[calc(100vh-280px)] overflow-auto",
+              "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border/40 hover:scrollbar-thumb-border/60",
+              "scroll-smooth"
+            )}
             role="region"
             aria-label={`Bảng phân ca tháng ${monthLabel}`}
           >
-            <div className="min-w-[1100px]">
+            <div className="min-w-[1200px]">
               <Table
                 className="border-separate border-spacing-0 text-sm text-foreground"
                 stickyHeader
@@ -168,7 +172,7 @@ export default function MatrixTable({
   const containerClasses = cn(
     "overflow-hidden",
     withCard
-      ? "rounded-3xl border border-border/60 bg-card shadow-sm"
+      ? "rounded-3xl border-0 bg-card shadow-2xl"
       : "rounded-none border-0 bg-transparent shadow-none",
     containerClassName,
   );

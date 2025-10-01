@@ -65,15 +65,18 @@ export default function MatrixRow({
   const meta = parseMeta(staff.notes);
   const displayId = meta.code ?? String(staff.id);
 
-  const stripeClass = index % 2 === 0 ? "bg-primary/5" : "bg-primary/10";
+  const stripeClass = index % 2 === 0
+    ? "bg-white/40 dark:bg-slate-900/40"
+    : "bg-white/60 dark:bg-slate-900/60";
 
   const RankChip = meta.rank ? (
     <span
       className={cn(
-        "ml-2 inline-flex items-center rounded-full border px-1.5 text-[11px] font-semibold",
+        "ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold",
+        "backdrop-blur-sm transition-all duration-200",
         meta.rank === 1
-          ? "border-primary/70 bg-primary/10 text-primary"
-          : "border-dashed border-primary/50 bg-primary/5 text-primary"
+          ? "border-0 bg-primary/90 text-white shadow-sm"
+          : "border-0 bg-primary/60 text-white shadow-sm"
       )}
     >
       Rank {meta.rank}
@@ -83,29 +86,38 @@ export default function MatrixRow({
   return (
     <TableRow
       className={cn(
-        "hover:bg-primary/15",
+        "transition-all duration-200 backdrop-blur-sm",
+        "hover:bg-primary/20 dark:hover:bg-primary/15",
         stripeClass,
       )}
     >
       <th
         scope="row"
-        className="sticky left-0 z-20 min-w-[220px] border-r border-border bg-background/95 px-4 py-3 text-left shadow-[4px_0_12px_-8px_rgba(15,23,42,0.25)] backdrop-blur-[2px] supports-[backdrop-filter]:bg-background/60"
+        className={cn(
+          "sticky left-0 z-20 min-w-[240px]",
+          "border-r-0 border-b border-white/10 dark:border-white/5",
+          "bg-white/95 dark:bg-slate-900/95",
+          "backdrop-blur-3xl backdrop-saturate-150",
+          "px-6 py-4 text-left",
+          "shadow-[8px_0_24px_-8px_rgba(0,0,0,0.12)] dark:shadow-[8px_0_24px_-8px_rgba(0,0,0,0.4)]",
+          "transition-all duration-300"
+        )}
       >
-        <div className="flex items-baseline justify-between gap-3">
+        <div className="flex items-baseline justify-between gap-4">
           <div>
-            <div className="text-sm font-semibold text-foreground">
+            <div className="text-sm font-bold text-foreground">
               {staff.full_name}
             </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>{staff.role}</span>
-              <span className="rounded-md border border-primary/20 bg-primary/10 px-1.5 py-0.5 font-medium text-primary">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground/90">
+              <span className="font-medium">{staff.role}</span>
+              <span className="rounded-lg border-0 bg-primary/15 dark:bg-primary/25 px-2 py-1 font-bold text-primary backdrop-blur-sm">
                 #{displayId}
               </span>
               {RankChip}
             </div>
           </div>
           {meta.rank === 1 ? (
-            <ShieldCheck className="h-4 w-4 text-primary" aria-hidden="true" />
+            <ShieldCheck className="h-5 w-5 text-primary drop-shadow-sm" aria-hidden="true" />
           ) : null}
         </div>
       </th>
@@ -152,9 +164,12 @@ export default function MatrixRow({
           <TableCell
             key={day}
             className={cn(
-              "relative h-16 min-w-[64px] border-r border-border/40 px-1 py-1 text-center",
-              weekend && "bg-amber-50/60",
-              !isFixed && !isOff && onEditCell && "cursor-pointer hover:bg-primary/5"
+              "relative h-16 min-w-[72px]",
+              "border-r-0 border-b border-white/10 dark:border-white/5",
+              "px-2 py-2 text-center",
+              "transition-all duration-200",
+              weekend && "bg-amber-50/40 dark:bg-amber-900/10",
+              !isFixed && !isOff && onEditCell && "cursor-pointer hover:bg-primary/15 hover:shadow-sm"
             )}
             onClick={() => {
               if (!isFixed && !isOff && onEditCell) {
@@ -194,31 +209,61 @@ export default function MatrixRow({
         );
       })}
 
-      <TableCell className="text-center text-sm font-medium text-foreground">
+      <TableCell className={cn(
+        "text-center text-sm font-semibold text-foreground",
+        "border-b border-white/10 dark:border-white/5"
+      )}>
         {sum.counts["CA1"] || 0}
       </TableCell>
-      <TableCell className="text-center text-sm font-medium text-foreground">
+      <TableCell className={cn(
+        "text-center text-sm font-semibold text-foreground",
+        "border-b border-white/10 dark:border-white/5"
+      )}>
         {sum.counts["CA2"] || 0}
       </TableCell>
-      <TableCell className="text-center text-sm font-medium text-foreground">
+      <TableCell className={cn(
+        "text-center text-sm font-semibold text-foreground",
+        "border-b border-white/10 dark:border-white/5"
+      )}>
         {sum.counts["K"] || 0}
       </TableCell>
-      <TableCell className="text-center text-sm font-medium text-foreground">
+      <TableCell className={cn(
+        "text-center text-sm font-semibold text-foreground",
+        "border-b border-white/10 dark:border-white/5"
+      )}>
         {sum.counts["HC"] || 0}
       </TableCell>
-      <TableCell className="text-center text-sm font-medium text-foreground">
+      <TableCell className={cn(
+        "text-center text-sm font-semibold text-foreground",
+        "border-b border-white/10 dark:border-white/5"
+      )}>
         {sum.counts["Đ"] || 0}
       </TableCell>
-      <TableCell className="text-center text-sm font-medium text-foreground">
+      <TableCell className={cn(
+        "text-center text-sm font-semibold text-foreground",
+        "border-b border-white/10 dark:border-white/5"
+      )}>
         {sum.counts["P"] || 0}
       </TableCell>
-      <TableCell className="bg-muted/40 text-center text-sm font-semibold text-foreground">
+      <TableCell className={cn(
+        "text-center text-sm font-bold text-foreground",
+        "border-b border-white/10 dark:border-white/5",
+        "bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm"
+      )}>
         {sum.dayCount || 0}
       </TableCell>
-      <TableCell className="bg-muted/40 text-center text-sm font-semibold text-foreground">
+      <TableCell className={cn(
+        "text-center text-sm font-bold text-foreground",
+        "border-b border-white/10 dark:border-white/5",
+        "bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm"
+      )}>
         {sum.nightCount || 0}
       </TableCell>
-      <TableCell className="bg-muted/60 text-center text-sm font-bold text-foreground">
+      <TableCell className={cn(
+        "text-center text-sm font-extrabold text-foreground",
+        "border-b border-white/10 dark:border-white/5",
+        "bg-white/50 dark:bg-slate-900/50 backdrop-blur-md"
+      )}>
         {sum.credit || 0}
       </TableCell>
     </TableRow>
