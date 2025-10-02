@@ -74,3 +74,123 @@
   --popover-foreground: hsl(var(--foreground));
   --modal-overlay: 0 0% 0% / 0.45;
 }
+
+/* ========================================
+   iOS & Glassmorphism Utilities
+   ======================================== */
+
+/* Font Smoothing (antialiased for better readability) */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Glass Effect Utilities */
+@layer utilities {
+  .glass {
+    @apply bg-white/90 dark:bg-slate-900/90;
+    @apply backdrop-blur-glass backdrop-saturate-150;
+    @apply border border-white/20 dark:border-white/10;
+    @apply shadow-glass;
+  }
+
+  .glass-strong {
+    @apply bg-white/95 dark:bg-slate-900/95;
+    @apply backdrop-blur-3xl backdrop-saturate-150;
+    @apply border border-slate-200/60 dark:border-slate-800/60;
+    @apply shadow-glass-lg;
+  }
+
+  .glass-subtle {
+    @apply bg-white/80 dark:bg-slate-900/80;
+    @apply backdrop-blur-lg backdrop-saturate-125;
+    @apply border border-white/10 dark:border-white/5;
+    @apply shadow-ios;
+  }
+
+  /* iOS-style card */
+  .ios-card {
+    @apply rounded-ios-lg;
+    @apply bg-white dark:bg-slate-900;
+    @apply shadow-ios-lg;
+    @apply border border-ios-gray-5 dark:border-slate-800;
+  }
+
+  /* iOS-style list item */
+  .ios-list-item {
+    @apply px-4 py-3;
+    @apply border-b border-ios-gray-5 dark:border-slate-800;
+    @apply last:border-b-0;
+    @apply transition-ios;
+    @apply active:scale-[0.98];
+  }
+
+  /* Active state (iOS bounce effect) */
+  .ios-active {
+    @apply active:animate-ios-bounce;
+  }
+
+  /* Safe area support for mobile */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* iOS-style navbar with large title */
+  .ios-navbar {
+    @apply sticky top-0 z-50;
+    @apply glass-strong;
+    @apply border-b border-slate-200/50 dark:border-slate-800/50;
+  }
+
+  /* iOS frosted glass overlay */
+  .ios-overlay {
+    @apply fixed inset-0 z-40;
+    @apply bg-black/50 dark:bg-black/70;
+    @apply backdrop-blur-xl;
+  }
+}
+
+/* iOS Transition Defaults */
+@layer base {
+  * {
+    @apply transition-ios;
+  }
+
+  button {
+    @apply transition-transform duration-150 ease-ios;
+    @apply active:scale-95;
+  }
+}
+
+/* Scrollbar Styling (iOS-like) */
+@layer utilities {
+  .scrollbar-ios::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-ios::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .scrollbar-ios::-webkit-scrollbar-thumb {
+    @apply bg-ios-gray-3 dark:bg-slate-700;
+    @apply rounded-full;
+  }
+
+  .scrollbar-ios::-webkit-scrollbar-thumb:hover {
+    @apply bg-ios-gray-2 dark:bg-slate-600;
+  }
+}

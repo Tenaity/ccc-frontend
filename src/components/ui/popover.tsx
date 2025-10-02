@@ -19,18 +19,19 @@ const PopoverContent = React.forwardRef<
       align={align}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 w-72 rounded-2xl p-4 outline-none",
-        // Enhanced glass effect with high visibility
+        "z-50 w-72 rounded-ios-lg p-4 font-sf-pro outline-none",
+        // iOS glass effect
         "bg-white/95 dark:bg-slate-900/95",
-        "backdrop-blur-2xl backdrop-saturate-150",
-        "border border-white/30 dark:border-white/20",
-        "shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]",
+        "backdrop-blur-3xl backdrop-saturate-150",
+        "border border-slate-200/60 dark:border-slate-800/60",
+        "shadow-glass-lg",
         "text-foreground",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
         "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2",
         "data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+        "transition-all duration-200 ease-ios",
         "origin-[--radix-popover-content-transform-origin]",
         className
       )}

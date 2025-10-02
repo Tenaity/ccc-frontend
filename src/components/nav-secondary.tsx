@@ -24,12 +24,17 @@ export function NavSecondary({
   return (
     <SidebarGroup {...props}>
       <SidebarGroupContent>
-        <SidebarMenu>
+        <SidebarMenu className="gap-1">
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
-                <a href={item.url}>
-                  <item.icon />
+              <SidebarMenuButton
+                asChild
+                className="rounded-lg hover:bg-gradient-to-r hover:from-slate-100/50 hover:to-slate-50/30 dark:hover:from-slate-800/50 dark:hover:to-slate-900/30 transition-all duration-300"
+              >
+                <a href={item.url} className="flex items-center gap-2.5">
+                  <div className="flex items-center justify-center rounded-md p-1.5 bg-slate-100/60 text-muted-foreground dark:bg-slate-800/60">
+                    <item.icon className="size-4 shrink-0" />
+                  </div>
                   <span>{item.title}</span>
                 </a>
               </SidebarMenuButton>

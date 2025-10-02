@@ -17,7 +17,9 @@ const AlertDialogOverlay = React.forwardRef<
   <AlertDialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-[hsl(var(--modal-overlay))] backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
+      "ios-overlay",
+      "data-[state=open]:animate-fade-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0",
+      "transition-all duration-300 ease-ios-out",
       className
     )}
     {...props}
@@ -34,8 +36,15 @@ const AlertDialogContent = React.forwardRef<
     <AlertDialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border/60 bg-background p-6 shadow-2xl outline-none",
+        "fixed left-1/2 top-1/2 z-50 w-full max-w-[min(90vw,400px)] -translate-x-1/2 -translate-y-1/2 rounded-ios-2xl p-6 font-sf-pro",
+        "bg-white/95 dark:bg-slate-900/95",
+        "backdrop-blur-3xl backdrop-saturate-150",
+        "border border-slate-200/60 dark:border-slate-800/60",
+        "shadow-glass-lg",
+        "outline-none",
+        "transition-all duration-300 ease-ios-in-out",
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
+        "focus-visible:ring-2 focus-visible:ring-ios-blue",
         className
       )}
       {...props}
@@ -74,7 +83,7 @@ const AlertDialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Title
     ref={ref}
-    className={cn("text-lg font-semibold leading-none tracking-tight", className)}
+    className={cn("font-sf-pro text-ios-title-3 font-semibold leading-tight tracking-tight text-foreground", className)}
     {...props}
   />
 ))
@@ -86,7 +95,7 @@ const AlertDialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn("font-sf-pro text-ios-callout text-muted-foreground/90", className)}
     {...props}
   />
 ))
