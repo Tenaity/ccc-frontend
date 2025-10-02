@@ -1,4 +1,4 @@
-import { CalendarIcon, LayoutDashboardIcon, BotIcon, Upload, Scissors, Settings2 } from "lucide-react"
+import { CalendarIcon, LayoutDashboardIcon, BotIcon, Upload, Scissors, Settings2, TableIcon } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
 export type AppRoute = {
@@ -19,14 +19,22 @@ export const appRoutes: AppRoute[] = [
   {
     path: "/schedule",
     label: "Schedule",
-    description: "Quản lý lịch phân ca dạng ma trận",
+    description: "Quản lý lịch phân ca",
     icon: CalendarIcon,
-  },
-  {
-    path: "/config",
-    label: "Config",
-    description: "Thiết lập ngày nghỉ và cấu hình tháng",
-    icon: Settings2,
+    children: [
+      {
+        path: "/schedule",
+        label: "Matrix View",
+        description: "Quản lý lịch phân ca dạng ma trận",
+        icon: TableIcon,
+      },
+      {
+        path: "/config",
+        label: "Config",
+        description: "Thiết lập ngày nghỉ và cấu hình tháng",
+        icon: Settings2,
+      },
+    ],
   },
   {
     path: "/chatbot",

@@ -238,10 +238,9 @@ export async function deleteHolidayEntry(id: number): Promise<void> {
 
 export async function importHolidaysFromNager(year: number): Promise<{ imported: number }> {
   const data = await parseJsonResponse<{ imported?: number }>(
-    await fetch(`/api/holidays/import-nager`, {
+    await fetch(`/api/holidays/import?year=${year}&source=nager`, {
       method: "POST",
       headers: JSON_HEADERS,
-      body: JSON.stringify({ year }),
     }),
   )
 

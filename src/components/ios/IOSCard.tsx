@@ -45,14 +45,16 @@ const IOSCardHeader = React.forwardRef<
 IOSCardHeader.displayName = "IOSCardHeader";
 
 const IOSCardTitle = React.forwardRef<
-  HTMLParagraphElement,
+  HTMLHeadingElement,
   React.HTMLAttributes<HTMLHeadingElement>
->(({ className, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <h3
     ref={ref}
     className={cn("font-sf-pro text-ios-title-3 font-semibold leading-none tracking-tight", className)}
     {...props}
-  />
+  >
+    {children}
+  </h3>
 ));
 IOSCardTitle.displayName = "IOSCardTitle";
 

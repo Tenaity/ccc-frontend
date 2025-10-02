@@ -46,7 +46,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
             {value ? format(value, formatString) : <span>{placeholder}</span>}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-0" align="start">
+        <PopoverContent className="w-auto p-0" align="start" sideOffset={8}>
           <Calendar mode="single" selected={value} onSelect={onChange} initialFocus />
         </PopoverContent>
       </Popover>
