@@ -20,13 +20,10 @@ const DialogOverlay = React.forwardRef<
     ref={ref}
     data-slot="dialog-overlay"
     className={cn(
-      "fixed inset-0 z-50",
-      // Enhanced overlay visibility with deeper backdrop
-      "bg-black/50 dark:bg-black/70",
-      "backdrop-blur-xl backdrop-saturate-150",
-      "data-[state=open]:animate-in data-[state=closed]:animate-out",
-      "data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
-      "transition-all duration-300",
+      "ios-overlay",
+      "data-[state=open]:animate-fade-in data-[state=closed]:animate-out",
+      "data-[state=closed]:fade-out-0",
+      "transition-all duration-300 ease-ios-out",
       className
     )}
     {...props}
@@ -43,22 +40,22 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-1/2 top-1/2 z-50 grid -translate-x-1/2 -translate-y-1/2 gap-4",
+        "fixed left-1/2 top-1/2 z-50 grid -translate-x-1/2 -translate-y-1/2 gap-5",
         "w-[min(96vw,720px)] sm:max-w-[720px]",
-        "rounded-3xl p-6",
-        // Enhanced iOS-inspired glass effect with high visibility
+        "rounded-ios-xl p-6 font-sf-pro",
+        // iOS-inspired glass effect
         "bg-white/95 dark:bg-slate-900/95",
         "backdrop-blur-3xl backdrop-saturate-150",
-        "border border-white/30 dark:border-white/20",
-        "shadow-[0_16px_48px_rgba(0,0,0,0.18)] dark:shadow-[0_16px_48px_rgba(0,0,0,0.6)]",
-        // Animation
+        "border border-slate-200/60 dark:border-slate-800/60",
+        "shadow-glass-lg",
+        // iOS-style animations
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
         "data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95",
         "data-[state=open]:slide-in-from-bottom-4 data-[state=closed]:slide-out-to-bottom-4",
-        "transition-all duration-300",
+        "transition-all duration-300 ease-ios-in-out",
         // Focus
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue",
         className
       )}
       {...props}
@@ -68,16 +65,16 @@ const DialogContent = React.forwardRef<
           "absolute right-4 top-4 z-10",
           "inline-flex h-9 w-9 items-center justify-center",
           "rounded-full",
-          // Enhanced glass close button
-          "bg-white/60 dark:bg-black/40",
-          "backdrop-blur-md backdrop-saturate-150",
-          "border border-white/40 dark:border-white/20",
-          "text-foreground/70 hover:text-foreground",
-          "transition-all duration-200",
-          "hover:bg-white/80 dark:hover:bg-black/60",
-          "hover:scale-105 active:scale-95",
-          "shadow-sm hover:shadow-md",
-          "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+          // iOS-style close button
+          "bg-white/70 dark:bg-slate-800/70",
+          "backdrop-blur-2xl backdrop-saturate-150",
+          "border border-slate-200/50 dark:border-slate-700/50",
+          "text-muted-foreground hover:text-foreground",
+          "transition-all duration-200 ease-ios",
+          "hover:bg-white/90 dark:hover:bg-slate-800/90",
+          "active:scale-95",
+          "shadow-ios-sm hover:shadow-ios",
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue"
         )}
       >
         <X aria-hidden className="h-4 w-4" />
@@ -111,7 +108,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn("text-lg font-semibold leading-none tracking-tight", className)}
+    className={cn("font-sf-pro text-ios-title-3 font-semibold leading-tight tracking-tight text-foreground", className)}
     {...props}
   />
 ))
@@ -123,7 +120,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn("font-sf-pro text-ios-body text-muted-foreground", className)}
     {...props}
   />
 ))

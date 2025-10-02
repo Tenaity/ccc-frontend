@@ -141,8 +141,8 @@ export default function MatrixHeader({
                 "px-3 py-2 text-center text-[10px] font-semibold",
                 "shadow-[inset_0_-1px_0_rgba(148,163,184,0.12)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.45)]",
                 weekend
-                  ? "bg-amber-50/60 dark:bg-amber-900/15 text-amber-600 dark:text-amber-400 backdrop-blur-lg"
-                  : "bg-white/60 dark:bg-slate-900/60 text-muted-foreground backdrop-blur-lg"
+                  ? "bg-amber-50/60 dark:bg-amber-900/15 text-amber-700 dark:text-amber-300 backdrop-blur-lg"
+                  : "bg-white/60 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 backdrop-blur-lg"
               )}
             >
               Leader TD: {leaders}

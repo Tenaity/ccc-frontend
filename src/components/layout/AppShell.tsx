@@ -62,20 +62,20 @@ export default function AppShell({
     );
 
     return (
-        <div className="min-h-screen bg-background text-foreground" id="app-shell-root">
+        <div className="min-h-screen bg-ios-gray-6 dark:bg-slate-950 text-foreground font-sf-pro" id="app-shell-root">
             <a
-                className="sr-only focus:not-sr-only focus:absolute focus:left-6 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
+                className="sr-only focus:not-sr-only focus:absolute focus:left-6 focus:top-4 focus:z-50 focus:rounded-ios focus:bg-ios-blue focus:px-4 focus:py-2 focus:text-white focus:shadow-ios"
                 href={`#${mainId}`}
                 onClick={handleSkipToMain}
             >
                 Bỏ qua tới nội dung chính
             </a>
-            <header className="border-b bg-card/80">
-                <div className="mx-auto flex w-full max-w-7xl flex-col gap-1 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <header className="ios-navbar safe-top">
+                <div className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">{title}</h1>
+                        <h1 className="font-sf-pro text-ios-title-2 font-bold tracking-tight text-foreground">{title}</h1>
                         {description ? (
-                            <p className="text-sm text-muted-foreground">{description}</p>
+                            <p className="font-sf-pro text-ios-subhead text-muted-foreground/90">{description}</p>
                         ) : null}
                     </div>
                     {headerActions ? (
@@ -87,23 +87,23 @@ export default function AppShell({
                 <aside
                     aria-label="Sidebar"
                     className={cn(
-                        "border-border/60 bg-sidebar text-sidebar-foreground",
+                        "glass-subtle border-slate-200/50 dark:border-slate-800/50",
                         "border-b lg:w-72 lg:border-b-0 lg:border-r",
                     )}
                 >
-                    <div className="flex flex-col gap-6 px-6 py-6">{sidebar}</div>
+                    <div className="flex flex-col gap-6 px-6 py-6 scrollbar-ios">{sidebar}</div>
                 </aside>
                 <div className="flex flex-1 flex-col">
                     {breadcrumbs && breadcrumbs.length > 0 ? (
-                        <div className="border-b border-border/60 bg-background/70 px-6 py-3">
+                        <div className="border-b border-slate-200/40 dark:border-slate-800/40 glass-subtle px-6 py-3">
                             <Breadcrumb>
-                                <BreadcrumbList>
+                                <BreadcrumbList className="font-sf-pro text-ios-footnote">
                                     {breadcrumbs.map((item, index) => (
                                         <BreadcrumbItem key={`${item.label}-${index}`}>
                                             {item.href && !item.current ? (
-                                                <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
+                                                <BreadcrumbLink href={item.href} className="text-ios-blue hover:text-ios-blue/80">{item.label}</BreadcrumbLink>
                                             ) : (
-                                                <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                                                <BreadcrumbPage className="font-semibold">{item.label}</BreadcrumbPage>
                                             )}
                                             {index < breadcrumbs.length - 1 ? <BreadcrumbSeparator /> : null}
                                         </BreadcrumbItem>
@@ -114,7 +114,7 @@ export default function AppShell({
                     ) : null}
                     <main
                         aria-label="Main content"
-                        className="flex-1 space-y-6 px-6 py-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="flex-1 space-y-6 px-6 py-6 safe-bottom focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue focus-visible:ring-offset-2"
                         id={mainId}
                         ref={mainRef}
                         tabIndex={-1}

@@ -10,14 +10,14 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-2xl",
-      // Enhanced glass effect with high visibility
+      "rounded-ios-lg font-sf-pro",
+      // iOS glass effect
       "bg-white/90 dark:bg-slate-900/90",
-      "backdrop-blur-2xl backdrop-saturate-150",
-      "border border-white/30 dark:border-white/20",
-      "shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]",
+      "backdrop-blur-3xl backdrop-saturate-150",
+      "border border-slate-200/50 dark:border-slate-800/50",
+      "shadow-glass dark:shadow-glass-lg",
       "text-card-foreground",
-      "transition-all duration-300",
+      "transition-all duration-300 ease-ios",
       className
     )}
     {...props}
@@ -43,7 +43,7 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h3
     ref={ref}
-    className={cn("text-lg font-semibold leading-none tracking-tight", className)}
+    className={cn("font-sf-pro text-ios-title-3 font-semibold leading-tight tracking-tight text-foreground", className)}
     {...props}
   />
 ))
@@ -55,7 +55,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn("font-sf-pro text-ios-callout text-muted-foreground", className)}
     {...props}
   />
 ))

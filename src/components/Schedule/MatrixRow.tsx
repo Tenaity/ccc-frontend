@@ -75,8 +75,8 @@ export default function MatrixRow({
         "ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold",
         "backdrop-blur-sm transition-all duration-200",
         meta.rank === 1
-          ? "border-0 bg-primary/90 text-white shadow-sm"
-          : "border-0 bg-primary/60 text-white shadow-sm"
+          ? "border border-primary bg-primary text-primary-foreground shadow-sm"
+          : "border border-primary/70 bg-primary/80 text-primary-foreground shadow-sm"
       )}
     >
       Rank {meta.rank}
