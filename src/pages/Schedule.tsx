@@ -1,11 +1,13 @@
 import { useCallback, useMemo, useState, type ReactNode } from "react"
 import { Calendar } from "lucide-react"
+import { Link } from "react-router-dom"
 
 import ScheduleMatrixRoute from "@/routes/ScheduleMatrixRoute"
 import FixedOffHolidayBtn from "@/components/Schedule/FixedOffHolidayBtn"
 import { PageHeader } from "@/components/PageHeader"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import type { DayPlaceSummary, ExpectedByDay, Staff } from "@/types"
 import type { Cell } from "@/utils/mergeCellIndex"
 
@@ -44,6 +46,7 @@ export interface SchedulePageProps {
   conflictCount: number
   hasLeaderDup: boolean
   leaderErrorsCount: number
+  monthConfigMissing?: boolean
   // Merged features from CalendarHeader
   onYearChange?: (year: number) => void
   onMonthChange?: (month: number) => void
@@ -81,6 +84,7 @@ export default function SchedulePage({
   conflictCount,
   hasLeaderDup,
   leaderErrorsCount,
+  monthConfigMissing = false,
   onYearChange,
   onMonthChange,
   onShuffle,
@@ -167,6 +171,19 @@ export default function SchedulePage({
         title="Schedule Management"
         description="Tăng tốc quy trình làm việc với trải nghiệm lấy cảm hứng từ iOS/macOS."
       />
+      {monthConfigMissing ? (
+        <Alert variant="warning" className="max-w-3xl">
+          <AlertTitle>Please configure month plan</AlertTitle>
+          <AlertDescription>
+            Lịch trực tháng này chưa có cấu hình.
+            {' '}
+            <Link to="/config" className="font-semibold underline">
+              Mở thiết lập tháng
+            </Link>
+            .
+          </AlertDescription>
+        </Alert>
+      ) : null}
       <ScheduleMatrixRoute
         year={year}
         month={month}

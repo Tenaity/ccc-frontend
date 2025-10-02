@@ -38,6 +38,17 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useToast } from "@/components/ui/use-toast"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 import {
   createHolidayEntry,
   deleteHolidayEntry,
@@ -80,6 +91,20 @@ const SHIFT_DEFAULT_BASE: Record<string, number> = {
   pgd: 0,
   hc: 0,
 }
+
+const monthPlanSchema = z.object({
+  year: z
+    .coerce.number({ invalid_type_error: "Vui lòng chọn năm." })
+    .int("Năm không hợp lệ.")
+    .min(2000, "Năm không hợp lệ."),
+  month: z
+    .coerce.number({ invalid_type_error: "Vui lòng chọn tháng." })
+    .int("Tháng không hợp lệ.")
+    .min(1, "Vui lòng chọn tháng.")
+    .max(12, "Tháng không hợp lệ."),
+})
+
+type MonthPlanFormValues = z.infer<typeof monthPlanSchema>
 
 type ShiftField = {
   key: string
@@ -390,11 +415,20 @@ function HolidaysTab() {
   )
 }
 
+
 function MonthPlanTab() {
   const { toast } = useToast()
   const today = React.useMemo(() => new Date(), [])
-  const [year, setYear] = React.useState(today.getFullYear())
-  const [month, setMonth] = React.useState(today.getMonth() + 1)
+  const form = useForm<MonthPlanFormValues>({
+    resolver: zodResolver(monthPlanSchema),
+    defaultValues: {
+      year: today.getFullYear(),
+      month: today.getMonth() + 1,
+    },
+    mode: "onChange",
+  })
+  const year = form.watch("year")
+  const month = form.watch("month")
   const [loading, setLoading] = React.useState(false)
   const [saving, setSaving] = React.useState(false)
   const [generating, setGenerating] = React.useState(false)
@@ -413,9 +447,12 @@ function MonthPlanTab() {
   const [newWorkday, setNewWorkday] = React.useState<Date | undefined>()
 
   const yearOptions = React.useMemo(() => {
-    const start = year - 1
+    const fallbackYear = today.getFullYear()
+    const baseYear =
+      typeof year === "number" && Number.isFinite(year) ? year : fallbackYear
+    const start = baseYear - 1
     return Array.from({ length: 4 }, (_, index) => start + index)
-  }, [year])
+  }, [today, year])
 
   const load = React.useCallback(
     async (targetYear: number, targetMonth: number) => {
@@ -435,7 +472,8 @@ function MonthPlanTab() {
             : null,
         )
         setOverrideValue(
-          config.working_days_override === null || config.working_days_override === undefined
+          config.working_days_override === null ||
+            config.working_days_override === undefined
             ? ""
             : String(config.working_days_override),
         )
@@ -445,10 +483,10 @@ function MonthPlanTab() {
         setShiftFields(createShiftFields(defaultsValue))
       } catch (error: unknown) {
         const message =
-          error instanceof Error ? error.message : "Kh\u00f4ng th\u1ec3 t\u1ea3i c\u1ea5u h\u00ecnh th\u00e1ng"
+          error instanceof Error ? error.message : "Không thể tải cấu hình tháng"
         toast({
           variant: "destructive",
-          title: "L\u1ed7i t\u1ea3i c\u1ea5u h\u00ecnh",
+          title: "Lỗi tải cấu hình",
           description: message,
         })
       } finally {
@@ -459,6 +497,15 @@ function MonthPlanTab() {
   )
 
   React.useEffect(() => {
+    if (
+      typeof year !== "number" ||
+      !Number.isFinite(year) ||
+      typeof month !== "number" ||
+      !Number.isFinite(month)
+    ) {
+      return
+    }
+
     void load(year, month)
   }, [load, month, year])
 
@@ -477,8 +524,8 @@ function MonthPlanTab() {
     if (!newOffday) {
       toast({
         variant: "destructive",
-        title: "Thi\u1ebfu ng\u00e0y",
-        description: "Vui l\u00f2ng ch\u1ecdn ng\u00e0y ngh\u1ec9 b\u1ed5 sung.",
+        title: "Thiếu ngày",
+        description: "Vui lòng chọn ngày nghỉ bổ sung.",
       })
       return
     }
@@ -487,8 +534,8 @@ function MonthPlanTab() {
     if (extraOffdays.includes(iso)) {
       toast({
         variant: "destructive",
-        title: "Ng\u00e0y tr\u00f9ng",
-        description: "Ng\u00e0y ngh\u1ec9 n\u00e0y \u0111\u00e3 c\u00f3 trong danh s\u00e1ch.",
+        title: "Ngày trùng",
+        description: "Ngày nghỉ này đã có trong danh sách.",
       })
       return
     }
@@ -501,8 +548,8 @@ function MonthPlanTab() {
     if (!newWorkday) {
       toast({
         variant: "destructive",
-        title: "Thi\u1ebfu ng\u00e0y",
-        description: "Vui l\u00f2ng ch\u1ecdn ng\u00e0y l\u00e0m b\u00f9.",
+        title: "Thiếu ngày",
+        description: "Vui lòng chọn ngày làm bù.",
       })
       return
     }
@@ -511,8 +558,8 @@ function MonthPlanTab() {
     if (extraWorkdays.includes(iso)) {
       toast({
         variant: "destructive",
-        title: "Ng\u00e0y tr\u00f9ng",
-        description: "Ng\u00e0y l\u00e0m b\u00f9 n\u00e0y \u0111\u00e3 t\u1ed3n t\u1ea1i.",
+        title: "Ngày trùng",
+        description: "Ngày làm bù này đã tồn tại.",
       })
       return
     }
@@ -521,99 +568,138 @@ function MonthPlanTab() {
     setNewWorkday(undefined)
   }, [extraWorkdays, newWorkday, toast])
 
-  const handleSave = React.useCallback(async () => {
-    setSaving(true)
-    try {
-      const normalizedOverride = overrideValue.trim()
-      const overrideNumber = normalizedOverride === "" ? null : Number(normalizedOverride)
-      if (overrideNumber !== null && Number.isNaN(overrideNumber)) {
-        throw new Error("Gi\u00e1 tr\u1ecb override ph\u1ea3i l\u00e0 s\u1ed1 h\u1ee3p l\u1ec7")
-      }
+  const saveMonthPlan = React.useCallback(
+    async (values: MonthPlanFormValues) => {
+      setSaving(true)
+      try {
+        const normalizedOverride = overrideValue.trim()
+        const overrideNumber =
+          normalizedOverride === "" ? null : Number(normalizedOverride)
+        if (overrideNumber !== null && Number.isNaN(overrideNumber)) {
+          throw new Error("Giá trị override phải là số hợp lệ")
+        }
 
-      const monthPayload: MonthConfig = await updateMonthConfig({
-        year,
-        month,
-        weekend_policy: weekendPolicy || "sat_sun",
-        extra_offdays: [...extraOffdays].sort(),
-        extra_workdays: [...extraWorkdays].sort(),
-        working_days_override: overrideNumber,
-      })
+        const monthPayload: MonthConfig = await updateMonthConfig({
+          year: values.year,
+          month: values.month,
+          weekend_policy: weekendPolicy || "sat_sun",
+          auto_working_days: autoWorkingDays,
+          extra_offdays: [...extraOffdays].sort(),
+          extra_workdays: [...extraWorkdays].sort(),
+          working_days_override: overrideNumber,
+        })
 
-      const defaultsPayload: ShiftDefaultConfig = await updateShiftDefaultConfig({
-        year,
-        month,
-        defaults: shiftDefaults,
-      })
+        const defaultsPayload: ShiftDefaultConfig = await updateShiftDefaultConfig({
+          year: values.year,
+          month: values.month,
+          defaults: shiftDefaults,
+        })
 
-      setAutoWorkingDays(
-        typeof monthPayload.auto_working_days === "number"
-          ? monthPayload.auto_working_days
-          : autoWorkingDays,
-      )
-      const normalizedDefaults = {
-        ...SHIFT_DEFAULT_BASE,
-        ...defaultsPayload.defaults,
-      }
-      setShiftDefaults(normalizedDefaults)
-      setShiftFields(createShiftFields(normalizedDefaults))
+        setAutoWorkingDays(
+          typeof monthPayload.auto_working_days === "number"
+            ? monthPayload.auto_working_days
+            : autoWorkingDays,
+        )
 
-      toast({
-        title: "\u0110\u00e3 l\u01b0u c\u1ea5u h\u00ecnh",
-        description: "Thi\u1ebft l\u1eadp th\u00e1ng v\u00e0 m\u1eb7c \u0111\u1ecbnh ca \u0111\u00e3 \u0111\u01b0\u1ee3c c\u1eadp nh\u1eadt.",
-      })
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Kh\u00f4ng th\u1ec3 l\u01b0u c\u1ea5u h\u00ecnh"
-      toast({
-        variant: "destructive",
-        title: "L\u01b0u th\u1ea5t b\u1ea1i",
-        description: message,
-      })
-    } finally {
-      setSaving(false)
-    }
-  }, [
-    autoWorkingDays,
-    extraOffdays,
-    extraWorkdays,
-    month,
-    overrideValue,
-    shiftDefaults,
-    toast,
-    weekendPolicy,
-    year,
-  ])
+        const normalizedDefaults = {
+          ...SHIFT_DEFAULT_BASE,
+          ...(defaultsPayload?.defaults ?? {}),
+        }
+        setShiftDefaults(normalizedDefaults)
+        setShiftFields(createShiftFields(normalizedDefaults))
 
-  const handleGenerate = React.useCallback(async () => {
-    setGenerating(true)
-    try {
-      const result = await generateSchedule({ year, month })
-      if (!result?.ok) {
-        const detail = result?.error ?? "M\u00e1y ch\u1ee7 tr\u1ea3 v\u1ec1 l\u1ed7i"
+        toast({
+          title: "Đã lưu cấu hình",
+          description: "Thiết lập tháng và mặc định ca đã được cập nhật.",
+        })
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : "Không thể lưu cấu hình"
         toast({
           variant: "destructive",
-          title: "Sinh l\u1ecbch th\u1ea5t b\u1ea1i",
-          description: detail,
+          title: "Lưu thất bại",
+          description: message,
         })
-        return
+      } finally {
+        setSaving(false)
       }
+    },
+    [
+      autoWorkingDays,
+      extraOffdays,
+      extraWorkdays,
+      overrideValue,
+      shiftDefaults,
+      toast,
+      weekendPolicy,
+    ],
+  )
 
-      toast({
-        title: "\u0110\u00e3 g\u1eedi y\u00eau c\u1ea7u sinh l\u1ecbch",
-        description: `\u0110ang x\u1eed l\u00fd l\u1ecbch cho ${String(month).padStart(2, "0")}/${year}.`,
-      })
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Kh\u00f4ng th\u1ec3 sinh l\u1ecbch"
-      toast({
-        variant: "destructive",
-        title: "Sinh l\u1ecbch th\u1ea5t b\u1ea1i",
-        description: message,
-      })
-    } finally {
-      setGenerating(false)
-    }
-  }, [month, toast, year])
+  const generateMonthPlan = React.useCallback(
+    async (values: MonthPlanFormValues) => {
+      setGenerating(true)
+      try {
+        const result = await generateSchedule({
+          year: values.year,
+          month: values.month,
+        })
+
+        if (!result?.ok) {
+          const detail = result?.error ?? "Máy chủ trả về lỗi"
+          toast({
+            variant: "destructive",
+            title: "Sinh lịch thất bại",
+            description: detail,
+          })
+          return
+        }
+
+        const plannedCount = Array.isArray(result?.planned)
+          ? result.planned.length
+          : null
+        const detailMessage =
+          typeof result?.details === "string" && result.details.trim().length > 0
+            ? result.details
+            : plannedCount !== null
+              ? `Đã sinh ${plannedCount} ca xem trước cho ${String(values.month).padStart(2, "0")}/${values.year}.`
+              : `Đang xử lý lịch cho ${String(values.month).padStart(2, "0")}/${values.year}.`
+
+        toast({
+          title: "Đã gửi yêu cầu sinh lịch",
+          description: detailMessage,
+        })
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : "Không thể sinh lịch"
+        toast({
+          variant: "destructive",
+          title: "Sinh lịch thất bại",
+          description: message,
+        })
+      } finally {
+        setGenerating(false)
+      }
+    },
+    [toast],
+  )
+
+  const submitSave = React.useMemo(
+    () => form.handleSubmit(saveMonthPlan),
+    [form, saveMonthPlan],
+  )
+
+  const submitGenerate = React.useMemo(
+    () => form.handleSubmit(generateMonthPlan),
+    [form, generateMonthPlan],
+  )
+
+  const hasSelection =
+    typeof year === "number" &&
+    Number.isFinite(year) &&
+    typeof month === "number" &&
+    Number.isFinite(month)
+  const saveDisabled = saving || loading || !hasSelection
+  const generateDisabled = generating || loading || !hasSelection
 
   const onShiftDefaultChange = React.useCallback((key: string, value: string) => {
     const next = Number(value)
@@ -624,239 +710,271 @@ function MonthPlanTab() {
   }, [])
 
   return (
-    <GlassCard className="space-y-6 p-6">
-      <div className="grid gap-4 md:grid-cols-2 md:gap-6">
-        <div className="flex flex-col gap-3">
-          <Label className="text-xs uppercase text-muted-foreground">
-            Ch\u1ecdn n\u0103m
-          </Label>
-          <Select value={String(year)} onValueChange={(value) => setYear(Number(value))}>
-            <SelectTrigger className="h-10 w-full md:w-40">
-              <SelectValue placeholder="Ch\u1ecdn n\u0103m" />
-            </SelectTrigger>
-            <SelectContent>
-              {yearOptions.map((option) => (
-                <SelectItem key={option} value={String(option)}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex flex-col gap-3">
-          <Label className="text-xs uppercase text-muted-foreground">
-            Ch\u1ecdn th\u00e1ng
-          </Label>
-          <Select value={String(month)} onValueChange={(value) => setMonth(Number(value))}>
-            <SelectTrigger className="h-10 w-full md:w-40">
-              <SelectValue placeholder="Ch\u1ecdn th\u00e1ng" />
-            </SelectTrigger>
-            <SelectContent>
-              {MONTH_OPTIONS.map((option) => (
-                <SelectItem key={option} value={String(option)}>
-                  Th\u00e1ng {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200/70 bg-white/70 px-4 py-3 dark:border-slate-800/70 dark:bg-slate-900/70">
-        <Badge variant="primary" className="gap-2">
-          <Sparkles className="h-3.5 w-3.5" /> Auto working days
-        </Badge>
-        <span className="text-sm text-muted-foreground">
-          {autoWorkingDays !== null
-            ? `${autoWorkingDays} ng\u00e0y l\u00e0m vi\u1ec7c d\u1ef1 ki\u1ebfn`
-            : "Ch\u01b0a c\u00f3 d\u1eef li\u1ec7u"}
-        </span>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-xs uppercase text-muted-foreground">
-              Weekend policy
-            </Label>
-            <div className="grid gap-2">
-              {weekendOptions.map((option) => (
-                <label
-                  key={option.value}
-                  className={cn(
-                    "flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200/70 bg-white/70 px-4 py-3 transition-all",
-                    weekendPolicy === option.value
-                      ? "border-sky-400/60 shadow-ios"
-                      : "hover:border-slate-300/70",
-                    "dark:border-slate-800/70 dark:bg-slate-900/70",
-                  )}
+    <Form {...form}>
+      <GlassCard className="space-y-6 p-6">
+        <div className="grid gap-4 md:grid-cols-2 md:gap-6">
+          <FormField
+            control={form.control}
+            name="year"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs uppercase text-muted-foreground">
+                  Chọn năm
+                </FormLabel>
+                <Select
+                  value={field.value ? String(field.value) : ""}
+                  onValueChange={(value) => field.onChange(Number(value))}
+                  disabled={loading}
                 >
-                  <input
-                    type="radio"
-                    name="weekend-policy"
-                    value={option.value}
-                    checked={weekendPolicy === option.value}
-                    onChange={() => setWeekendPolicy(option.value)}
-                    className="h-4 w-4 accent-sky-500"
-                  />
-                  <span className="text-sm font-medium text-foreground">
-                    {option.label}
+                  <FormControl>
+                    <SelectTrigger className="h-10 w-full md:w-40">
+                      <SelectValue placeholder="Chọn năm" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {yearOptions.map((option) => (
+                      <SelectItem key={option} value={String(option)}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="month"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs uppercase text-muted-foreground">
+                  Chọn tháng
+                </FormLabel>
+                <Select
+                  value={field.value ? String(field.value) : ""}
+                  onValueChange={(value) => field.onChange(Number(value))}
+                  disabled={loading}
+                >
+                  <FormControl>
+                    <SelectTrigger className="h-10 w-full md:w-40">
+                      <SelectValue placeholder="Chọn tháng" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {MONTH_OPTIONS.map((option) => (
+                      <SelectItem key={option} value={String(option)}>
+                        Tháng {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200/70 bg-white/70 px-4 py-3 dark:border-slate-800/70 dark:bg-slate-900/70">
+          <Badge variant="primary" className="gap-2">
+            <Sparkles className="h-3.5 w-3.5" /> Auto working days
+          </Badge>
+          <span className="text-sm text-muted-foreground">
+            {autoWorkingDays !== null
+              ? `${autoWorkingDays} ngày làm việc dự kiến`
+              : "Chưa có dữ liệu"}
+          </span>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-xs uppercase text-muted-foreground">
+                Weekend policy
+              </Label>
+              <div className="grid gap-2">
+                {weekendOptions.map((option) => (
+                  <label
+                    key={option.value}
+                    className={cn(
+                      "flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200/70 bg-white/70 px-4 py-3 transition-all",
+                      weekendPolicy === option.value
+                        ? "border-sky-400/60 shadow-ios"
+                        : "hover:border-slate-300/70",
+                      "dark:border-slate-800/70 dark:bg-slate-900/70",
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      name="weekend-policy"
+                      value={option.value}
+                      checked={weekendPolicy === option.value}
+                      onChange={() => setWeekendPolicy(option.value)}
+                      className="h-4 w-4 accent-sky-500"
+                    />
+                    <span className="text-sm font-medium text-foreground">
+                      {option.label}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <CalendarX2 className="h-4 w-4 text-rose-500" /> extra_offdays
+              </div>
+              <div className="flex flex-wrap items-end gap-3">
+                <DatePicker value={newOffday} onChange={setNewOffday} />
+                <GlassButton
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleAddOffday}
+                  className="gap-2"
+                  type="button"
+                >
+                  <CalendarRange className="h-4 w-4" /> Thêm ngày nghỉ
+                </GlassButton>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {extraOffdays.length === 0 ? (
+                  <span className="text-sm text-muted-foreground">
+                    Chưa có ngày nghỉ bổ sung.
                   </span>
-                </label>
-              ))}
+                ) : (
+                  extraOffdays.map((day) => (
+                    <Badge key={day} variant="outline" className="gap-2">
+                      {formatDisplayDate(day)}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setExtraOffdays((prev) => prev.filter((item) => item !== day))
+                        }
+                        className="text-xs font-semibold text-rose-500 hover:text-rose-600"
+                      >
+                        ×
+                      </button>
+                    </Badge>
+                  ))
+                )}
+              </div>
             </div>
           </div>
 
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <CalendarX2 className="h-4 w-4 text-rose-500" /> extra_offdays
+              <CalendarPlus className="h-4 w-4 text-emerald-500" /> extra_workdays
             </div>
             <div className="flex flex-wrap items-end gap-3">
-              <DatePicker value={newOffday} onChange={setNewOffday} />
+              <DatePicker value={newWorkday} onChange={setNewWorkday} />
               <GlassButton
                 variant="secondary"
                 size="sm"
-                onClick={handleAddOffday}
+                onClick={handleAddWorkday}
                 className="gap-2"
+                type="button"
               >
-                <CalendarRange className="h-4 w-4" /> Th\u00eam ng\u00e0y ngh\u1ec9
+                <CalendarRange className="h-4 w-4" /> Thêm ngày làm bù
               </GlassButton>
             </div>
             <div className="flex flex-wrap gap-2">
-              {extraOffdays.length === 0 ? (
+              {extraWorkdays.length === 0 ? (
                 <span className="text-sm text-muted-foreground">
-                  Ch\u01b0a c\u00f3 ng\u00e0y ngh\u1ec9 b\u1ed5 sung.
+                  Chưa có ngày làm bù.
                 </span>
               ) : (
-                extraOffdays.map((day) => (
+                extraWorkdays.map((day) => (
                   <Badge key={day} variant="outline" className="gap-2">
                     {formatDisplayDate(day)}
                     <button
                       type="button"
                       onClick={() =>
-                        setExtraOffdays((prev) => prev.filter((item) => item !== day))
+                        setExtraWorkdays((prev) => prev.filter((item) => item !== day))
                       }
                       className="text-xs font-semibold text-rose-500 hover:text-rose-600"
                     >
-                      \u00d7
+                      ×
                     </button>
                   </Badge>
                 ))
               )}
             </div>
-          </div>
-        </div>
 
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <CalendarPlus className="h-4 w-4 text-emerald-500" /> extra_workdays
-          </div>
-          <div className="flex flex-wrap items-end gap-3">
-            <DatePicker value={newWorkday} onChange={setNewWorkday} />
-            <GlassButton
-              variant="secondary"
-              size="sm"
-              onClick={handleAddWorkday}
-              className="gap-2"
-            >
-              <CalendarRange className="h-4 w-4" /> Th\u00eam ng\u00e0y l\u00e0m b\u00f9
-            </GlassButton>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {extraWorkdays.length === 0 ? (
-              <span className="text-sm text-muted-foreground">
-                Ch\u01b0a c\u00f3 ng\u00e0y l\u00e0m b\u00f9.
-              </span>
-            ) : (
-              extraWorkdays.map((day) => (
-                <Badge key={day} variant="outline" className="gap-2">
-                  {formatDisplayDate(day)}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setExtraWorkdays((prev) => prev.filter((item) => item !== day))
-                    }
-                    className="text-xs font-semibold text-rose-500 hover:text-rose-600"
-                  >
-                    \u00d7
-                  </button>
-                </Badge>
-              ))
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-xs uppercase text-muted-foreground">
-              working_days_override
-            </Label>
-            <Input
-              type="number"
-              inputMode="numeric"
-              value={overrideValue}
-              onChange={(event) => setOverrideValue(event.target.value)}
-              placeholder="Gi\u00e1 tr\u1ecb tu\u1ef3 ch\u1ecdn"
-              className="w-full md:w-48"
-              data-testid="working-days-override"
-            />
-            <p className="text-xs text-muted-foreground">
-              \u0110\u1ec3 tr\u1ed1ng n\u1ebfu mu\u1ed1n s\u1eed d\u1ee5ng gi\u00e1 tr\u1ecb auto working days.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-          <Settings2 className="h-4 w-4 text-sky-500" /> Shift defaults
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {shiftFields.map((field) => (
-            <div key={field.key} className="space-y-2">
+            <div className="space-y-2">
               <Label className="text-xs uppercase text-muted-foreground">
-                {field.key}
+                working_days_override
               </Label>
               <Input
                 type="number"
                 inputMode="numeric"
-                value={String(shiftDefaults[field.key] ?? 0)}
-                onChange={(event) => onShiftDefaultChange(field.key, event.target.value)}
-                className="w-full"
-                data-testid={`shift-default-${field.key}`}
+                value={overrideValue}
+                onChange={(event) => setOverrideValue(event.target.value)}
+                placeholder="Giá trị tuỳ chọn"
+                className="w-full md:w-48"
+                data-testid="working-days-override"
               />
               <p className="text-xs text-muted-foreground">
-                {field.label}
+                Để trống nếu muốn sử dụng giá trị auto working days.
               </p>
             </div>
-          ))}
+          </div>
         </div>
-      </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <GlassButton
-          variant="primary"
-          onClick={handleSave}
-          disabled={saving || loading}
-          className="gap-2"
-        >
-          <Settings2 className="h-4 w-4" />
-          {saving ? "\u0110ang l\u01b0u\u2026" : "Save"}
-        </GlassButton>
-        <GlassButton
-          variant="secondary"
-          onClick={handleGenerate}
-          disabled={generating || loading}
-          className="gap-2"
-        >
-          <Sparkles className="h-4 w-4" />
-          {generating ? "\u0110ang sinh\u2026" : "Generate Schedule"}
-        </GlassButton>
-        {loading ? (
-          <span className="text-sm text-muted-foreground">
-            \u0110ang t\u1ea3i c\u1ea5u h\u00ecnh th\u00e1ng\u2026
-          </span>
-        ) : null}
-      </div>
-    </GlassCard>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+            <Settings2 className="h-4 w-4 text-sky-500" /> Shift defaults
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {shiftFields.map((field) => (
+              <div key={field.key} className="space-y-2">
+                <Label className="text-xs uppercase text-muted-foreground">
+                  {field.key}
+                </Label>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  value={String(shiftDefaults[field.key] ?? 0)}
+                  onChange={(event) => onShiftDefaultChange(field.key, event.target.value)}
+                  className="w-full"
+                  data-testid={`shift-default-${field.key}`}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {field.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <GlassButton
+            variant="primary"
+            type="button"
+            onClick={() => void submitSave()}
+            disabled={saveDisabled}
+            className="gap-2"
+          >
+            <Settings2 className="h-4 w-4" />
+            {saving ? "Đang lưu…" : "Save"}
+          </GlassButton>
+          <GlassButton
+            variant="secondary"
+            type="button"
+            onClick={() => void submitGenerate()}
+            disabled={generateDisabled}
+            className="gap-2"
+          >
+            <Sparkles className="h-4 w-4" />
+            {generating ? "Đang sinh…" : "Generate Schedule"}
+          </GlassButton>
+          {loading ? (
+            <span className="text-sm text-muted-foreground">
+              Đang tải cấu hình tháng…
+            </span>
+          ) : null}
+        </div>
+      </GlassCard>
+    </Form>
   )
 }
 

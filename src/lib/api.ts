@@ -292,6 +292,23 @@ export async function updateShiftDefaultConfig(
   )
 }
 
+export async function hasMonthConfig(
+  year: number,
+  month: number,
+): Promise<boolean> {
+  const response = await fetch(`/api/month-config?year=${year}&month=${month}`)
+  if (response.status === 404) {
+    return false
+  }
+
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(extractErrorMessage(text, response.statusText))
+  }
+
+  return true
+}
+
 export {
   validateSchedule as validate,
   generateSchedule as generate,
