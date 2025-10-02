@@ -1,7 +1,9 @@
 import { useCallback, useMemo, useState, type ReactNode } from "react"
+import { Calendar } from "lucide-react"
 
 import ScheduleMatrixRoute from "@/routes/ScheduleMatrixRoute"
 import FixedOffHolidayBtn from "@/components/Schedule/FixedOffHolidayBtn"
+import { PageHeader } from "@/components/PageHeader"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import type { DayPlaceSummary, ExpectedByDay, Staff } from "@/types"
@@ -42,6 +44,13 @@ export interface SchedulePageProps {
   conflictCount: number
   hasLeaderDup: boolean
   leaderErrorsCount: number
+  // Merged features from CalendarHeader
+  onYearChange?: (year: number) => void
+  onMonthChange?: (month: number) => void
+  onShuffle?: () => void
+  onSave?: () => void
+  onResetSoft?: () => void
+  onResetHard?: () => void
 }
 
 export default function SchedulePage({
@@ -72,6 +81,12 @@ export default function SchedulePage({
   conflictCount,
   hasLeaderDup,
   leaderErrorsCount,
+  onYearChange,
+  onMonthChange,
+  onShuffle,
+  onSave,
+  onResetSoft,
+  onResetHard,
 }: SchedulePageProps) {
   const [isValidating, setIsValidating] = useState(false)
 
@@ -145,31 +160,45 @@ export default function SchedulePage({
   )
 
   return (
-    <ScheduleMatrixRoute
-      year={year}
-      month={month}
-      days={days}
-      staff={staff}
-      assignmentIndex={assignmentIndex}
-      summariesByStaffId={summariesByStaffId}
-      perDayLeaders={perDayLeaders}
-      perDayByPlace={perDayByPlace}
-      expectedByDay={expectedByDay}
-      fixedByDayStaff={fixedByDayStaff}
-      offByDayStaff={offByDayStaff}
-      loading={matrixLoading}
-      error={matrixError}
-      onRetry={fetchStaff}
-      toolbarActions={toolbar}
-      legend={legend}
-      staffLoading={staffLoading}
-      extraPrimaryActions={primaryActions}
-      onExport={handleExport}
-      onValidate={handleValidate}
-      onGenerate={handleGenerate}
-      exporting={exporting}
-      validating={isValidating}
-      generating={loadingGen}
-    />
+    <>
+      <PageHeader
+        icon={Calendar}
+        tagline="Schedule Management"
+        title="Schedule Management"
+        description="Tăng tốc quy trình làm việc với trải nghiệm lấy cảm hứng từ iOS/macOS."
+      />
+      <ScheduleMatrixRoute
+        year={year}
+        month={month}
+        days={days}
+        staff={staff}
+        assignmentIndex={assignmentIndex}
+        summariesByStaffId={summariesByStaffId}
+        perDayLeaders={perDayLeaders}
+        perDayByPlace={perDayByPlace}
+        expectedByDay={expectedByDay}
+        fixedByDayStaff={fixedByDayStaff}
+        offByDayStaff={offByDayStaff}
+        loading={matrixLoading}
+        error={matrixError}
+        onRetry={fetchStaff}
+        toolbarActions={toolbar}
+        legend={legend}
+        staffLoading={staffLoading}
+        extraPrimaryActions={primaryActions}
+        onExport={handleExport}
+        onValidate={handleValidate}
+        onGenerate={handleGenerate}
+        exporting={exporting}
+        validating={isValidating}
+        generating={loadingGen}
+        onYearChange={onYearChange}
+        onMonthChange={onMonthChange}
+        onShuffle={onShuffle}
+        onSave={onSave}
+        onResetSoft={onResetSoft}
+        onResetHard={onResetHard}
+      />
+    </>
   )
 }

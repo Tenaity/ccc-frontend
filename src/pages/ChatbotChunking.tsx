@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { FileText, Scissors } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
+import { PageHeader } from "@/components/PageHeader"
 
 const CHUNKING_WEBHOOK_URL = import.meta.env.VITE_WEBHOOK_CHUNKING_URL || 'https://iconic-host.lapage.vn/webhook/chunking'
 
@@ -169,15 +170,22 @@ export default function ChatbotChunking() {
   }
 
   return (
-    <div className="space-y-6 p-4">
-      {/* Table Section */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Chunking - Text Extraction</CardTitle>
-              <CardDescription>
-                Danh sách file đã được xử lý và trích xuất nội dung text
+    <>
+      <PageHeader
+        icon={Scissors}
+        tagline="Chunking"
+        title="Chunking"
+        description="Quản lý và xem nội dung text từ file đã upload"
+      />
+      <div className="space-y-6">
+        {/* Table Section */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Text Extraction</CardTitle>
+                <CardDescription>
+                  Danh sách file đã được xử lý và trích xuất nội dung text
               </CardDescription>
             </div>
             <Button
@@ -297,6 +305,7 @@ export default function ChatbotChunking() {
           )}
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </>
   )
 }

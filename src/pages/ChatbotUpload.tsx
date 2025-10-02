@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Upload, X, FileText } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
+import { PageHeader } from "@/components/PageHeader"
 
 const ALLOWED_FILE_TYPES = [
   'application/pdf',
@@ -110,15 +111,16 @@ export default function ChatbotUpload() {
   }
 
   return (
-    <div className="space-y-6 p-4">
-      {/* Upload Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Upload File</CardTitle>
-          <CardDescription>
-            Upload file PDF, DOCX, Excel, hoặc CSV để xử lý qua webhook
-          </CardDescription>
-        </CardHeader>
+    <>
+      <PageHeader
+        icon={Upload}
+        tagline="Upload File"
+        title="Upload File"
+        description="Upload và xử lý file qua webhook"
+      />
+      <div className="space-y-6">
+        {/* Upload Section */}
+        <Card>
         <CardContent className="space-y-4">
           {/* Drag and drop zone */}
           <div
@@ -207,6 +209,7 @@ export default function ChatbotUpload() {
           )}
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </>
   )
 }
