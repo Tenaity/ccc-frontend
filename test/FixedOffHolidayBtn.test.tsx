@@ -188,8 +188,7 @@ describe("FixedOffHolidayBtn", () => {
     ) as HTMLElement | null
     expect(overlay).not.toBeNull()
     // Updated to match enhanced overlay implementation
-    expect(overlay?.className).toContain("bg-black/50")
-    expect(overlay?.className).toContain("backdrop-blur-xl")
+    expect(overlay?.className).toContain("ios-overlay")
   })
 
   test("opens dialog, submits fixed assignment, shows toast, and refreshes on close", async () => {

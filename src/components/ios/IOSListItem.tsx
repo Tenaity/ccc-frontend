@@ -2,7 +2,8 @@ import * as React from "react";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export interface IOSListItemProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface IOSListItemProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
   /**
    * Leading icon or element
    */

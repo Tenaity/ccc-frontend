@@ -179,12 +179,8 @@ describe("App schedule navigation", () => {
     const scheduleLink = await screen.findByRole("link", { name: /schedule/i })
     await user.click(scheduleLink)
 
-    const scheduleHeader = await screen.findByTestId("schedule-header")
-    const pageHeading = within(scheduleHeader).getByRole("heading", {
-      level: 1,
-      name: /Schedule/i,
-    })
-    expect(pageHeading).toBeVisible()
+    const scheduleBody = await screen.findByTestId("schedule-body")
+    expect(within(scheduleBody).getByText("Tháng")).toBeVisible()
 
     const table = await screen.findByRole("table")
     const staffHeader = within(table).getByRole("columnheader", {

@@ -11,13 +11,18 @@ export default function TotalsRows({
   days,
   perDayByPlace,
   expectedByDay,
+  showAdvanced = true,
 }: {
   year: number;
   month: number;
   days: number[];
   perDayByPlace: Record<number, DayPlaceSummary>;
   expectedByDay: ExpectedByDay;
+  showAdvanced?: boolean;
 }) {
+  if (!showAdvanced) {
+    return null;
+  }
   const stickyColumnBase =
     "sticky left-0 z-20 min-w-[220px] bg-white/92 px-4 py-2 text-left shadow-[8px_0_28px_-12px_rgba(15,23,42,0.18)] backdrop-blur-2xl dark:bg-slate-950/90 dark:shadow-[8px_0_28px_-12px_rgba(0,0,0,0.45)]";
   const weekendClass = (day: number) =>
