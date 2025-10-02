@@ -1,134 +1,37 @@
 # AGENTS
 
-## Context
-- Vite + React + TypeScript with Tailwind, shadcn/ui, and Radix primitives; core code sits in `src/components`, `src/hooks`, `src/utils`, and `src/types`.
-- All UI now uses Apple-inspired glassmorphism design system; review `src/components/ui/glass.tsx` for the Glass UI components.
-- Schedule module, Dashboard, ChatbotCRUD, and Sidebar all follow Glass UI patterns.
-- Matrix grid, FixedOffPanel, and CSV export button continue to live in the toolbar; see [ARCHITECTURE](../docs/ARCHITECTURE.md) for module wiring.
-- Keep `any` out of the codebase and introduce DTO types for every API payload.
+## Project overview
+- Vite + React + TypeScript app with Tailwind CSS and Radix UI primitives. Source is under `src/` with domain logic in `components/`, `hooks/`, `lib/`, `pages/`, `routes/`, and shared types in `types.ts`. `@` is aliased to `src` in both Vite and Vitest configs—prefer that import style for stability. 【F:package.json†L1-L56】【F:vitest.config.ts†L1-L40】
+- The schedule workflow drives most domain logic: hooks in `src/hooks/`, API helpers in `src/lib/api.ts`, and domain types in `src/types.ts`. Review those before touching schedule features to avoid breaking constraints (leader duplication, quotas, fixed/off day rules). 【F:src/App.tsx†L1-L120】【F:src/lib/api.ts†L1-L120】【F:src/types.ts†L1-L120】
+- Tests live in the top-level `test/` directory (Vitest + React Testing Library) with additional colocated specs inside `src/components/**/__tests__`. Always add or update tests alongside logic changes. 【F:test/AppProviders.test.tsx†L1-L22】【F:package.json†L6-L18】
 
-## Commands
-- `npm i`
-- `npm run dev` – proxies API to :5001
-- `npm run test`
-- `npm run typecheck`
-- `npm run build`
+## Local commands
+- `npm install` – install dependencies (Node ≥20.15.1).
+- `npm run dev` – launch Vite dev server (proxies API calls to port 5001).
+- `npm run test` / `npm run test:unit` – run Vitest via the wrapper in `scripts/run-vitest.mjs` (threads capped by `VITEST_MAX_THREADS`).
+- `npm run typecheck`, `npm run lint`, and `npm run build` – keep CI parity locally. 【F:package.json†L6-L54】【F:scripts/run-vitest.mjs†L1-L40】
 
-## Glass Design System
-- **Core Components**: Reuse `GlassCard`, `GlassButton`, `GlassBadge`, `GlassPanel`, `GlassContainer`, and `GlassInput` from `src/components/ui/glass.tsx` instead of ad-hoc glass styling or standard shadcn components.
-- **Translucency Standards**:
-  - Backgrounds: 85–95% opacity with `backdrop-blur-3xl` and `backdrop-saturate-150`
-  - Borders: `border-slate-200/60` (light mode), `border-slate-800/60` (dark mode)
-  - Shadows: `shadow-glass` for light mode, `shadow-glass-lg` for dark mode, `shadow-ios` for interactive elements
-  - Focus rings: `ring-sky-400` with `ring-2` for keyboard navigation
-- **Buttons**: Six variants (`default`, `primary`, `secondary`, `outline`, `ghost`, `destructive`)
-  - Rounded corners: `rounded-lg` for small buttons, `rounded-xl` for standard buttons
-  - Blue-pink gradient for primary: `bg-gradient-to-br from-sky-500 via-indigo-500 to-pink-500`
-  - Enhanced shadows: `shadow-[0_10px_40px_rgba(56,189,248,0.4),0_4px_20px_rgba(236,72,153,0.3)]` for primary
-  - Destructive gradient: `from-rose-500 via-pink-500 to-red-500`
-  - Transitions: 200ms duration with `ease-ios` timing
-  - Interactive scale: `active:scale-95` when `interactive={true}`
-  - Size variants: `sm` (h-8, px-3), `md` (h-10, px-4), `lg` (h-11, px-6), `icon` (h-10, w-10)
-- **Badges**: Six variants (`default`, `primary`, `success`, `warning`, `destructive`, `info`)
-  - Rounded: `rounded-full` with `px-3 py-1.5`
-  - Primary uses gradient: `from-sky-500/15 via-indigo-500/15 to-pink-500/15` with `border-sky-400/40`
-  - Success/warning/destructive use semantic colors (emerald/amber/rose) with 15-25% opacity backgrounds
-  - Text colors: Bold semibold font for primary, regular for others
-- **Panels/Cards**: Three strength variants (`default`, `subtle`, `strong`)
-  - Default: `bg-white/85 dark:bg-slate-900/85`, Strong: `bg-white/95 dark:bg-slate-900/95`, Subtle: `bg-white/70 dark:bg-slate-900/70`
-  - All use `rounded-lg` or `rounded-xl` depending on size
-  - Consistent padding: `p-6` for major sections, `p-5` for compact areas
-  - Gap hierarchy: `gap-6` (24px) for major sections, `gap-4` (16px) for grouped items, `gap-2` (8px) for tight spacing
-- **Color Palette**:
-  - Primary accent: Sky (500-600) to Indigo (500-600) to Pink (500-600) gradients
-  - Active states: Sky-100 to Indigo-100 gradient backgrounds
-  - Borders: Slate-200/60 light, Slate-800/60 dark
-  - Text: Foreground for primary, muted-foreground for secondary
+## Frontend architecture
+- **Layout & routing**: `src/App.tsx` mounts the glass sidebar shell and lazy-loads the large pages (`Dashboard`, `Schedule`, `Chatbot*`). Shared layout primitives are in `src/components/layout/` and `src/components/app-sidebar.tsx`. Keep skip-links and focus management intact. 【F:src/App.tsx†L1-L160】【F:src/components/app-sidebar.tsx†L1-L160】
+- **UI system**: Glassmorphism primitives (`GlassCard`, `GlassButton`, `GlassBadge`, etc.) live in `src/components/ui/glass.tsx`. Always reach for these wrappers instead of raw shadcn components to keep styling consistent. The Tailwind tokens that back them are declared in `src/index.css` under the glass utility layer. 【F:src/components/ui/glass.tsx†L1-L160】【F:src/index.css†L1-L120】
+- **Domain widgets**: Schedule matrix, fixed/off panels, toolbar, and legend are under `src/components/Schedule/` and `src/components/Toolbar.tsx`. Dashboard cards and charts are under `src/components/section-cards.tsx` and `chart-area-interactive.tsx`. Respect their prop contracts when extending features. 【F:src/components/Schedule/MatrixTable.tsx†L1-L80】【F:src/components/Toolbar.tsx†L1-L120】
 
-## Sidebar Design (app-sidebar.tsx)
-- Background: `bg-white/95 dark:bg-slate-950/95` with `backdrop-blur-3xl backdrop-saturate-150`
-- Borders: `border-slate-200/60 dark:border-slate-800/60`
-- Nav items:
-  - Rounded: `rounded-xl` for main items, `rounded-lg` for sub-items
-  - Active state: `bg-white/90` with `shadow-ios` and `ring-1 ring-sky-400/40`
-  - Icon containers: Gradient backgrounds when active (`from-sky-100 to-indigo-100`)
-  - Hover: `hover:bg-white/80` with smooth transitions
-  - Collapsible borders: `border-slate-200/50 dark:border-slate-800/50` for sub-menu separators
-- macOS traffic lights: Keep the red/yellow/green dots in header
-- Brand logo: Blue-pink gradient circle with icon
+## Styling & UX rules
+- Keep the glass visual language: backgrounds at 85–95% opacity, `backdrop-blur-3xl`, gradients for primary CTAs, and the `shadow-glass` / `shadow-ios` shadows defined in the design system. Reference existing variants in `glass.tsx` instead of adding bespoke Tailwind classes. 【F:src/components/ui/glass.tsx†L1-L160】
+- Sidebar and schedule toolbar already match design specs; when modifying them, preserve the macOS traffic lights, gradient icon badges, and spacing scale (`gap-2/4/6`). 【F:src/components/app-sidebar.tsx†L1-L160】【F:src/components/Toolbar.tsx†L1-L120】
+- Maintain accessible focus handling (`focus-visible:ring-2 ring-sky-400`) and minimum touch targets (`h-11` on action buttons). Ensure every interactive Radix primitive has an `aria-label` or visible text. 【F:src/components/ui/glass.tsx†L41-L120】【F:src/components/ui/sidebar.tsx†L1-L120】
 
-## Dashboard Design
-- **Section Cards** (section-cards.tsx):
-  - Use `GlassCard` variant="strong" with `p-6` padding
-  - Layout: Grid with responsive columns (1 col mobile → 2 col tablet → 4 col desktop)
-  - Typography: Bold h3 for numbers, medium text for labels, small muted for descriptions
-  - Badges: Use semantic variants (success for positive trends, destructive for negative)
-  - Dividers: `border-slate-200/60 dark:border-slate-800/60` to separate sections
-  - Icons: Color-coded (emerald-500 for positive, rose-500 for negative)
-- **Chart Component** (chart-area-interactive.tsx):
-  - Use `GlassCard` variant="strong" with `p-6` padding
-  - Header: Text hierarchy with h3 title, sm description
-  - Time range selector: ToggleGroup for desktop, Select for mobile
-  - Chart maintains existing gradient fills and responsive height
+## Data & API conventions
+- API helpers in `src/lib/api.ts` throw on non-2xx responses after normalizing messages. Reuse them so toast handlers receive meaningful errors and to avoid duplicating fetch logic. Never swallow thrown errors—surface them via toast + logging. 【F:src/lib/api.ts†L1-L160】
+- Types for API payloads and schedule entities live in `src/types.ts`. Extend those instead of sprinkling `any`. Introduce DTO-specific types when shaping new payloads. 【F:src/types.ts†L1-L160】
+- Hooks in `src/hooks/useScheduleData.ts` orchestrate fetching staff, fixed/off assignments, validations, and matrix summaries. Touching schedule behavior requires updating related tests under `test/` (matrix, toolbar, conflict list). 【F:src/hooks/useScheduleData.ts†L1-L160】【F:test/matrixRow.snapshot.test.tsx†L1-L40】
 
-## ChatbotCRUD Design
-- Container: `GlassPanel` variant="strong" with `flex flex-col gap-6 p-6`
-- Toolbar:
-  - Search input: Full-width responsive with icon, `h-11` height
-  - Buttons: `GlassButton` with `size="lg"` for better touch targets
-  - Column selector: Dropdown with outline button
-  - Add button: Primary variant with gradient
-- Stats badges: Use `GlassBadge` with info/primary variants
-- Table:
-  - Container: `rounded-xl` with slate borders and `shadow-ios`
-  - Header: Sticky with `bg-white/95 backdrop-blur-2xl` and enhanced z-index
-  - Rows: Hover states with `hover:bg-slate-50/50`
-  - Sort indicators: Sky-500 colored chevrons
-  - Action buttons: Outline for edit, destructive for delete
-- Pagination:
-  - Badge for current page indicator
-  - Glass buttons for navigation with disabled states
+## Testing expectations
+- Follow the existing Vitest + React Testing Library patterns. If you change schedule logic, cover both happy-path and edge cases (leader duplication, quota violations, validation conflicts) under `test/`. Add MSW handlers when mocking network responses. 【F:test/useScheduleData.test.tsx†L1-L160】【F:test/quickEditDialog.test.tsx†L1-L160】
+- UI regressions are guarded by snapshot suites (`test/__snapshots__/`). Update snapshots deliberately and justify changes in PR descriptions.
+- For accessibility-sensitive changes, run the `test/matrixTable.a11y.test.tsx` suite and extend it with new axe assertions if needed. 【F:test/matrixTable.a11y.test.tsx†L1-L120】
 
-## Schedule Module UX
-- Sticky glass header uses multi-layer stacking (`top-0`, `top-52px`, `top-84px`) with decreasing opacity; preserve `z-40` ordering and shadow specs.
-- Matrix table scrolls smoothly, removes harsh borders (`border-white/10` max), and applies custom subtle scrollbars; main card caps width at 1600 px.
-- Matrix rows alternate glass stripes (40 % / 60 % opacity), drop right borders, and only keep subtle bottom borders; hover states bump opacity + shadow.
-- Toolbar and dialogs adopt glass components; glass buttons default to `h-11` for touch targets.
-- Year/Month selectors and action buttons (Generate, Shuffle, Validate, Save, Reset) all use `GlassButton` with appropriate variants.
-- Two-panel layout: GlassPanel for controls, GlassPanel for actions with consistent gap-6 spacing.
-
-## UI Rules
-- **Always use Glass UI components** instead of base shadcn components:
-  - `GlassButton` instead of `Button`
-  - `GlassCard` or `GlassPanel` instead of `Card`
-  - `GlassBadge` instead of `Badge`
-- Badge variants for leader/night/PGD; duplicate leaders gain the `duplicate` badge with red border and tooltip context.
-- Fixed/Off panel: all fields required, prevent empty `Select` values, wire `aria-describedby`, and surface validation via glass panels.
-- Weekend cells tint `bg-amber-50/40`; totals columns use stronger glass (`bg-white/50` with backdrop blur).
-- Keep spacing on the 8 px grid (padding `px-4/6`, gaps `gap-3/4/6`, margins in 8 px multiples).
-- Typography hierarchy: extra-bold for totals/numbers, bold for headers, semibold for labels, medium for secondary text, regular for body.
-- Border radius consistency: `rounded-lg` for small components, `rounded-xl` for panels and cards.
-
-## Accessibility
-- Resolve Radix warnings (Descriptions, `aria-*`); every `Select.Item` and command surface must provide non-empty values.
-- Provide `aria-describedby` for glass forms and ensure tooltip triggers remain focusable.
-- Respect focus-visible rings: `ring-2 ring-sky-400` for keyboard navigation.
-- Interactive elements must meet 44px minimum touch target (use `h-11` for buttons).
-
-## Testing
-- RTL tests for `FixedOffPanel` (open dialog, create, delete) using `msw` to mock the API.
-- Snapshot test for matrix row rendering with leader and duplicate indicators to guard the glass badge states.
-- Test Glass UI component variants and states (hover, active, disabled).
-
-## Migration Notes
-- **Completed migrations**:
-  - ✅ Sidebar (app-sidebar.tsx): Updated to Glass UI with enhanced borders, shadows, and gradient accents
-  - ✅ ChatbotCRUD page: Replaced Card with GlassPanel, all buttons with GlassButton, badges with GlassBadge
-  - ✅ Dashboard (section-cards.tsx, chart-area-interactive.tsx): Migrated to GlassCard with semantic badge variants
-  - ✅ Schedule module (ScheduleMatrixRoute.tsx): Already using Glass UI components
-- **Component replacement patterns**:
-  - `<Card>` → `<GlassCard variant="strong">` or `<GlassPanel variant="strong">`
-  - `<Button variant="default">` → `<GlassButton variant="default">`
-  - `<Button variant="destructive">` → `<GlassButton variant="destructive">`
-  - `<Badge>` → `<GlassBadge variant="[semantic]">`
-- When updating components, maintain existing functionality while applying Glass UI styling patterns.
+## Miscellaneous
+- Fonts, animations, and theme tokens are configured in `src/globals.css` and `src/index.css`. Align new utility classes with these tokens; avoid inline hard-coded colors.
+- When introducing new shared components, export them through `src/components/index.ts` to keep barrel imports coherent. 【F:src/components/index.ts†L1-L160】
+- Keep documentation synchronized: major architecture adjustments should be reflected in `ARCHITECTURE.md` at the repo root (create/update if necessary).
