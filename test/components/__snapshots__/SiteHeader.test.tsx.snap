@@ -23,7 +23,7 @@ exports[`SiteHeader > matches desktop snapshot with actions 1`] = `
               class="flex items-center gap-2"
             >
               <button
-                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground size-7 -ml-1"
+                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-ios font-sf-pro font-semibold transition-all duration-200 ease-ios focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue disabled:pointer-events-none disabled:opacity-50 active:scale-95 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 text-foreground size-7 -ml-1"
                 data-sidebar="trigger"
                 data-slot="sidebar-trigger"
               >
@@ -160,7 +160,7 @@ exports[`SiteHeader > matches mobile snapshot 1`] = `
               class="flex items-center gap-2"
             >
               <button
-                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground size-7 -ml-1"
+                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-ios font-sf-pro font-semibold transition-all duration-200 ease-ios focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue disabled:pointer-events-none disabled:opacity-50 active:scale-95 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 text-foreground size-7 -ml-1"
                 data-sidebar="trigger"
                 data-slot="sidebar-trigger"
               >

@@ -102,15 +102,14 @@ describe("MatrixTable", () => {
     expect(staffCell).toHaveClass("sticky")
     expect(staffCell).toHaveClass("left-0")
     // Updated to match glass-morphism implementation
-    expect(staffCell).toHaveClass("bg-white/95")
+    expect(staffCell).toHaveClass("bg-white/92")
     expect(staffCell).toHaveClass("backdrop-blur-3xl")
 
     const headerCell = screen.getByRole("columnheader", { name: "Nhân viên" })
     expect(headerCell).toHaveClass("sticky")
     expect(headerCell).toHaveClass("left-0")
     // Updated to match glass-morphism implementation
-    expect(headerCell).toHaveClass("bg-white/95")
+    expect(headerCell).toHaveClass("bg-white/96")
     expect(headerCell).toHaveClass("backdrop-blur-3xl")
   })
 })
-

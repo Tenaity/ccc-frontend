@@ -37,6 +37,7 @@ export default function MatrixTable({
   onRetry,
   withCard = true,
   containerClassName,
+  showAdvanced = false,
 }: {
   year: number;
   month: number;
@@ -65,6 +66,7 @@ export default function MatrixTable({
   onRetry?: () => void;
   withCard?: boolean;
   containerClassName?: string;
+  showAdvanced?: boolean;
 }) {
   const [edit, setEdit] = React.useState<{ staff: Staff; day: number } | null>(
     null
@@ -116,10 +118,10 @@ export default function MatrixTable({
           <div
             className={cn(
               "relative max-h-[calc(100vh-280px)] overflow-auto",
-              "rounded-3xl bg-white/65 shadow-[0_24px_80px_rgba(15,23,42,0.12)]",
+              "rounded-3xl bg-gradient-to-br from-white/80 via-white/75 to-pink-50/65 shadow-[0_28px_90px_rgba(56,189,248,0.12)]",
               "backdrop-blur-2xl backdrop-saturate-150",
-              "ring-1 ring-white/20",
-              "dark:bg-slate-950/65 dark:shadow-[0_24px_90px_rgba(0,0,0,0.5)] dark:ring-white/10",
+              "ring-1 ring-sky-200/40",
+              "dark:bg-gradient-to-br dark:from-slate-950/75 dark:via-slate-950/70 dark:to-slate-900/70 dark:shadow-[0_28px_90px_rgba(190,24,93,0.28)] dark:ring-white/10",
               "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-indigo-200/60 hover:scrollbar-thumb-indigo-300/80 dark:scrollbar-thumb-slate-600/60 dark:hover:scrollbar-thumb-slate-500/80",
               "scroll-smooth"
             )}
@@ -139,6 +141,7 @@ export default function MatrixTable({
                   month={month}
                   days={days}
                   perDayLeaders={perDayLeaders}
+                  showAdvanced={showAdvanced}
                 />
                 <TableBody>
                   {members.map((member, idx) => (
@@ -154,6 +157,7 @@ export default function MatrixTable({
                       fixedByDayStaff={fixedByDayStaff}
                       offByDayStaff={offByDayStaff}
                       leaderCountsByDay={leaderCountsByDay}
+                      showAdvanced={showAdvanced}
                       onEditCell={(st, day) => setEdit({ staff: st, day })}
                     />
                   ))}
@@ -163,6 +167,7 @@ export default function MatrixTable({
                     days={days}
                     perDayByPlace={perDayByPlace}
                     expectedByDay={expectedByDay}
+                    showAdvanced={showAdvanced}
                   />
                 </TableBody>
               </Table>
