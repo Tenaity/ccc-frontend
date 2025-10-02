@@ -8,6 +8,7 @@ import { useScheduleData } from "@/hooks/useScheduleData"
 import { useToast } from "@/components/ui/use-toast"
 import Legend from "@/components/Legend"
 import { cn } from "@/lib/utils"
+import { hasMonthConfig } from "@/lib/api"
 
 import DashboardPage from "./pages/Dashboard"
 
@@ -23,6 +24,7 @@ export default function App() {
   const today = new Date()
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth() + 1)
+  const [monthConfigMissing, setMonthConfigMissing] = useState(false)
   const { toast } = useToast()
 
   const handleSkipToContent = React.useCallback(
@@ -102,6 +104,38 @@ export default function App() {
       <Legend label="TC đêm (Đ + 👑, position=TD & role=TC)" bg="#FFE6EA" />
     </div>
   )
+
+  React.useEffect(() => {
+    let cancelled = false
+
+    const checkMonthConfig = async () => {
+      try {
+        const exists = await hasMonthConfig(year, month)
+        if (!cancelled) {
+          setMonthConfigMissing(!exists)
+        }
+      } catch (error: unknown) {
+        if (!cancelled) {
+          setMonthConfigMissing(false)
+        }
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Không thể kiểm tra cấu hình tháng."
+        toast({
+          variant: "destructive",
+          title: "Không kiểm tra được month plan",
+          description: message,
+        })
+      }
+    }
+
+    void checkMonthConfig()
+
+    return () => {
+      cancelled = true
+    }
+  }, [month, toast, year])
 
   const handleExport = React.useCallback(() => {
     void exportCsv(year, month)
@@ -269,6 +303,7 @@ export default function App() {
                       conflictCount={conflictCount}
                       hasLeaderDup={hasLeaderDup}
                       leaderErrorsCount={leaderErrors.length}
+                      monthConfigMissing={monthConfigMissing}
                       onYearChange={setYear}
                       onMonthChange={setMonth}
                       onShuffle={handleShuffle}

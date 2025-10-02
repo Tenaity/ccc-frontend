@@ -2,6 +2,7 @@ import React from "react"
 import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { vi } from "vitest"
+import { MemoryRouter } from "react-router-dom"
 
 import SchedulePage from "../../src/pages/Schedule"
 import type { DayPlaceSummary, ExpectedByDay } from "../../src/types"
@@ -56,13 +57,16 @@ describe("SchedulePage", () => {
       conflictCount: 0,
       hasLeaderDup: false,
       leaderErrorsCount: 0,
+      monthConfigMissing: false,
       ...overrides,
     }
 
     return render(
-      <UiProvider>
-        <SchedulePage {...props} />
-      </UiProvider>,
+      <MemoryRouter>
+        <UiProvider>
+          <SchedulePage {...props} />
+        </UiProvider>
+      </MemoryRouter>,
     )
   }
 
@@ -90,6 +94,16 @@ describe("SchedulePage", () => {
     expect(onExport).toHaveBeenCalledTimes(1)
     expect(onValidate).toHaveBeenCalledTimes(1)
     expect(onGenerate).toHaveBeenCalledTimes(1)
+  })
+
+  it("shows warning when month config is missing", () => {
+    renderPage({ monthConfigMissing: true })
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Please configure month plan")
+    expect(screen.getByRole("link", { name: /mở thiết lập tháng/i })).toHaveAttribute(
+      "href",
+      "/config",
+    )
   })
 
   it("disables actions when loading or exporting", () => {
