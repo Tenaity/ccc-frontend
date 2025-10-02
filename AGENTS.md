@@ -31,6 +31,75 @@
 - UI regressions are guarded by snapshot suites (`test/__snapshots__/`). Update snapshots deliberately and justify changes in PR descriptions.
 - For accessibility-sensitive changes, run the `test/matrixTable.a11y.test.tsx` suite and extend it with new axe assertions if needed. 【F:test/matrixTable.a11y.test.tsx†L1-L120】
 
+## Schedule Generation Flow (Frontend)
+
+### Configuration Page (`src/pages/Config.tsx`)
+Before generating schedules, users must configure the month via the Config page:
+
+#### Tab 1: Holidays
+- **Auto-fetch**: System automatically imports Vietnamese holidays on first visit (cached in localStorage for 30 days)
+- **Manual import**: "Import from Nager" button to force re-import
+- **Manual entry**: Add individual holidays with date picker + name
+- **Hook**: `useHolidayAutoFetch` handles auto-import with localStorage cache
+
+#### Tab 2: Month Plan
+1. **Select Year/Month**: Dropdowns to choose target month
+2. **Weekend Policy**: Radio buttons for sat_sun, sun_only, none
+3. **Extra Days**:
+   - `extra_offdays`: Add dates that should be off (e.g., compensatory leave)
+   - `extra_workdays`: Add dates that should be working (e.g., Saturday work)
+4. **Working Days Override**: Manual input to override auto-calculated working days
+5. **Shift Defaults**: Input fields for day, night, leader, pgd, hc shift counts
+6. **Save Button**: Stores `MonthConfig` + `ShiftPlanDefaults` to backend
+7. **Generate Button**: Triggers schedule generation (disabled until config saved)
+
+### Generation Flow
+```typescript
+// User clicks "Generate Schedule"
+generateSchedule({ year, month })
+  ↓
+// Frontend checks if config exists (useMonthConfig hook)
+if (!monthConfigData) {
+  show error: "Tháng chưa được cấu hình. Vui lòng lưu thiết lập trước."
+  return
+}
+  ↓
+// POST /api/schedule/generate
+await generateSchedule({ year, month, save: false })
+  ↓
+// Backend validates config exists
+if (!MonthConfig || !ShiftPlanDefaults) {
+  return 400: "Missing configuration"
+}
+  ↓
+// Backend runs scheduler phases 0-3
+schedule_month(year, month, ...)
+  ↓
+// Frontend receives assignments
+{
+  ok: true,
+  planned: [...assignments],
+  perDayLeaders: {...},
+  conflicts: [...]
+}
+  ↓
+// Frontend refetches schedule data
+await refetchScheduleData()
+  ↓
+// Schedule page displays generated assignments in matrix
+```
+
+### Key Hooks
+- **`useMonthConfig`**: Fetches/saves month configuration (weekend policy, extra days, working days)
+- **`useShiftDefaults`**: Fetches/saves shift defaults (day/night/leader/pgd counts)
+- **`useHolidayAutoFetch`**: Auto-imports holidays with localStorage cache (30-day TTL)
+- **`useScheduleData`**: Orchestrates all schedule data fetching (staff, assignments, fixed, off, validate)
+
+### Validation
+- **Pre-generate**: Frontend checks `monthConfigMissing` flag and blocks generate if true
+- **Post-generate**: Backend validates one leader per day, no conflicts, fair distribution
+- **Display**: Conflicts shown in UI with badges and tooltips
+
 ## Miscellaneous
 - Fonts, animations, and theme tokens are configured in `src/globals.css` and `src/index.css`. Align new utility classes with these tokens; avoid inline hard-coded colors.
 - When introducing new shared components, export them through `src/components/index.ts` to keep barrel imports coherent. 【F:src/components/index.ts†L1-L160】

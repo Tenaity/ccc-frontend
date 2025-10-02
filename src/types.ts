@@ -70,7 +70,7 @@ export type WeekendPolicy =
   | "sat_sun"
   | "sun_only"
   | "none"
-  | (string & {});
+  | (string & { readonly __weekendPolicyBrand?: never });
 
 export interface MonthConfig {
   year: number;
