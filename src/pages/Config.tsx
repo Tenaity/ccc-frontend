@@ -12,6 +12,7 @@ import {
 
 import { PageHeader } from "@/components/PageHeader"
 import { GlassButton, GlassCard } from "@/components/ui/glass"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
   Tabs,
   TabsContent,
@@ -52,21 +53,14 @@ import {
 import {
   createHolidayEntry,
   deleteHolidayEntry,
-  getMonthConfig,
-  getShiftDefaultConfig,
   importHolidaysFromNager,
   listHolidaysByYear,
-  updateMonthConfig,
-  updateShiftDefaultConfig,
   generateSchedule,
 } from "@/lib/api"
-import type {
-  Holiday,
-  MonthConfig,
-  ShiftDefaultConfig,
-  WeekendPolicy,
-} from "@/types"
+import type { Holiday, WeekendPolicy } from "@/types"
 import { cn } from "@/lib/utils"
+import { useMonthConfig } from "@/hooks/useMonthConfig"
+import { useShiftDefaults } from "@/hooks/useShiftDefaults"
 
 const BASE_WEEKEND_POLICIES: Array<{ value: WeekendPolicy; label: string }> = [
   { value: "sat_sun", label: "Th\u1ee9 7 & Ch\u1ee7 nh\u1eadt" },
@@ -144,6 +138,7 @@ function formatDisplayDate(input: string): string {
   })
 }
 
+
 function HolidaysTab() {
   const { toast } = useToast()
   const currentYear = React.useMemo(() => new Date().getFullYear(), [])
@@ -154,6 +149,7 @@ function HolidaysTab() {
   const [adding, setAdding] = React.useState(false)
   const [newDate, setNewDate] = React.useState<Date | undefined>()
   const [newName, setNewName] = React.useState("")
+  const [lastImportDelta, setLastImportDelta] = React.useState<number | null>(null)
 
   const sortedHolidays = React.useMemo(
     () =>
@@ -174,14 +170,16 @@ function HolidaysTab() {
       try {
         const result = await listHolidaysByYear(targetYear)
         setHolidays(result)
+        return result
       } catch (error: unknown) {
         const message =
-          error instanceof Error ? error.message : "Kh\u00f4ng th\u1ec3 t\u1ea3i danh s\u00e1ch ng\u00e0y ngh\u1ec9"
+          error instanceof Error ? error.message : "Không thể tải danh sách ngày nghỉ"
         toast({
           variant: "destructive",
-          title: "L\u1ed7i t\u1ea3i d\u1eef li\u1ec7u",
+          title: "Lỗi tải dữ liệu",
           description: message,
         })
+        return undefined
       } finally {
         setLoading(false)
       }
@@ -190,39 +188,44 @@ function HolidaysTab() {
   )
 
   React.useEffect(() => {
+    setLastImportDelta(null)
     void load(year)
   }, [load, year])
 
   const handleImport = React.useCallback(async () => {
     setImporting(true)
     try {
+      const previousCount = holidays.length
       const { imported } = await importHolidaysFromNager(year)
       toast({
-        title: "\u0110\u00e3 \u0111\u1ed3ng b\u1ed9 ng\u00e0y ngh\u1ec9",
+        title: "Đã đồng bộ ngày nghỉ",
         description: imported
-          ? `\u0110\u00e3 th\u00eam ${imported} ng\u00e0y ngh\u1ec9 t\u1eeb Nager.`
-          : "Kh\u00f4ng c\u00f3 ng\u00e0y ngh\u1ec9 m\u1edbi.",
+          ? `Đã thêm ${imported} ngày nghỉ từ Nager.`
+          : "Không có ngày nghỉ mới.",
       })
-      await load(year)
+      const refreshed = await load(year)
+      const nextCount = refreshed ? refreshed.length : previousCount
+      const delta = Math.max(0, nextCount - previousCount)
+      setLastImportDelta(delta > 0 ? delta : null)
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : "Kh\u00f4ng th\u1ec3 import ng\u00e0y ngh\u1ec9"
+        error instanceof Error ? error.message : "Không thể import ngày nghỉ"
       toast({
         variant: "destructive",
-        title: "Import th\u1ea5t b\u1ea1i",
+        title: "Import thất bại",
         description: message,
       })
     } finally {
       setImporting(false)
     }
-  }, [load, toast, year])
+  }, [holidays.length, load, toast, year])
 
   const handleAdd = React.useCallback(async () => {
     if (!newDate) {
       toast({
         variant: "destructive",
-        title: "Thi\u1ebfu ng\u00e0y ngh\u1ec9",
-        description: "Vui l\u00f2ng ch\u1ecdn ng\u00e0y tr\u01b0\u1edbc khi th\u00eam.",
+        title: "Thiếu ngày nghỉ",
+        description: "Vui lòng chọn ngày trước khi thêm.",
       })
       return
     }
@@ -231,8 +234,8 @@ function HolidaysTab() {
     if (holidays.some((holiday) => holiday.day === isoDate)) {
       toast({
         variant: "destructive",
-        title: "Ng\u00e0y \u0111\u00e3 t\u1ed3n t\u1ea1i",
-        description: "Ng\u00e0y ngh\u1ec9 n\u00e0y \u0111\u00e3 c\u00f3 trong danh s\u00e1ch.",
+        title: "Ngày đã tồn tại",
+        description: "Ngày nghỉ này đã có trong danh sách.",
       })
       return
     }
@@ -244,18 +247,19 @@ function HolidaysTab() {
         name: newName.trim() || undefined,
       })
       toast({
-        title: "\u0110\u00e3 th\u00eam ng\u00e0y ngh\u1ec9",
-        description: formatDisplayDate(isoDate) + " \u0111\u00e3 \u0111\u01b0\u1ee3c l\u01b0u.",
+        title: "Đã thêm ngày nghỉ",
+        description: formatDisplayDate(isoDate) + " đã được lưu.",
       })
       setNewDate(undefined)
       setNewName("")
       await load(year)
+      setLastImportDelta(null)
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : "Kh\u00f4ng th\u1ec3 th\u00eam ng\u00e0y ngh\u1ec9"
+        error instanceof Error ? error.message : "Không thể thêm ngày nghỉ"
       toast({
         variant: "destructive",
-        title: "Th\u00eam th\u1ea5t b\u1ea1i",
+        title: "Thêm thất bại",
         description: message,
       })
     } finally {
@@ -268,18 +272,19 @@ function HolidaysTab() {
       try {
         await deleteHolidayEntry(holiday.id)
         toast({
-          title: "\u0110\u00e3 x\u00f3a ng\u00e0y ngh\u1ec9",
-          description: formatDisplayDate(holiday.day) + " \u0111\u00e3 \u0111\u01b0\u1ee3c g\u1ee1 b\u1ecf.",
+          title: "Đã xóa ngày nghỉ",
+          description: formatDisplayDate(holiday.day) + " đã được gỡ bỏ.",
         })
         await load(year)
+        setLastImportDelta(null)
       } catch (error: unknown) {
         const message =
           error instanceof Error
             ? error.message
-            : "Kh\u00f4ng th\u1ec3 x\u00f3a ng\u00e0y ngh\u1ec9"
+            : "Không thể xóa ngày nghỉ"
         toast({
           variant: "destructive",
-          title: "X\u00f3a th\u1ea5t b\u1ea1i",
+          title: "Xóa thất bại",
           description: message,
         })
       }
@@ -293,11 +298,11 @@ function HolidaysTab() {
         <div className="flex flex-wrap items-end gap-4">
           <div className="flex flex-col gap-1">
             <Label className="text-xs uppercase text-muted-foreground">
-              N\u0103m \u00e1p d\u1ee5ng
+              Năm áp dụng
             </Label>
             <Select value={String(year)} onValueChange={(value) => setYear(Number(value))}>
               <SelectTrigger className="h-10 w-32">
-                <SelectValue placeholder="Ch\u1ecdn n\u0103m" />
+                <SelectValue placeholder="Chọn năm" />
               </SelectTrigger>
               <SelectContent>
                 {yearOptions.map((option) => (
@@ -310,12 +315,32 @@ function HolidaysTab() {
           </div>
           <GlassButton
             variant="outline"
-            onClick={() => void load(year)}
+            onClick={() => {
+              setLastImportDelta(null)
+              void load(year)
+            }}
             disabled={loading}
             className="gap-2"
           >
-            <RefreshCcw className="h-4 w-4" /> T\u1ea3i l\u1ea1i
+            <RefreshCcw className="h-4 w-4" /> Tải lại
           </GlassButton>
+        </div>
+        <div
+          className="flex items-center gap-2 text-sm text-muted-foreground"
+          data-testid="holiday-count"
+        >
+          <span>Tổng số ngày nghỉ:</span>
+          <span className="font-medium text-slate-900 dark:text-slate-100">
+            {sortedHolidays.length}
+          </span>
+          {lastImportDelta && lastImportDelta > 0 ? (
+            <span
+              data-testid="holiday-count-diff"
+              className="font-medium text-emerald-600"
+            >
+              (+{lastImportDelta})
+            </span>
+          ) : null}
         </div>
         <GlassButton
           variant="primary"
@@ -324,7 +349,7 @@ function HolidaysTab() {
           className="gap-2"
         >
           <UploadCloud className="h-4 w-4" />
-          {importing ? "\u0110ang import\u2026" : "Import from Nager"}
+          {importing ? "Đang import…" : "Import from Nager"}
         </GlassButton>
       </div>
 
@@ -332,25 +357,25 @@ function HolidaysTab() {
         <div className="flex flex-wrap items-center gap-3">
           <CalendarPlus className="h-5 w-5 text-sky-500" aria-hidden="true" />
           <p className="text-sm text-muted-foreground">
-            Th\u00eam th\u1ee7 c\u00f4ng c\u00e1c ng\u00e0y ngh\u1ec9 \u0111\u1eb7c bi\u1ec7t trong n\u0103m.
+            Thêm thủ công các ngày nghỉ đặc biệt trong năm.
           </p>
         </div>
         <div className="flex flex-wrap items-end gap-4">
           <div className="flex flex-col gap-2">
             <Label className="text-xs uppercase text-muted-foreground">
-              Ng\u00e0y ngh\u1ec9
+              Ngày nghỉ
             </Label>
             <DatePicker value={newDate} onChange={setNewDate} />
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="holiday-name" className="text-xs uppercase text-muted-foreground">
-              Ghi ch\u00fa
+              Ghi chú
             </Label>
             <Input
               id="holiday-name"
               value={newName}
               onChange={(event) => setNewName(event.target.value)}
-              placeholder="T\u00ean ng\u00e0y ngh\u1ec9"
+              placeholder="Tên ngày nghỉ"
               className="w-[240px]"
             />
           </div>
@@ -361,7 +386,7 @@ function HolidaysTab() {
             className="gap-2"
           >
             <CalendarRange className="h-4 w-4" />
-            {adding ? "\u0110ang th\u00eam\u2026" : "Th\u00eam ng\u00e0y ngh\u1ec9"}
+            {adding ? "Đang thêm…" : "Thêm ngày nghỉ"}
           </GlassButton>
         </div>
       </div>
@@ -370,29 +395,29 @@ function HolidaysTab() {
         <Table stickyHeader>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[160px]">Ng\u00e0y</TableHead>
-              <TableHead>M\u00f4 t\u1ea3</TableHead>
-              <TableHead className="w-[140px] text-center">H\u00e0nh \u0111\u1ed9ng</TableHead>
+              <TableHead className="w-[160px]">Ngày</TableHead>
+              <TableHead>Mô tả</TableHead>
+              <TableHead className="w-[140px] text-center">Hành động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-muted-foreground">
-                  \u0110ang t\u1ea3i danh s\u00e1ch\u2026
+                  Đang tải danh sách…
                 </TableCell>
               </TableRow>
             ) : sortedHolidays.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-muted-foreground">
-                  Ch\u01b0a c\u00f3 ng\u00e0y ngh\u1ec9 cho n\u0103m {year}.
+                  Chưa có ngày nghỉ cho năm {year}.
                 </TableCell>
               </TableRow>
             ) : (
               sortedHolidays.map((holiday) => (
                 <TableRow key={holiday.id ?? holiday.day}>
                   <TableCell>{formatDisplayDate(holiday.day)}</TableCell>
-                  <TableCell>{holiday.name ?? "\u2014"}</TableCell>
+                  <TableCell>{holiday.name ?? "—"}</TableCell>
                   <TableCell>
                     <div className="flex justify-center">
                       <GlassButton
@@ -401,7 +426,7 @@ function HolidaysTab() {
                         onClick={() => void handleRemove(holiday)}
                         className="gap-2"
                       >
-                        <Trash2 className="h-4 w-4" /> X\u00f3a
+                        <Trash2 className="h-4 w-4" /> Xóa
                       </GlassButton>
                     </div>
                   </TableCell>
@@ -429,8 +454,6 @@ function MonthPlanTab() {
   })
   const year = form.watch("year")
   const month = form.watch("month")
-  const [loading, setLoading] = React.useState(false)
-  const [saving, setSaving] = React.useState(false)
   const [generating, setGenerating] = React.useState(false)
   const [autoWorkingDays, setAutoWorkingDays] = React.useState<number | null>(null)
   const [weekendPolicy, setWeekendPolicy] = React.useState<WeekendPolicy>("sat_sun")
@@ -445,6 +468,34 @@ function MonthPlanTab() {
   )
   const [newOffday, setNewOffday] = React.useState<Date | undefined>()
   const [newWorkday, setNewWorkday] = React.useState<Date | undefined>()
+  const [generateErrorBanner, setGenerateErrorBanner] = React.useState<string | null>(null)
+
+  const numericYear =
+    typeof year === "number" && Number.isFinite(year) ? year : null
+  const numericMonth =
+    typeof month === "number" && Number.isFinite(month) ? month : null
+
+  const {
+    data: monthConfigData,
+    loading: monthConfigLoading,
+    saving: monthConfigSaving,
+    error: monthConfigError,
+    refetch: refetchMonthConfig,
+    save: saveMonthConfig,
+    isMissing: monthConfigMissing,
+  } = useMonthConfig(numericYear, numericMonth)
+
+  const {
+    data: shiftDefaultData,
+    loading: shiftDefaultsLoading,
+    saving: shiftDefaultsSaving,
+    error: shiftDefaultsError,
+    refetch: refetchShiftDefaults,
+    save: saveShiftDefaults,
+  } = useShiftDefaults(numericYear, numericMonth)
+
+  const loading = monthConfigLoading || shiftDefaultsLoading
+  const saving = monthConfigSaving || shiftDefaultsSaving
 
   const yearOptions = React.useMemo(() => {
     const fallbackYear = today.getFullYear()
@@ -454,60 +505,66 @@ function MonthPlanTab() {
     return Array.from({ length: 4 }, (_, index) => start + index)
   }, [today, year])
 
-  const load = React.useCallback(
-    async (targetYear: number, targetMonth: number) => {
-      setLoading(true)
-      try {
-        const [config, defaults] = await Promise.all([
-          getMonthConfig(targetYear, targetMonth),
-          getShiftDefaultConfig(targetYear, targetMonth),
-        ])
-
-        setWeekendPolicy(config.weekend_policy ?? "sat_sun")
-        setExtraOffdays(config.extra_offdays ?? [])
-        setExtraWorkdays(config.extra_workdays ?? [])
-        setAutoWorkingDays(
-          typeof config.auto_working_days === "number"
-            ? config.auto_working_days
-            : null,
-        )
-        setOverrideValue(
-          config.working_days_override === null ||
-            config.working_days_override === undefined
-            ? ""
-            : String(config.working_days_override),
-        )
-
-        const defaultsValue = { ...SHIFT_DEFAULT_BASE, ...(defaults?.defaults ?? {}) }
-        setShiftDefaults(defaultsValue)
-        setShiftFields(createShiftFields(defaultsValue))
-      } catch (error: unknown) {
-        const message =
-          error instanceof Error ? error.message : "Không thể tải cấu hình tháng"
-        toast({
-          variant: "destructive",
-          title: "Lỗi tải cấu hình",
-          description: message,
-        })
-      } finally {
-        setLoading(false)
-      }
-    },
-    [toast],
-  )
-
   React.useEffect(() => {
-    if (
-      typeof year !== "number" ||
-      !Number.isFinite(year) ||
-      typeof month !== "number" ||
-      !Number.isFinite(month)
-    ) {
+    if (!monthConfigData) {
+      setWeekendPolicy("sat_sun")
+      setExtraOffdays([])
+      setExtraWorkdays([])
+      setAutoWorkingDays(null)
+      setOverrideValue("")
       return
     }
 
-    void load(year, month)
-  }, [load, month, year])
+    setWeekendPolicy(monthConfigData.weekend_policy ?? "sat_sun")
+    setExtraOffdays(monthConfigData.extra_offdays ?? [])
+    setExtraWorkdays(monthConfigData.extra_workdays ?? [])
+    setAutoWorkingDays(
+      typeof monthConfigData.auto_working_days === "number"
+        ? monthConfigData.auto_working_days
+        : null,
+    )
+    setOverrideValue(
+      monthConfigData.working_days_override === null ||
+        monthConfigData.working_days_override === undefined
+        ? ""
+        : String(monthConfigData.working_days_override),
+    )
+  }, [monthConfigData])
+
+  React.useEffect(() => {
+    const defaultsValue = {
+      ...SHIFT_DEFAULT_BASE,
+      ...(shiftDefaultData?.defaults ?? {}),
+    }
+    setShiftDefaults(defaultsValue)
+    setShiftFields(createShiftFields(defaultsValue))
+  }, [shiftDefaultData])
+
+  React.useEffect(() => {
+    if (monthConfigError && !monthConfigData) {
+      toast({
+        variant: "destructive",
+        title: "Lỗi tải cấu hình",
+        description: monthConfigError,
+      })
+    }
+  }, [monthConfigData, monthConfigError, toast])
+
+  React.useEffect(() => {
+    if (shiftDefaultsError && !shiftDefaultData) {
+      toast({
+        variant: "destructive",
+        title: "Lỗi tải mặc định ca",
+        description: shiftDefaultsError,
+      })
+    }
+  }, [shiftDefaultData, shiftDefaultsError, toast])
+
+  React.useEffect(() => {
+    if (!monthConfigMissing) {
+      setGenerateErrorBanner(null)
+    }
+  }, [monthConfigMissing])
 
   const weekendOptions = React.useMemo(() => {
     if (!weekendPolicy) {
@@ -570,8 +627,11 @@ function MonthPlanTab() {
 
   const saveMonthPlan = React.useCallback(
     async (values: MonthPlanFormValues) => {
-      setSaving(true)
       try {
+        if (numericYear === null || numericMonth === null) {
+          throw new Error("Vui lòng chọn năm và tháng hợp lệ")
+        }
+
         const normalizedOverride = overrideValue.trim()
         const overrideNumber =
           normalizedOverride === "" ? null : Number(normalizedOverride)
@@ -579,34 +639,15 @@ function MonthPlanTab() {
           throw new Error("Giá trị override phải là số hợp lệ")
         }
 
-        const monthPayload: MonthConfig = await updateMonthConfig({
-          year: values.year,
-          month: values.month,
+        await saveMonthConfig({
           weekend_policy: weekendPolicy || "sat_sun",
-          auto_working_days: autoWorkingDays,
           extra_offdays: [...extraOffdays].sort(),
           extra_workdays: [...extraWorkdays].sort(),
           working_days_override: overrideNumber,
+          auto_working_days: autoWorkingDays,
         })
 
-        const defaultsPayload: ShiftDefaultConfig = await updateShiftDefaultConfig({
-          year: values.year,
-          month: values.month,
-          defaults: shiftDefaults,
-        })
-
-        setAutoWorkingDays(
-          typeof monthPayload.auto_working_days === "number"
-            ? monthPayload.auto_working_days
-            : autoWorkingDays,
-        )
-
-        const normalizedDefaults = {
-          ...SHIFT_DEFAULT_BASE,
-          ...(defaultsPayload?.defaults ?? {}),
-        }
-        setShiftDefaults(normalizedDefaults)
-        setShiftFields(createShiftFields(normalizedDefaults))
+        await saveShiftDefaults(shiftDefaults)
 
         toast({
           title: "Đã lưu cấu hình",
@@ -620,15 +661,17 @@ function MonthPlanTab() {
           title: "Lưu thất bại",
           description: message,
         })
-      } finally {
-        setSaving(false)
       }
     },
     [
       autoWorkingDays,
       extraOffdays,
       extraWorkdays,
+      numericMonth,
+      numericYear,
       overrideValue,
+      saveMonthConfig,
+      saveShiftDefaults,
       shiftDefaults,
       toast,
       weekendPolicy,
@@ -637,7 +680,16 @@ function MonthPlanTab() {
 
   const generateMonthPlan = React.useCallback(
     async (values: MonthPlanFormValues) => {
+      if (monthConfigMissing) {
+        const monthLabel = `${String(values.month).padStart(2, "0")}/${values.year}`
+        setGenerateErrorBanner(
+          `Tháng ${monthLabel} chưa được cấu hình. Vui lòng lưu thiết lập trước khi sinh lịch.`,
+        )
+        return
+      }
+
       setGenerating(true)
+      setGenerateErrorBanner(null)
       try {
         const result = await generateSchedule({
           year: values.year,
@@ -668,6 +720,8 @@ function MonthPlanTab() {
           title: "Đã gửi yêu cầu sinh lịch",
           description: detailMessage,
         })
+
+        await Promise.all([refetchMonthConfig(), refetchShiftDefaults()])
       } catch (error: unknown) {
         const message =
           error instanceof Error ? error.message : "Không thể sinh lịch"
@@ -680,7 +734,7 @@ function MonthPlanTab() {
         setGenerating(false)
       }
     },
-    [toast],
+    [monthConfigMissing, refetchMonthConfig, refetchShiftDefaults, toast],
   )
 
   const submitSave = React.useMemo(
@@ -774,6 +828,13 @@ function MonthPlanTab() {
             )}
           />
         </div>
+
+        {generateErrorBanner ? (
+          <Alert variant="destructive">
+            <AlertTitle>Thiếu cấu hình tháng</AlertTitle>
+            <AlertDescription>{generateErrorBanner}</AlertDescription>
+          </Alert>
+        ) : null}
 
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200/70 bg-white/70 px-4 py-3 dark:border-slate-800/70 dark:bg-slate-900/70">
           <Badge variant="primary" className="gap-2">
