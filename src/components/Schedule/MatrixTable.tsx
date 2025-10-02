@@ -118,7 +118,7 @@ export default function MatrixTable({
           <div
             className={cn(
               "relative max-h-[calc(100vh-280px)] overflow-auto",
-              "rounded-3xl bg-gradient-to-br from-white/80 via-white/75 to-pink-50/65 shadow-[0_28px_90px_rgba(56,189,248,0.12)]",
+              "rounded-xl bg-gradient-to-br from-white/80 via-white/75 to-pink-50/65 shadow-[0_28px_90px_rgba(56,189,248,0.12)]",
               "backdrop-blur-2xl backdrop-saturate-150",
               "ring-1 ring-sky-200/40",
               "dark:bg-gradient-to-br dark:from-slate-950/75 dark:via-slate-950/70 dark:to-slate-900/70 dark:shadow-[0_28px_90px_rgba(190,24,93,0.28)] dark:ring-white/10",
@@ -128,7 +128,7 @@ export default function MatrixTable({
             role="region"
             aria-label={`Bảng phân ca tháng ${monthLabel}`}
           >
-            <div className="min-w-[1200px] overflow-hidden rounded-3xl">
+            <div className="min-w-[1200px] overflow-hidden rounded-xl">
               <Table
                 className="w-full border-separate border-spacing-0 text-sm text-foreground"
                 stickyHeader
@@ -181,7 +181,7 @@ export default function MatrixTable({
   const containerClasses = cn(
     "overflow-hidden",
     withCard
-      ? "rounded-3xl border-0 bg-card shadow-2xl"
+      ? "rounded-xl border-0 bg-card shadow-2xl"
       : "rounded-none border-0 bg-transparent shadow-none",
     containerClassName,
   );
@@ -236,7 +236,7 @@ function MatrixSkeleton({ dayCount }: { dayCount: number }) {
         <Skeleton className="h-6 w-48" />
         <Skeleton className="h-6 w-32" />
       </div>
-      <div className="space-y-3 rounded-2xl border border-dashed border-border/60 p-4">
+      <div className="space-y-3 rounded-lg border border-dashed border-border/60 p-4">
         {rows.map((_, rowIdx) => (
           <div
             key={`skeleton-row-${rowIdx}`}

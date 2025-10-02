@@ -28,7 +28,7 @@ export default function MatrixHeader({
           rowSpan={showAdvanced ? 3 : 2}
           scope="col"
           className={cn(
-            "sticky left-0 top-0 z-30 min-w-[240px] rounded-tl-3xl",
+            "sticky left-0 top-0 z-50 min-w-[240px] rounded-tl-3xl",
             "bg-white/96 dark:bg-slate-950/96",
             "backdrop-blur-3xl backdrop-saturate-150",
             "px-6 py-4 text-left text-sm font-bold text-foreground",
@@ -48,7 +48,7 @@ export default function MatrixHeader({
               key={`day-${day}`}
               scope="col"
               className={cn(
-                "sticky top-0 z-50 min-w-[72px]",
+                "sticky top-0 z-40 min-w-[72px]",
                 "px-4 py-3 text-center text-sm font-bold",
                 "shadow-[inset_0_-1px_0_rgba(148,163,184,0.18)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]",
                 weekend
@@ -128,7 +128,7 @@ export default function MatrixHeader({
               key={`dow-${day}`}
               scope="col"
               className={cn(
-                "sticky top-[52px] z-45",
+                "sticky top-[52px] z-30",
                 "px-3 py-2 text-center text-[11px] font-bold uppercase tracking-wider",
                 "shadow-[inset_0_-1px_0_rgba(148,163,184,0.12)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.45)]",
                 weekend
@@ -155,7 +155,7 @@ export default function MatrixHeader({
                 key={`leaders-${day}`}
                 scope="col"
                 className={cn(
-                  "sticky top-[84px] z-40",
+                  "sticky top-[84px] z-20",
                   "px-3 py-2 text-center text-[10px] font-semibold",
                   "shadow-[inset_0_-1px_0_rgba(148,163,184,0.12)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.45)]",
                   weekend
