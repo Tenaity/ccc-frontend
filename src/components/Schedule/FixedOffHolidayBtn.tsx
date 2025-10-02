@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react"
 
-import { Button } from "@/components/ui/button"
+import { GlassButton } from "@/components/ui/glass"
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,7 @@ import { useToast } from "@/components/ui/use-toast"
 import FixedOffHolidayForm from "./FixedOffHolidayForm"
 
 interface FixedOffHolidayBtnProps
-  extends Omit<React.ComponentProps<typeof Button>, "onClick"> {
+  extends Omit<React.ComponentProps<typeof GlassButton>, "onClick"> {
   year: number
   month: number
   onRefresh?: () => Promise<void> | void
@@ -27,7 +27,7 @@ export default function FixedOffHolidayBtn({
   children,
   disabled,
   variant = "outline",
-  size = "sm",
+  size = "lg",
   ...buttonProps
 }: FixedOffHolidayBtnProps) {
   const [open, setOpen] = useState(false)
@@ -80,7 +80,7 @@ export default function FixedOffHolidayBtn({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button
+        <GlassButton
           type="button"
           variant={variant}
           size={size}
@@ -88,7 +88,7 @@ export default function FixedOffHolidayBtn({
           {...buttonProps}
         >
           {children ?? "Fixed / Off / Holiday"}
-        </Button>
+        </GlassButton>
       </DialogTrigger>
       <DialogContent className="max-h-[95vh] w-full max-w-none gap-0 overflow-hidden p-0 sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[90vh] sm:w-[720px] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-3xl sm:border sm:border-border/60 sm:bg-background sm:shadow-2xl sm:p-0 sm:right-auto">
         <DialogHeader className="px-6 pb-0 pt-6">

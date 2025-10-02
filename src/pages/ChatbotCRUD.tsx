@@ -22,8 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ChevronDown, ChevronUp, Settings2, Search, Plus } from "lucide-react"
+import { ChevronDown, ChevronUp, Settings2, Search, Plus, Bot } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { PageHeader } from "@/components/PageHeader"
 
 interface ChatbotPoint {
   id: string
@@ -133,14 +134,14 @@ export default function ChatbotCRUD() {
   const visibleColumnsList = columns.filter((col) => visibleColumns.has(col.key))
 
   return (
-    <div className="space-y-4 p-4">
+    <>
+      <PageHeader
+        icon={Bot}
+        tagline="CRUD Chatbot"
+        title="CRUD Chatbot"
+        description="Quản lý dữ liệu chatbot Point_v3"
+      />
       <Card>
-        <CardHeader>
-          <CardTitle>CRUD Chatbot - Point_v3</CardTitle>
-          <CardDescription>
-            Quản lý dữ liệu chatbot với tìm kiếm, filter, sort và ẩn/hiện cột
-          </CardDescription>
-        </CardHeader>
         <CardContent className="space-y-4">
           {/* Toolbar */}
           <div className="flex flex-wrap items-center gap-4">
@@ -308,6 +309,6 @@ export default function ChatbotCRUD() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </>
   )
 }

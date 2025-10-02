@@ -9,10 +9,10 @@ import { cn } from "@/lib/utils"
  * Optimized for visibility and accessibility
  */
 
-// Glass Card Variants
+// Glass Card Variants - macOS Sequoia Style
 const glassCardVariants = cva(
   [
-    "rounded-ios-lg font-sf-pro",
+    "rounded-lg font-sf-pro",
     "backdrop-blur-3xl backdrop-saturate-150",
     "border",
     "shadow-glass dark:shadow-glass-lg",
@@ -65,17 +65,16 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
 )
 GlassCard.displayName = "GlassCard"
 
-// Glass Button Variants - iOS/Big Tech Style
+// Glass Button Variants - iOS/Big Tech Style with Blue-Pink Gradient
 const glassButtonVariants = cva(
   [
     "inline-flex items-center justify-center gap-2 font-sf-pro",
-    "rounded-ios px-4 py-2",
     "text-ios-callout font-semibold",
     "backdrop-blur-3xl backdrop-saturate-150",
     "border",
     "transition-all duration-200 ease-ios",
     "disabled:pointer-events-none disabled:opacity-50",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue focus-visible:ring-offset-2",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2",
   ],
   {
     variants: {
@@ -89,48 +88,52 @@ const glassButtonVariants = cva(
         ],
         primary: [
           "bg-gradient-to-br from-sky-500 via-indigo-500 to-pink-500",
-          "hover:from-sky-500 hover:via-indigo-500 hover:to-pink-500",
+          "hover:from-sky-600 hover:via-indigo-600 hover:to-pink-600",
           "border-sky-400/60",
-          "text-white",
-          "shadow-[0_18px_36px_rgba(56,189,248,0.35)] hover:shadow-[0_20px_44px_rgba(236,72,153,0.32)]",
+          "text-white font-bold",
+          "shadow-[0_10px_40px_rgba(56,189,248,0.4),0_4px_20px_rgba(236,72,153,0.3)]",
+          "hover:shadow-[0_12px_50px_rgba(56,189,248,0.5),0_6px_25px_rgba(236,72,153,0.4)]",
         ],
         secondary: [
-          "bg-gradient-to-br from-sky-400/25 via-indigo-400/25 to-pink-400/25",
-          "hover:from-sky-400/35 hover:via-indigo-400/35 hover:to-pink-400/35",
+          "bg-gradient-to-br from-sky-400/20 via-indigo-400/20 to-pink-400/20",
+          "hover:from-sky-400/30 hover:via-indigo-400/30 hover:to-pink-400/30",
           "border-sky-400/40 dark:border-indigo-400/40",
           "text-foreground font-semibold",
-          "shadow-[0_14px_30px_rgba(99,102,241,0.18)] hover:shadow-[0_16px_36px_rgba(236,72,153,0.22)]",
+          "shadow-[0_8px_24px_rgba(99,102,241,0.15),0_4px_12px_rgba(236,72,153,0.15)]",
+          "hover:shadow-[0_12px_32px_rgba(99,102,241,0.25),0_6px_16px_rgba(236,72,153,0.2)]",
         ],
         outline: [
           "bg-white/60 dark:bg-slate-900/60",
-          "border-slate-200/60 dark:border-slate-700/60",
+          "border-slate-300/70 dark:border-slate-700/70",
           "hover:bg-white/80 dark:hover:bg-slate-900/80",
-          "hover:border-sky-400/60",
+          "hover:border-sky-400/70 hover:shadow-[0_0_20px_rgba(56,189,248,0.15)]",
           "text-foreground",
           "shadow-ios-sm hover:shadow-ios",
         ],
         ghost: [
           "bg-transparent",
           "border-transparent",
-          "hover:bg-slate-100/50 dark:hover:bg-slate-800/50",
+          "hover:bg-gradient-to-br hover:from-sky-100/50 hover:via-indigo-100/50 hover:to-pink-100/50",
+          "dark:hover:from-sky-900/30 dark:hover:via-indigo-900/30 dark:hover:to-pink-900/30",
           "text-foreground",
         ],
         destructive: [
-          "bg-gradient-to-br from-ios-red via-ios-red/95 to-ios-red/85",
-          "hover:from-ios-red hover:to-ios-red/90",
-          "border-ios-red/30",
-          "text-white",
-          "shadow-ios-lg shadow-ios-red/25 hover:shadow-ios-xl hover:shadow-ios-red/35",
+          "bg-gradient-to-br from-rose-500 via-pink-500 to-red-500",
+          "hover:from-rose-600 hover:via-pink-600 hover:to-red-600",
+          "border-rose-400/30",
+          "text-white font-bold",
+          "shadow-[0_10px_40px_rgba(244,63,94,0.4)]",
+          "hover:shadow-[0_12px_50px_rgba(244,63,94,0.5)]",
         ],
       },
       size: {
-        sm: "h-8 px-3 text-ios-footnote rounded-ios-sm",
-        md: "h-10 px-4 text-ios-callout rounded-ios",
-        lg: "h-11 px-6 text-ios-body rounded-ios-lg",
-        icon: "h-10 w-10 p-0 rounded-ios",
+        sm: "h-8 px-3 text-ios-footnote rounded-md",
+        md: "h-10 px-4 text-ios-callout rounded-lg",
+        lg: "h-11 px-6 text-ios-body rounded-lg",
+        icon: "h-10 w-10 p-0 rounded-lg",
       },
       interactive: {
-        true: "active:scale-95 ios-active",
+        true: "active:scale-95",
         false: "",
       },
     },
@@ -159,11 +162,11 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
 )
 GlassButton.displayName = "GlassButton"
 
-// Glass Badge Variants - iOS/Big Tech Style
+// Glass Badge Variants - iOS/Big Tech Style with Blue-Pink Theme
 const glassBadgeVariants = cva(
   [
     "inline-flex items-center gap-2 font-sf-pro",
-    "rounded-ios px-3 py-1.5",
+    "rounded-full px-3 py-1.5",
     "text-ios-footnote font-semibold",
     "backdrop-blur-2xl backdrop-saturate-150",
     "border",
@@ -181,27 +184,27 @@ const glassBadgeVariants = cva(
         primary: [
           "bg-gradient-to-r from-sky-500/15 via-indigo-500/15 to-pink-500/15",
           "border-sky-400/40 dark:border-indigo-400/40",
-          "text-sky-600 dark:text-sky-300",
+          "text-sky-700 dark:text-sky-300 font-bold",
         ],
         success: [
-          "bg-ios-green/15 dark:bg-ios-green/25",
-          "border-ios-green/30 dark:border-ios-green/40",
-          "text-ios-green dark:text-ios-green-light",
+          "bg-emerald-500/15 dark:bg-emerald-500/25",
+          "border-emerald-400/30 dark:border-emerald-400/40",
+          "text-emerald-700 dark:text-emerald-300",
         ],
         warning: [
-          "bg-ios-orange/15 dark:bg-ios-orange/25",
-          "border-ios-orange/30 dark:border-ios-orange/40",
-          "text-ios-orange dark:text-ios-orange-light",
+          "bg-amber-500/15 dark:bg-amber-500/25",
+          "border-amber-400/30 dark:border-amber-400/40",
+          "text-amber-700 dark:text-amber-300",
         ],
         destructive: [
-          "bg-ios-red/15 dark:bg-ios-red/25",
-          "border-ios-red/30 dark:border-ios-red/40",
-          "text-ios-red dark:text-ios-red-light",
+          "bg-rose-500/15 dark:bg-rose-500/25",
+          "border-rose-400/30 dark:border-rose-400/40",
+          "text-rose-700 dark:text-rose-300",
         ],
         info: [
-          "bg-ios-teal/15 dark:bg-ios-teal/25",
-          "border-ios-teal/30 dark:border-ios-teal/40",
-          "text-ios-teal-dark dark:text-ios-teal-light",
+          "bg-cyan-500/15 dark:bg-cyan-500/25",
+          "border-cyan-400/30 dark:border-cyan-400/40",
+          "text-cyan-700 dark:text-cyan-300",
         ],
       },
     },
@@ -226,7 +229,7 @@ const GlassBadge = React.forwardRef<HTMLDivElement, GlassBadgeProps>(
 )
 GlassBadge.displayName = "GlassBadge"
 
-// Glass Panel Component - iOS/Big Tech Style
+// Glass Panel Component - macOS Sequoia Style
 interface GlassPanelProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "subtle" | "strong"
 }
@@ -234,16 +237,16 @@ interface GlassPanelProps extends React.HTMLAttributes<HTMLDivElement> {
 const GlassPanel = React.forwardRef<HTMLDivElement, GlassPanelProps>(
   ({ className, variant = "default", ...props }, ref) => {
     const variantClasses = {
-      default: "bg-white/85 dark:bg-slate-900/85 border-slate-200/50 dark:border-slate-800/50",
-      subtle: "bg-white/70 dark:bg-slate-900/70 border-slate-200/40 dark:border-slate-800/40",
-      strong: "bg-white/95 dark:bg-slate-900/95 border-slate-200/60 dark:border-slate-800/60",
+      default: "bg-white/85 dark:bg-slate-900/85 border-slate-200/60 dark:border-slate-800/60",
+      subtle: "bg-white/70 dark:bg-slate-900/70 border-slate-200/50 dark:border-slate-800/50",
+      strong: "bg-white/95 dark:bg-slate-900/95 border-slate-200/70 dark:border-slate-800/70",
     }
 
     return (
       <div
         ref={ref}
         className={cn(
-          "rounded-ios-lg p-5 font-sf-pro",
+          "rounded-xl p-5 font-sf-pro",
           "backdrop-blur-3xl backdrop-saturate-150",
           "border",
           "shadow-glass dark:shadow-glass-lg",
@@ -298,15 +301,15 @@ const GlassInput = React.forwardRef<
   <input
     ref={ref}
     className={cn(
-      "flex h-11 w-full rounded-ios px-4 py-2 font-sf-pro text-ios-body",
+      "flex h-11 w-full rounded-lg px-4 py-2 font-sf-pro text-ios-body",
       "bg-white/80 dark:bg-slate-900/80",
       "backdrop-blur-2xl backdrop-saturate-150",
       "border border-slate-200/50 dark:border-slate-700/50",
       "text-foreground placeholder:text-muted-foreground/70",
       "shadow-ios-sm",
       "transition-all duration-200 ease-ios",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue",
-      "focus-visible:border-ios-blue/60",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400",
+      "focus-visible:border-sky-400/60",
       "disabled:cursor-not-allowed disabled:opacity-50",
       className
     )}

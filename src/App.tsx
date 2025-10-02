@@ -1,7 +1,6 @@
 import React, { lazy, Suspense, useMemo, useState } from "react"
-import { Navigate, Route, Routes, useLocation } from "react-router-dom"
+import { Navigate, Route, Routes } from "react-router-dom"
 
-import { matchRoute } from "@/app/routes"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { useExportCsv } from "@/hooks/useExportCsv"
@@ -24,13 +23,6 @@ export default function App() {
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth() + 1)
   const { toast } = useToast()
-  const location = useLocation()
-  const routeMeta = matchRoute(location.pathname) ?? matchRoute("/")!
-  const scheduleEnabled = routeMeta.path === "/schedule"
-  const RouteIcon = routeMeta.icon
-  const heroTitle = routeMeta.path === "/schedule" ? "Schedule Management" : routeMeta.label
-  const heroTagline = routeMeta.path === "/" ? "Operational Overview" : routeMeta.label
-  const heroDescription = routeMeta.description ?? "Tăng tốc quy trình làm việc với trải nghiệm lấy cảm hứng từ iOS/macOS."
 
   const handleSkipToContent = React.useCallback(
     (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -81,7 +73,7 @@ export default function App() {
     leaderErrors,
     fillHC,
     setFillHC,
-  } = useScheduleData(year, month, { enabled: scheduleEnabled })
+  } = useScheduleData(year, month, { enabled: true })
 
   const { exportCsv, isExporting } = useExportCsv()
 
@@ -180,6 +172,36 @@ export default function App() {
     await fetchHolidays()
   }, [fetchFixed, fetchOffdays, fetchHolidays])
 
+  // CalendarHeader handlers
+  const handleShuffle = React.useCallback(() => {
+    toast({
+      title: "Shuffle",
+      description: "Chức năng shuffle chưa được implement.",
+    })
+  }, [toast])
+
+  const handleSave = React.useCallback(() => {
+    toast({
+      title: "Lưu lịch",
+      description: "Chức năng lưu lịch chưa được implement.",
+    })
+  }, [toast])
+
+  const handleResetSoft = React.useCallback(() => {
+    toast({
+      title: "Reset soft",
+      description: "Chức năng reset soft chưa được implement.",
+    })
+  }, [toast])
+
+  const handleResetHard = React.useCallback(() => {
+    toast({
+      variant: "destructive",
+      title: "Reset hard",
+      description: "Chức năng reset hard chưa được implement.",
+    })
+  }, [toast])
+
   return (
     <SidebarProvider>
       <a
@@ -201,101 +223,67 @@ export default function App() {
       >
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(56,189,248,0.25),transparent_55%),radial-gradient(circle_at_80%_10%,rgba(236,72,153,0.2),transparent_50%),linear-gradient(180deg,rgba(255,255,255,0.85)0%,rgba(255,255,255,0.6)45%,rgba(255,255,255,0.78)100%)] dark:bg-[radial-gradient(circle_at_15%_20%,rgba(37,99,235,0.18),transparent_55%),radial-gradient(circle_at_80%_10%,rgba(190,24,93,0.22),transparent_55%),linear-gradient(180deg,rgba(3,7,18,0.92)0%,rgba(3,7,18,0.7)45%,rgba(3,7,18,0.82)100%)]" aria-hidden="true" />
         <div className="relative z-10 flex-1">
-          <header
-            className={cn(
-              "sticky top-0 z-40 -mx-3 px-3 py-6 md:-mx-6 md:px-6",
-              "backdrop-blur-3xl backdrop-saturate-150",
-              "transition-all duration-300"
-            )}
-          >
-            <div
-              className={cn(
-                "mx-auto flex w-full max-w-[1400px] flex-col gap-5",
-                "rounded-3xl border border-white/40 bg-white/80 p-6 shadow-[0_28px_90px_rgba(56,189,248,0.15)]",
-                "dark:border-white/10 dark:bg-slate-950/75 dark:shadow-[0_28px_90px_rgba(190,24,93,0.35)]"
-              )}
-            >
-              <div className="flex flex-wrap items-center gap-4">
-                {RouteIcon ? (
-                  <span
-                    className={cn(
-                      "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl",
-                      "bg-gradient-to-br from-sky-500 via-indigo-500 to-pink-500",
-                      "shadow-[0_18px_36px_rgba(99,102,241,0.28)]"
-                    )}
-                  >
-                    <RouteIcon className="h-7 w-7 text-white" aria-hidden="true" />
+          <Suspense
+            fallback={
+              <div className="mx-auto w-full max-w-[1400px] px-6">
+                <div className="flex justify-center py-10" aria-live="polite">
+                  <span className="text-sm text-muted-foreground">
+                    Đang tải nội dung…
                   </span>
-                ) : null}
-                <div className="space-y-1">
-                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-indigo-500/80 dark:text-indigo-300/70">
-                    {heroTagline}
-                  </span>
-                  <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-                    {heroTitle}
-                  </h1>
-                  <p className="max-w-3xl text-sm text-muted-foreground/90 md:text-base">
-                    {heroDescription}
-                  </p>
                 </div>
               </div>
+            }
+          >
+            <div className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col gap-6 px-6 py-6">
+              <Routes>
+                <Route path="/" element={<DashboardPage />} />
+                <Route
+                  path="/schedule"
+                  element={
+                    <SchedulePage
+                      year={year}
+                      month={month}
+                      days={days}
+                      staff={staff}
+                      assignmentIndex={assignmentIndex}
+                      summariesByStaffId={summariesByStaffId}
+                      perDayLeaders={perDayLeaders}
+                      perDayByPlace={perDayByPlace}
+                      expectedByDay={expectedByDay}
+                      fixedByDayStaff={fixedByDayStaff}
+                      offByDayStaff={offByDayStaff}
+                      matrixLoading={matrixLoading}
+                      matrixError={matrixError}
+                      fetchStaff={fetchStaff}
+                      staffLoading={loadingStaff}
+                      onExport={handleExport}
+                      onValidate={handleValidate}
+                      onGenerate={handleGenerate}
+                      exporting={isExporting}
+                      loadingGen={loadingGen}
+                      legend={scheduleLegend}
+                      fillHC={fillHC}
+                      onToggleFillHC={handleToggleFillHC}
+                      onRefreshFixedData={handleRefreshFixedData}
+                      conflictCount={conflictCount}
+                      hasLeaderDup={hasLeaderDup}
+                      leaderErrorsCount={leaderErrors.length}
+                      onYearChange={setYear}
+                      onMonthChange={setMonth}
+                      onShuffle={handleShuffle}
+                      onSave={handleSave}
+                      onResetSoft={handleResetSoft}
+                      onResetHard={handleResetHard}
+                    />
+                  }
+                />
+                <Route path="/chatbot" element={<ChatbotCRUDPage />} />
+                <Route path="/chatbot/upload" element={<ChatbotUploadPage />} />
+                <Route path="/chatbot/chunking" element={<ChatbotChunkingPage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
             </div>
-          </header>
-        <Suspense
-          fallback={
-            <div className="mx-auto w-full max-w-[1400px] px-3 md:px-6">
-              <div className="flex justify-center py-10" aria-live="polite">
-                <span className="text-sm text-muted-foreground">
-                  Đang tải nội dung…
-                </span>
-              </div>
-            </div>
-          }
-        >
-          <div className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col gap-6 px-3 pb-10 pt-4 md:px-6">
-            <Routes>
-              <Route path="/" element={<DashboardPage />} />
-              <Route
-                path="/schedule"
-                element={
-                  <SchedulePage
-                    year={year}
-                    month={month}
-                    days={days}
-                    staff={staff}
-                    assignmentIndex={assignmentIndex}
-                    summariesByStaffId={summariesByStaffId}
-                    perDayLeaders={perDayLeaders}
-                    perDayByPlace={perDayByPlace}
-                    expectedByDay={expectedByDay}
-                    fixedByDayStaff={fixedByDayStaff}
-                    offByDayStaff={offByDayStaff}
-                    matrixLoading={matrixLoading}
-                    matrixError={matrixError}
-                    fetchStaff={fetchStaff}
-                    staffLoading={loadingStaff}
-                    onExport={handleExport}
-                    onValidate={handleValidate}
-                    onGenerate={handleGenerate}
-                    exporting={isExporting}
-                    loadingGen={loadingGen}
-                    legend={scheduleLegend}
-                    fillHC={fillHC}
-                    onToggleFillHC={handleToggleFillHC}
-                    onRefreshFixedData={handleRefreshFixedData}
-                    conflictCount={conflictCount}
-                    hasLeaderDup={hasLeaderDup}
-                    leaderErrorsCount={leaderErrors.length}
-                  />
-                }
-              />
-              <Route path="/chatbot" element={<ChatbotCRUDPage />} />
-              <Route path="/chatbot/upload" element={<ChatbotUploadPage />} />
-              <Route path="/chatbot/chunking" element={<ChatbotChunkingPage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </div>
-        </Suspense>
+          </Suspense>
         </div>
       </SidebarInset>
     </SidebarProvider>
