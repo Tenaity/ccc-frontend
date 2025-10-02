@@ -76,6 +76,10 @@ export default function ScheduleMatrixRoute({
     const start = matrixProps.year - 2
     return Array.from({ length: 5 }, (_, i) => start + i)
   }, [matrixProps.year])
+  const monthLabel = useMemo(
+    () => `${String(matrixProps.month).padStart(2, "0")}/${matrixProps.year}`,
+    [matrixProps.month, matrixProps.year],
+  )
 
   return (
     <div className="w-full space-y-6">
@@ -143,10 +147,16 @@ export default function ScheduleMatrixRoute({
                   </SelectContent>
                 </Select>
               </div>
-              <GlassBadge variant="info" className="gap-3 px-4 py-2 ml-auto">
-                <span className="text-xs font-semibold uppercase tracking-wider">Nhân sự</span>
-                <span className="text-base font-bold">{staffSummary}</span>
-              </GlassBadge>
+              <div className="ml-auto flex flex-wrap items-center gap-3">
+                <GlassBadge variant="default" className="gap-3 px-4 py-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider">Kỳ trực</span>
+                  <span className="text-base font-bold">{monthLabel}</span>
+                </GlassBadge>
+                <GlassBadge variant="info" className="gap-3 px-4 py-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider">Nhân sự</span>
+                  <span className="text-base font-bold">{staffSummary}</span>
+                </GlassBadge>
+              </div>
             </div>
           </GlassPanel>
 

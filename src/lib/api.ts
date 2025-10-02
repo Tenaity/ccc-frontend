@@ -1,4 +1,10 @@
-import type { Assignment } from "@/types"
+import type {
+  Assignment,
+  Holiday,
+  MonthConfig,
+  MonthConfigInput,
+  ShiftDefaultConfig,
+} from "@/types"
 
 const JSON_HEADERS = { "Content-Type": "application/json" } as const
 
@@ -188,4 +194,106 @@ export async function exportScheduleCsv(
   }
 }
 
-export { validateSchedule as validate, generateSchedule as generate, exportScheduleCsv as exportCsv }
+function unwrapHolidayPayload(payload: Holiday | { item?: Holiday } | { holiday?: Holiday }): Holiday {
+  if (payload && typeof payload === "object") {
+    const fromItem = (payload as { item?: Holiday }).item
+    if (fromItem) {
+      return fromItem
+    }
+
+    const fromHoliday = (payload as { holiday?: Holiday }).holiday
+    if (fromHoliday) {
+      return fromHoliday
+    }
+  }
+
+  return payload as Holiday
+}
+
+export async function listHolidaysByYear(year: number): Promise<Holiday[]> {
+  return parseJsonResponse<Holiday[]>(
+    await fetch(`/api/holidays?year=${year}`),
+  )
+}
+
+export async function createHolidayEntry(payload: Omit<Holiday, "id">): Promise<Holiday> {
+  const data = await parseJsonResponse<Holiday | { item?: Holiday }>(
+    await fetch(`/api/holidays`, {
+      method: "POST",
+      headers: JSON_HEADERS,
+      body: JSON.stringify(payload),
+    }),
+  )
+
+  return unwrapHolidayPayload(data)
+}
+
+export async function deleteHolidayEntry(id: number): Promise<void> {
+  const response = await fetch(`/api/holidays/${id}`, { method: "DELETE" })
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(extractErrorMessage(text, response.statusText))
+  }
+}
+
+export async function importHolidaysFromNager(year: number): Promise<{ imported: number }> {
+  const data = await parseJsonResponse<{ imported?: number }>(
+    await fetch(`/api/holidays/import-nager`, {
+      method: "POST",
+      headers: JSON_HEADERS,
+      body: JSON.stringify({ year }),
+    }),
+  )
+
+  return {
+    imported: typeof data.imported === "number" ? data.imported : 0,
+  }
+}
+
+export async function getMonthConfig(
+  year: number,
+  month: number,
+): Promise<MonthConfig> {
+  return parseJsonResponse<MonthConfig>(
+    await fetch(`/api/month-config?year=${year}&month=${month}`),
+  )
+}
+
+export async function updateMonthConfig(
+  payload: MonthConfigInput,
+): Promise<MonthConfig> {
+  return parseJsonResponse<MonthConfig>(
+    await fetch(`/api/month-config`, {
+      method: "PUT",
+      headers: JSON_HEADERS,
+      body: JSON.stringify(payload),
+    }),
+  )
+}
+
+export async function getShiftDefaultConfig(
+  year: number,
+  month: number,
+): Promise<ShiftDefaultConfig> {
+  return parseJsonResponse<ShiftDefaultConfig>(
+    await fetch(`/api/shift-defaults?year=${year}&month=${month}`),
+  )
+}
+
+export async function updateShiftDefaultConfig(
+  payload: ShiftDefaultConfig,
+): Promise<ShiftDefaultConfig> {
+  return parseJsonResponse<ShiftDefaultConfig>(
+    await fetch(`/api/shift-defaults`, {
+      method: "PUT",
+      headers: JSON_HEADERS,
+      body: JSON.stringify(payload),
+    }),
+  )
+}
+
+export {
+  validateSchedule as validate,
+  generateSchedule as generate,
+  exportScheduleCsv as exportCsv,
+}
