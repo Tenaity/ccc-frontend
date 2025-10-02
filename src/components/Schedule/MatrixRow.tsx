@@ -66,8 +66,8 @@ export default function MatrixRow({
   const displayId = meta.code ?? String(staff.id);
 
   const stripeClass = index % 2 === 0
-    ? "bg-white/40 dark:bg-slate-900/40"
-    : "bg-white/60 dark:bg-slate-900/60";
+    ? "bg-white/55 dark:bg-slate-900/45"
+    : "bg-white/40 dark:bg-slate-900/35";
 
   const RankChip = meta.rank ? (
     <span
@@ -86,8 +86,8 @@ export default function MatrixRow({
   return (
     <TableRow
       className={cn(
-        "transition-all duration-200 backdrop-blur-sm",
-        "hover:bg-primary/20 dark:hover:bg-primary/15",
+        "transition-all duration-200 backdrop-blur-md",
+        "hover:bg-primary/15 dark:hover:bg-primary/10",
         stripeClass,
       )}
     >
@@ -95,11 +95,10 @@ export default function MatrixRow({
         scope="row"
         className={cn(
           "sticky left-0 z-20 min-w-[240px]",
-          "border-r-0 border-b border-white/10 dark:border-white/5",
-          "bg-white/95 dark:bg-slate-900/95",
+          "bg-white/92 dark:bg-slate-950/92",
           "backdrop-blur-3xl backdrop-saturate-150",
           "px-6 py-4 text-left",
-          "shadow-[8px_0_24px_-8px_rgba(0,0,0,0.12)] dark:shadow-[8px_0_24px_-8px_rgba(0,0,0,0.4)]",
+          "shadow-[8px_0_28px_-12px_rgba(15,23,42,0.22)] dark:shadow-[8px_0_28px_-12px_rgba(0,0,0,0.5)]",
           "transition-all duration-300"
         )}
       >
@@ -110,7 +109,7 @@ export default function MatrixRow({
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground/90">
               <span className="font-medium">{staff.role}</span>
-              <span className="rounded-lg border-0 bg-primary/15 dark:bg-primary/25 px-2 py-1 font-bold text-primary backdrop-blur-sm">
+              <span className="rounded-lg border-0 bg-primary/10 px-2 py-1 font-bold text-primary backdrop-blur-sm dark:bg-primary/20">
                 #{displayId}
               </span>
               {RankChip}
@@ -165,11 +164,11 @@ export default function MatrixRow({
             key={day}
             className={cn(
               "relative h-16 min-w-[72px]",
-              "border-r-0 border-b border-white/10 dark:border-white/5",
               "px-2 py-2 text-center",
               "transition-all duration-200",
-              weekend && "bg-amber-50/40 dark:bg-amber-900/10",
-              !isFixed && !isOff && onEditCell && "cursor-pointer hover:bg-primary/15 hover:shadow-sm"
+              "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]",
+              weekend && "bg-amber-50/35 dark:bg-amber-900/15",
+              !isFixed && !isOff && onEditCell && "cursor-pointer hover:bg-primary/20 hover:shadow-[inset_0_-1px_0_rgba(79,70,229,0.35)]"
             )}
             onClick={() => {
               if (!isFixed && !isOff && onEditCell) {
@@ -211,58 +210,58 @@ export default function MatrixRow({
 
       <TableCell className={cn(
         "text-center text-sm font-semibold text-foreground",
-        "border-b border-white/10 dark:border-white/5"
+        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
       )}>
         {sum.counts["CA1"] || 0}
       </TableCell>
       <TableCell className={cn(
         "text-center text-sm font-semibold text-foreground",
-        "border-b border-white/10 dark:border-white/5"
+        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
       )}>
         {sum.counts["CA2"] || 0}
       </TableCell>
       <TableCell className={cn(
         "text-center text-sm font-semibold text-foreground",
-        "border-b border-white/10 dark:border-white/5"
+        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
       )}>
         {sum.counts["K"] || 0}
       </TableCell>
       <TableCell className={cn(
         "text-center text-sm font-semibold text-foreground",
-        "border-b border-white/10 dark:border-white/5"
+        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
       )}>
         {sum.counts["HC"] || 0}
       </TableCell>
       <TableCell className={cn(
         "text-center text-sm font-semibold text-foreground",
-        "border-b border-white/10 dark:border-white/5"
+        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
       )}>
         {sum.counts["Đ"] || 0}
       </TableCell>
       <TableCell className={cn(
         "text-center text-sm font-semibold text-foreground",
-        "border-b border-white/10 dark:border-white/5"
+        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
       )}>
         {sum.counts["P"] || 0}
       </TableCell>
       <TableCell className={cn(
         "text-center text-sm font-bold text-foreground",
-        "border-b border-white/10 dark:border-white/5",
-        "bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm"
+        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.2)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]",
+        "bg-white/25 dark:bg-slate-900/30 backdrop-blur-sm"
       )}>
         {sum.dayCount || 0}
       </TableCell>
       <TableCell className={cn(
         "text-center text-sm font-bold text-foreground",
-        "border-b border-white/10 dark:border-white/5",
-        "bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm"
+        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.2)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]",
+        "bg-white/25 dark:bg-slate-900/30 backdrop-blur-sm"
       )}>
         {sum.nightCount || 0}
       </TableCell>
       <TableCell className={cn(
         "text-center text-sm font-extrabold text-foreground",
-        "border-b border-white/10 dark:border-white/5",
-        "bg-white/50 dark:bg-slate-900/50 backdrop-blur-md"
+        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.24)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]",
+        "bg-white/45 dark:bg-slate-900/45 backdrop-blur-md"
       )}>
         {sum.credit || 0}
       </TableCell>

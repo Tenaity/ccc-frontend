@@ -116,15 +116,19 @@ export default function MatrixTable({
           <div
             className={cn(
               "relative max-h-[calc(100vh-280px)] overflow-auto",
-              "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border/40 hover:scrollbar-thumb-border/60",
+              "rounded-3xl bg-white/65 shadow-[0_24px_80px_rgba(15,23,42,0.12)]",
+              "backdrop-blur-2xl backdrop-saturate-150",
+              "ring-1 ring-white/20",
+              "dark:bg-slate-950/65 dark:shadow-[0_24px_90px_rgba(0,0,0,0.5)] dark:ring-white/10",
+              "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-indigo-200/60 hover:scrollbar-thumb-indigo-300/80 dark:scrollbar-thumb-slate-600/60 dark:hover:scrollbar-thumb-slate-500/80",
               "scroll-smooth"
             )}
             role="region"
             aria-label={`Bảng phân ca tháng ${monthLabel}`}
           >
-            <div className="min-w-[1200px]">
+            <div className="min-w-[1200px] overflow-hidden rounded-3xl">
               <Table
-                className="border-separate border-spacing-0 text-sm text-foreground"
+                className="w-full border-separate border-spacing-0 text-sm text-foreground"
                 stickyHeader
               >
                 <TableCaption className="sr-only">
