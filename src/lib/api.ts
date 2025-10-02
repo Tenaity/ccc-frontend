@@ -253,10 +253,13 @@ export async function importHolidaysFromNager(year: number): Promise<{ imported:
 export async function getMonthConfig(
   year: number,
   month: number,
-): Promise<MonthConfig> {
-  return parseJsonResponse<MonthConfig>(
-    await fetch(`/api/month-config?year=${year}&month=${month}`),
-  )
+): Promise<MonthConfig | null> {
+  const response = await fetch(`/api/month-config?year=${year}&month=${month}`)
+  if (response.status === 404) {
+    return null
+  }
+
+  return parseJsonResponse<MonthConfig>(response)
 }
 
 export async function updateMonthConfig(
@@ -274,10 +277,13 @@ export async function updateMonthConfig(
 export async function getShiftDefaultConfig(
   year: number,
   month: number,
-): Promise<ShiftDefaultConfig> {
-  return parseJsonResponse<ShiftDefaultConfig>(
-    await fetch(`/api/shift-defaults?year=${year}&month=${month}`),
-  )
+): Promise<ShiftDefaultConfig | null> {
+  const response = await fetch(`/api/shift-defaults?year=${year}&month=${month}`)
+  if (response.status === 404) {
+    return null
+  }
+
+  return parseJsonResponse<ShiftDefaultConfig>(response)
 }
 
 export async function updateShiftDefaultConfig(
