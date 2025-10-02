@@ -1,101 +1,113 @@
 import { TrendingDownIcon, TrendingUpIcon } from "lucide-react"
 
-import { Badge } from "@/components/ui/badge"
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { GlassCard, GlassBadge } from "@/components/ui/glass"
 
 export function SectionCards() {
   return (
-    <div className="*:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-4 grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card">
-      <Card className="@container/card">
-        <CardHeader className="relative">
-          <CardDescription>Total Revenue</CardDescription>
-          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-            $1,250.00
-          </CardTitle>
-          <div className="absolute right-4 top-4">
-            <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
+    <div className="@xl/main:grid-cols-2 @5xl/main:grid-cols-4 grid grid-cols-1 gap-6">
+      <GlassCard variant="strong" className="@container/card p-6">
+        <div className="relative flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
+            <h3 className="@[250px]/card:text-3xl text-2xl font-bold tabular-nums text-foreground">
+              $1,250.00
+            </h3>
+          </div>
+          <div className="absolute right-0 top-0">
+            <GlassBadge variant="success" className="flex gap-1">
               <TrendingUpIcon className="size-3" />
               +12.5%
-            </Badge>
+            </GlassBadge>
           </div>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Trending up this month <TrendingUpIcon className="size-4" />
+          <div className="flex flex-col gap-1 border-t border-slate-200/60 dark:border-slate-800/60 pt-4">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <TrendingUpIcon className="size-4 text-emerald-500" />
+              <span>Trending up this month</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Visitors for the last 6 months
+            </p>
           </div>
-          <div className="text-muted-foreground">
-            Visitors for the last 6 months
+        </div>
+      </GlassCard>
+
+      <GlassCard variant="strong" className="@container/card p-6">
+        <div className="relative flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-medium text-muted-foreground">New Customers</p>
+            <h3 className="@[250px]/card:text-3xl text-2xl font-bold tabular-nums text-foreground">
+              1,234
+            </h3>
           </div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader className="relative">
-          <CardDescription>New Customers</CardDescription>
-          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-            1,234
-          </CardTitle>
-          <div className="absolute right-4 top-4">
-            <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
+          <div className="absolute right-0 top-0">
+            <GlassBadge variant="destructive" className="flex gap-1">
               <TrendingDownIcon className="size-3" />
               -20%
-            </Badge>
+            </GlassBadge>
           </div>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Down 20% this period <TrendingDownIcon className="size-4" />
+          <div className="flex flex-col gap-1 border-t border-slate-200/60 dark:border-slate-800/60 pt-4">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <TrendingDownIcon className="size-4 text-rose-500" />
+              <span>Down 20% this period</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Acquisition needs attention
+            </p>
           </div>
-          <div className="text-muted-foreground">
-            Acquisition needs attention
+        </div>
+      </GlassCard>
+
+      <GlassCard variant="strong" className="@container/card p-6">
+        <div className="relative flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-medium text-muted-foreground">Active Accounts</p>
+            <h3 className="@[250px]/card:text-3xl text-2xl font-bold tabular-nums text-foreground">
+              45,678
+            </h3>
           </div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader className="relative">
-          <CardDescription>Active Accounts</CardDescription>
-          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-            45,678
-          </CardTitle>
-          <div className="absolute right-4 top-4">
-            <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
+          <div className="absolute right-0 top-0">
+            <GlassBadge variant="success" className="flex gap-1">
               <TrendingUpIcon className="size-3" />
               +12.5%
-            </Badge>
+            </GlassBadge>
           </div>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Strong user retention <TrendingUpIcon className="size-4" />
+          <div className="flex flex-col gap-1 border-t border-slate-200/60 dark:border-slate-800/60 pt-4">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <TrendingUpIcon className="size-4 text-emerald-500" />
+              <span>Strong user retention</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Engagement exceed targets
+            </p>
           </div>
-          <div className="text-muted-foreground">Engagement exceed targets</div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader className="relative">
-          <CardDescription>Growth Rate</CardDescription>
-          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-            4.5%
-          </CardTitle>
-          <div className="absolute right-4 top-4">
-            <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
+        </div>
+      </GlassCard>
+
+      <GlassCard variant="strong" className="@container/card p-6">
+        <div className="relative flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-medium text-muted-foreground">Growth Rate</p>
+            <h3 className="@[250px]/card:text-3xl text-2xl font-bold tabular-nums text-foreground">
+              4.5%
+            </h3>
+          </div>
+          <div className="absolute right-0 top-0">
+            <GlassBadge variant="success" className="flex gap-1">
               <TrendingUpIcon className="size-3" />
               +4.5%
-            </Badge>
+            </GlassBadge>
           </div>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Steady performance <TrendingUpIcon className="size-4" />
+          <div className="flex flex-col gap-1 border-t border-slate-200/60 dark:border-slate-800/60 pt-4">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <TrendingUpIcon className="size-4 text-emerald-500" />
+              <span>Steady performance</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Meets growth projections
+            </p>
           </div>
-          <div className="text-muted-foreground">Meets growth projections</div>
-        </CardFooter>
-      </Card>
+        </div>
+      </GlassCard>
     </div>
   )
 }

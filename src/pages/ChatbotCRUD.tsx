@@ -7,7 +7,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
@@ -23,8 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { ChevronDown, ChevronUp, Settings2, Search, Plus, Bot } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { PageHeader } from "@/components/PageHeader"
+import { GlassPanel, GlassButton, GlassBadge } from "@/components/ui/glass"
 
 interface ChatbotPoint {
   id: string
@@ -141,174 +140,180 @@ export default function ChatbotCRUD() {
         title="CRUD Chatbot"
         description="Quản lý dữ liệu chatbot Point_v3"
       />
-      <Card>
-        <CardContent className="space-y-4">
-          {/* Toolbar */}
-          <div className="flex flex-wrap items-center gap-4">
-            {/* Search */}
-            <div className="flex-1 min-w-[200px]">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Tìm kiếm..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8"
-                />
-              </div>
+      <GlassPanel variant="strong" className="flex flex-col gap-6 p-6">
+        {/* Toolbar */}
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Search */}
+          <div className="flex-1 min-w-[200px]">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Tìm kiếm..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9 h-11"
+              />
             </div>
+          </div>
 
-            {/* Column Visibility */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Settings2 className="mr-2 h-4 w-4" />
-                  Cột ({visibleColumns.size}/{columns.length})
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[200px] bg-white dark:bg-gray-900">
-                {columns.map((col) => (
-                  <DropdownMenuCheckboxItem
+          {/* Column Visibility */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <GlassButton variant="outline" size="lg">
+                <Settings2 className="h-4 w-4" />
+                Cột ({visibleColumns.size}/{columns.length})
+              </GlassButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[200px]">
+              {columns.map((col) => (
+                <DropdownMenuCheckboxItem
+                  key={col.key}
+                  checked={visibleColumns.has(col.key)}
+                  onCheckedChange={() => toggleColumn(col.key)}
+                >
+                  {col.label}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <GlassButton variant="primary" size="lg">
+            <Plus className="h-4 w-4" />
+            Thêm thủ công
+          </GlassButton>
+        </div>
+
+        {/* Stats */}
+        <div className="flex items-center gap-2">
+          <GlassBadge variant="info">
+            Hiển thị: {startIndex + 1}-{Math.min(endIndex, filteredData.length)} / {filteredData.length}
+          </GlassBadge>
+          {sortColumn && (
+            <GlassBadge variant="primary">
+              Sắp xếp: {sortColumn} ({sortDirection})
+            </GlassBadge>
+          )}
+        </div>
+
+        {/* Table */}
+        <div className="rounded-xl border border-slate-200/60 dark:border-slate-800/60 overflow-auto max-h-[calc(100vh-400px)] shadow-ios">
+          <Table>
+            <TableHeader className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-b-2 border-slate-200/60 dark:border-slate-800/60 z-10">
+              <TableRow className="hover:bg-transparent">
+                {visibleColumnsList.map((col) => (
+                  <TableHead
                     key={col.key}
-                    checked={visibleColumns.has(col.key)}
-                    onCheckedChange={() => toggleColumn(col.key)}
-                    className="pl-8"
+                    className="cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-800/50 font-semibold text-foreground transition-colors"
+                    onClick={() => handleSort(col.key)}
                   >
-                    {col.label}
-                  </DropdownMenuCheckboxItem>
+                    <div className="flex items-center gap-2">
+                      <span>{col.label}</span>
+                      {sortColumn === col.key && (
+                        <>
+                          {sortDirection === "asc" && <ChevronUp className="h-4 w-4 text-sky-500" />}
+                          {sortDirection === "desc" && <ChevronDown className="h-4 w-4 text-sky-500" />}
+                        </>
+                      )}
+                    </div>
+                  </TableHead>
                 ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <Button size="sm">
-              <Plus className="mr-2 h-4 w-4" />
-              Thêm thủ công
-            </Button>
-          </div>
-
-          {/* Stats */}
-          <div className="text-sm text-muted-foreground">
-            Hiển thị: {startIndex + 1}-{Math.min(endIndex, filteredData.length)} / {filteredData.length} bản ghi
-            {sortColumn && ` • Sắp xếp: ${sortColumn} (${sortDirection})`}
-          </div>
-
-          {/* Table */}
-          <div className="rounded-md border overflow-auto max-h-[600px]">
-            <Table>
-              <TableHeader className="sticky top-0 bg-muted/50 backdrop-blur-sm border-b-2 border-border">
-                <TableRow className="hover:bg-transparent">
-                  {visibleColumnsList.map((col) => (
-                    <TableHead
-                      key={col.key}
-                      className="cursor-pointer hover:bg-muted/80 font-semibold text-foreground"
-                      onClick={() => handleSort(col.key)}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span>{col.label}</span>
-                        {sortColumn === col.key && (
-                          <>
-                            {sortDirection === "asc" && <ChevronUp className="h-4 w-4" />}
-                            {sortDirection === "desc" && <ChevronDown className="h-4 w-4" />}
-                          </>
-                        )}
-                      </div>
-                    </TableHead>
-                  ))}
-                  <TableHead className="font-semibold text-foreground">Actions</TableHead>
+                <TableHead className="font-semibold text-foreground">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedData.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={visibleColumnsList.length + 1} className="text-center h-32">
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                      <Search className="h-8 w-8" />
+                      <p>Không tìm thấy dữ liệu</p>
+                    </div>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedData.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={visibleColumnsList.length + 1} className="text-center">
-                      Không tìm thấy dữ liệu
+              ) : (
+                paginatedData.map((row) => (
+                  <TableRow key={row.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/50">
+                    {visibleColumnsList.map((col) => (
+                      <TableCell key={col.key} className="max-w-xs truncate">
+                        {String(row[col.key])}
+                      </TableCell>
+                    ))}
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <GlassButton variant="outline" size="sm">Edit</GlassButton>
+                        <GlassButton variant="destructive" size="sm">Del</GlassButton>
+                      </div>
                     </TableCell>
                   </TableRow>
-                ) : (
-                  paginatedData.map((row) => (
-                    <TableRow key={row.id}>
-                      {visibleColumnsList.map((col) => (
-                        <TableCell key={col.key} className="max-w-xs truncate">
-                          {String(row[col.key])}
-                        </TableCell>
-                      ))}
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">Edit</Button>
-                          <Button variant="destructive" size="sm">Del</Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Hiển thị</span>
+            <Select
+              value={String(pageSize)}
+              onValueChange={(val) => {
+                setPageSize(Number(val))
+                setCurrentPage(1)
+              }}
+            >
+              <SelectTrigger className="w-[70px] h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="5">5</SelectItem>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-muted-foreground">/ trang</span>
           </div>
 
-          {/* Pagination */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Hiển thị</span>
-              <Select
-                value={String(pageSize)}
-                onValueChange={(val) => {
-                  setPageSize(Number(val))
-                  setCurrentPage(1)
-                }}
-              >
-                <SelectTrigger className="w-[70px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="5">5</SelectItem>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="20">20</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                </SelectContent>
-              </Select>
-              <span className="text-sm text-muted-foreground">/ trang</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(1)}
-                disabled={currentPage === 1}
-              >
-                Đầu
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-              >
-                Trước
-              </Button>
-              <span className="text-sm">
-                Trang {currentPage} / {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-              >
-                Sau
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(totalPages)}
-                disabled={currentPage === totalPages}
-              >
-                Cuối
-              </Button>
-            </div>
+          <div className="flex items-center gap-2">
+            <GlassButton
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+            >
+              Đầu
+            </GlassButton>
+            <GlassButton
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Trước
+            </GlassButton>
+            <GlassBadge variant="primary" className="px-4">
+              Trang {currentPage} / {totalPages}
+            </GlassBadge>
+            <GlassButton
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Sau
+            </GlassButton>
+            <GlassButton
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              Cuối
+            </GlassButton>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </GlassPanel>
     </>
   )
 }
