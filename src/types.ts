@@ -66,6 +66,37 @@ export interface Holiday {
   name?: string | null;
 }
 
+export type WeekendPolicy =
+  | "sat_sun"
+  | "sun_only"
+  | "none"
+  | (string & {});
+
+export interface MonthConfig {
+  year: number;
+  month: number;
+  weekend_policy: WeekendPolicy;
+  auto_working_days: number;
+  extra_offdays: string[];
+  extra_workdays: string[];
+  working_days_override?: number | null;
+}
+
+export interface MonthConfigInput {
+  year: number;
+  month: number;
+  weekend_policy: WeekendPolicy;
+  extra_offdays: string[];
+  extra_workdays: string[];
+  working_days_override?: number | null;
+}
+
+export interface ShiftDefaultConfig {
+  year: number;
+  month: number;
+  defaults: Record<string, number>;
+}
+
 export interface PlannedResult {
   ok: boolean;
   planned?: Assignment[];
