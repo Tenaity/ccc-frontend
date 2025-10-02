@@ -1,15 +1,9 @@
-import { useCallback, useState, type ReactNode } from "react"
-import { Link } from "react-router-dom"
+import { useCallback, useMemo, useState, type ReactNode } from "react"
 
 import ScheduleMatrixRoute from "@/routes/ScheduleMatrixRoute"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+import FixedOffHolidayBtn from "@/components/Schedule/FixedOffHolidayBtn"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 import type { DayPlaceSummary, ExpectedByDay, Staff } from "@/types"
 import type { Cell } from "@/utils/mergeCellIndex"
 
@@ -18,11 +12,6 @@ type StaffSummary = {
   credit: number
   dayCount: number
   nightCount: number
-}
-
-type ScheduleBreadcrumb = {
-  label: string
-  href?: string
 }
 
 export interface SchedulePageProps {
@@ -45,12 +34,14 @@ export interface SchedulePageProps {
   matrixLoading: boolean
   matrixError: string | null
   fetchStaff: () => void
-  toolbarActions?: ReactNode
   legend?: ReactNode
   staffLoading?: boolean
-  extraPrimaryActions?: ReactNode
-  breadcrumbs?: ScheduleBreadcrumb[]
-  description?: string
+  fillHC: boolean
+  onToggleFillHC: (checked: boolean) => void
+  onRefreshFixedData: () => Promise<void> | void
+  conflictCount: number
+  hasLeaderDup: boolean
+  leaderErrorsCount: number
 }
 
 export default function SchedulePage({
@@ -73,40 +64,16 @@ export default function SchedulePage({
   matrixLoading,
   matrixError,
   fetchStaff,
-  toolbarActions,
   legend,
   staffLoading = false,
-  extraPrimaryActions,
-  breadcrumbs,
-  description,
+  fillHC,
+  onToggleFillHC,
+  onRefreshFixedData,
+  conflictCount,
+  hasLeaderDup,
+  leaderErrorsCount,
 }: SchedulePageProps) {
   const [isValidating, setIsValidating] = useState(false)
-
-  const breadcrumbItems = breadcrumbs ?? []
-  const hasBreadcrumbs = breadcrumbItems.length > 0
-
-  const introContent = hasBreadcrumbs ? (
-    <Breadcrumb>
-      <BreadcrumbList>
-        {breadcrumbItems.map((item, index) => {
-          const isLast = index === breadcrumbItems.length - 1
-
-          return (
-            <BreadcrumbItem key={`${item.label}-${index}`}>
-              {isLast || !item.href ? (
-                <BreadcrumbPage>{item.label}</BreadcrumbPage>
-              ) : (
-                <BreadcrumbLink asChild>
-                  <Link to={item.href}>{item.label}</Link>
-                </BreadcrumbLink>
-              )}
-              {!isLast ? <BreadcrumbSeparator /> : null}
-            </BreadcrumbItem>
-          )
-        })}
-      </BreadcrumbList>
-    </Breadcrumb>
-  ) : null
 
   const handleGenerate = useCallback(() => {
     if (loadingGen) {
@@ -134,6 +101,49 @@ export default function SchedulePage({
     onExport()
   }, [exporting, onExport])
 
+  const autoFillHintId = "schedule-auto-fill-hc"
+
+  const primaryActions = useMemo(
+    () => (
+      <FixedOffHolidayBtn
+        year={year}
+        month={month}
+        aria-label="Fixed / Off / Holiday"
+        onRefresh={async () => {
+          await Promise.resolve(onRefreshFixedData())
+        }}
+      />
+    ),
+    [month, onRefreshFixedData, year],
+  )
+
+  const toolbar = useMemo(
+    () => (
+      <>
+        <div className="flex flex-wrap items-center gap-3 rounded-full border border-white/40 bg-white/70 px-4 py-2 text-sm text-muted-foreground shadow-[0_12px_26px_rgba(15,23,42,0.12)] dark:border-white/10 dark:bg-slate-900/60 dark:shadow-[0_12px_26px_rgba(0,0,0,0.35)]">
+          <Switch
+            id="auto-fill-hc"
+            checked={fillHC}
+            onCheckedChange={onToggleFillHC}
+            aria-describedby={autoFillHintId}
+          />
+          <Label htmlFor="auto-fill-hc" className="text-sm font-medium text-foreground">
+            Tự động bù HC
+          </Label>
+          <span id={autoFillHintId} className="sr-only">
+            Bật để tự động bù ca hành chính khi sinh hoặc xáo lịch.
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+          <span>{conflictCount} cảnh báo</span>
+          <span>{hasLeaderDup ? "Trùng trưởng ca" : "Không trùng trưởng ca"}</span>
+          <span>{leaderErrorsCount} ngày thiếu trưởng ca</span>
+        </div>
+      </>
+    ),
+    [conflictCount, fillHC, hasLeaderDup, leaderErrorsCount, onToggleFillHC],
+  )
+
   return (
     <ScheduleMatrixRoute
       year={year}
@@ -150,18 +160,16 @@ export default function SchedulePage({
       loading={matrixLoading}
       error={matrixError}
       onRetry={fetchStaff}
-      toolbarActions={toolbarActions}
+      toolbarActions={toolbar}
       legend={legend}
       staffLoading={staffLoading}
-      extraPrimaryActions={extraPrimaryActions}
+      extraPrimaryActions={primaryActions}
       onExport={handleExport}
       onValidate={handleValidate}
       onGenerate={handleGenerate}
       exporting={exporting}
       validating={isValidating}
       generating={loadingGen}
-      intro={introContent}
-      description={description}
     />
   )
 }

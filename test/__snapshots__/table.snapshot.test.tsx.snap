@@ -5,28 +5,28 @@ exports[`basic table snapshot 1`] = `
   class="relative w-full overflow-x-auto"
 >
   <table
-    class="w-full caption-bottom text-sm text-foreground"
+    class="w-full caption-bottom font-sf-pro text-foreground"
     data-sticky-header="true"
   >
     <caption
-      class="mt-4 text-sm text-muted-foreground"
+      class="mt-4 font-sf-pro text-muted-foreground"
     >
       Team assignments
     </caption>
     <thead
-      class="[&_tr]:border-b sticky top-0 z-10 bg-background/95"
+      class="[&_tr]:border-b [&_tr]:border-slate-200/60 dark:[&_tr]:border-slate-800/60 sticky top-0 z-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl backdrop-saturate-150"
       data-sticky="true"
     >
       <tr
-        class="border-b border-border/60 transition-colors hover:bg-muted/50"
+        class="border-b border-slate-200/60 dark:border-slate-800/60 transition-all duration-150 ease-ios hover:bg-slate-50/60 dark:hover:bg-slate-900/60"
       >
         <th
-          class="h-11 px-3 text-left align-middle text-xs font-semibold text-muted-foreground"
+          class="h-11 px-3 text-left align-middle font-sf-pro font-semibold text-muted-foreground/90 uppercase tracking-wide"
         >
           Nhân sự
         </th>
         <th
-          class="h-11 px-3 align-middle text-xs font-semibold text-muted-foreground text-right"
+          class="h-11 px-3 align-middle font-sf-pro font-semibold text-muted-foreground/90 uppercase tracking-wide text-right"
         >
           Ca
         </th>
@@ -36,47 +36,47 @@ exports[`basic table snapshot 1`] = `
       class="[&_tr:last-child]:border-b-0"
     >
       <tr
-        class="border-b border-border/60 transition-colors hover:bg-muted/50"
+        class="border-b border-slate-200/60 dark:border-slate-800/60 transition-all duration-150 ease-ios hover:bg-slate-50/60 dark:hover:bg-slate-900/60"
       >
         <td
-          class="p-3 align-middle text-sm"
+          class="p-3 align-middle font-sf-pro text-ios-callout"
         >
           Nguyễn Văn A
         </td>
         <td
-          class="p-3 align-middle text-sm text-right"
+          class="p-3 align-middle font-sf-pro text-ios-callout text-right"
         >
           CA1
         </td>
       </tr>
       <tr
-        class="border-b border-border/60 transition-colors hover:bg-muted/50"
+        class="border-b border-slate-200/60 dark:border-slate-800/60 transition-all duration-150 ease-ios hover:bg-slate-50/60 dark:hover:bg-slate-900/60"
       >
         <td
-          class="p-3 align-middle text-sm"
+          class="p-3 align-middle font-sf-pro text-ios-callout"
         >
           Trần Thị B
         </td>
         <td
-          class="p-3 align-middle text-sm text-right"
+          class="p-3 align-middle font-sf-pro text-ios-callout text-right"
         >
           CA2
         </td>
       </tr>
     </tbody>
     <tfoot
-      class="bg-muted/60 font-medium text-foreground"
+      class="bg-slate-100/60 dark:bg-slate-800/60 backdrop-blur-xl font-medium text-foreground"
     >
       <tr
-        class="border-b border-border/60 transition-colors hover:bg-muted/50"
+        class="border-b border-slate-200/60 dark:border-slate-800/60 transition-all duration-150 ease-ios hover:bg-slate-50/60 dark:hover:bg-slate-900/60"
       >
         <td
-          class="p-3 align-middle text-sm"
+          class="p-3 align-middle font-sf-pro text-ios-callout"
         >
           Tổng
         </td>
         <td
-          class="p-3 align-middle text-sm text-right"
+          class="p-3 align-middle font-sf-pro text-ios-callout text-right"
         >
           2 ca
         </td>

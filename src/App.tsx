@@ -4,8 +4,6 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom"
 import { matchRoute } from "@/app/routes"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { useExportCsv } from "@/hooks/useExportCsv"
 import { useScheduleData } from "@/hooks/useScheduleData"
 import { useToast } from "@/components/ui/use-toast"
@@ -13,7 +11,6 @@ import Legend from "@/components/Legend"
 import { cn } from "@/lib/utils"
 
 import DashboardPage from "./pages/Dashboard"
-import FixedOffHolidayBtn from "./components/Schedule/FixedOffHolidayBtn"
 
 const SchedulePage = lazy(() => import("./pages/Schedule"))
 const ChatbotCRUDPage = lazy(() => import("./pages/ChatbotCRUD"))
@@ -93,17 +90,6 @@ export default function App() {
     [month, year]
   )
 
-  const breadcrumbs = useMemo(() => {
-    if (routeMeta.path === "/") {
-      return [{ label: routeMeta.label }]
-    }
-
-    return [
-      { label: "Dashboard", href: "/" },
-      { label: routeMeta.label },
-    ]
-  }, [routeMeta.label, routeMeta.path])
-
   const matrixLoading = loadingStaff || (loadingGen && staff.length === 0)
   const matrixError = staffError
   const conflictCount = validation.conflicts.length
@@ -181,9 +167,6 @@ export default function App() {
       })
     }
   }, [monthLabel, onGenerate, toast])
-
-  const autoFillHintId = "auto-fill-hc-hint"
-
   const handleToggleFillHC = React.useCallback(
     (checked: boolean) => {
       setFillHC(checked)
@@ -191,42 +174,11 @@ export default function App() {
     [setFillHC],
   )
 
-  const schedulePrimaryActions = (
-    <FixedOffHolidayBtn
-      year={year}
-      month={month}
-      aria-label="Fixed / Off / Holiday"
-      onRefresh={async () => {
-        await fetchFixed()
-        await fetchOffdays()
-        await fetchHolidays()
-      }}
-    />
-  )
-
-  const scheduleToolbar = (
-    <>
-      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-        <Switch
-          id="auto-fill-hc"
-          checked={fillHC}
-          onCheckedChange={handleToggleFillHC}
-          aria-describedby={autoFillHintId}
-        />
-        <Label htmlFor="auto-fill-hc" className="text-sm font-medium text-foreground">
-          Tự động bù HC
-        </Label>
-        <span id={autoFillHintId} className="sr-only">
-          Bật để tự động bù ca hành chính khi sinh hoặc xáo lịch.
-        </span>
-      </div>
-      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-        <span>{conflictCount} cảnh báo</span>
-        <span>{hasLeaderDup ? "Trùng trưởng ca" : "Không trùng trưởng ca"}</span>
-        <span>{leaderErrors.length} ngày thiếu trưởng ca</span>
-      </div>
-    </>
-  )
+  const handleRefreshFixedData = React.useCallback(async () => {
+    await fetchFixed()
+    await fetchOffdays()
+    await fetchHolidays()
+  }, [fetchFixed, fetchOffdays, fetchHolidays])
 
   return (
     <SidebarProvider>
@@ -241,13 +193,13 @@ export default function App() {
       <SidebarInset
         className={cn(
           "relative flex min-h-screen flex-1 flex-col",
-          "bg-[radial-gradient(circle_at_20%_20%,rgba(99,102,241,0.18),transparent_45%),radial-gradient(circle_at_80%_0%,rgba(236,72,153,0.14),transparent_40%),radial-gradient(circle_at_50%_100%,rgba(59,130,246,0.12),transparent_45%)]",
+          "bg-gradient-to-br from-sky-100/70 via-white/80 to-pink-100/70",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         )}
         id={MAIN_CONTENT_ID}
         tabIndex={-1}
       >
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/70 via-white/60 to-white/80 dark:from-slate-950/80 dark:via-slate-950/70 dark:to-slate-950/85" aria-hidden="true" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(56,189,248,0.25),transparent_55%),radial-gradient(circle_at_80%_10%,rgba(236,72,153,0.2),transparent_50%),linear-gradient(180deg,rgba(255,255,255,0.85)0%,rgba(255,255,255,0.6)45%,rgba(255,255,255,0.78)100%)] dark:bg-[radial-gradient(circle_at_15%_20%,rgba(37,99,235,0.18),transparent_55%),radial-gradient(circle_at_80%_10%,rgba(190,24,93,0.22),transparent_55%),linear-gradient(180deg,rgba(3,7,18,0.92)0%,rgba(3,7,18,0.7)45%,rgba(3,7,18,0.82)100%)]" aria-hidden="true" />
         <div className="relative z-10 flex-1">
           <header
             className={cn(
@@ -259,8 +211,8 @@ export default function App() {
             <div
               className={cn(
                 "mx-auto flex w-full max-w-[1400px] flex-col gap-5",
-                "rounded-3xl border border-white/30 bg-white/75 p-6 shadow-[0_20px_80px_rgba(15,23,42,0.08)]",
-                "dark:border-white/10 dark:bg-slate-950/70 dark:shadow-[0_20px_80px_rgba(0,0,0,0.45)]"
+                "rounded-3xl border border-white/40 bg-white/80 p-6 shadow-[0_28px_90px_rgba(56,189,248,0.15)]",
+                "dark:border-white/10 dark:bg-slate-950/75 dark:shadow-[0_28px_90px_rgba(190,24,93,0.35)]"
               )}
             >
               <div className="flex flex-wrap items-center gap-4">
@@ -268,8 +220,8 @@ export default function App() {
                   <span
                     className={cn(
                       "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl",
-                      "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500",
-                      "shadow-lg shadow-indigo-500/30"
+                      "bg-gradient-to-br from-sky-500 via-indigo-500 to-pink-500",
+                      "shadow-[0_18px_36px_rgba(99,102,241,0.28)]"
                     )}
                   >
                     <RouteIcon className="h-7 w-7 text-white" aria-hidden="true" />
@@ -327,11 +279,13 @@ export default function App() {
                     onGenerate={handleGenerate}
                     exporting={isExporting}
                     loadingGen={loadingGen}
-                    extraPrimaryActions={schedulePrimaryActions}
-                    toolbarActions={scheduleToolbar}
                     legend={scheduleLegend}
-                    breadcrumbs={breadcrumbs}
-                    description={routeMeta.description}
+                    fillHC={fillHC}
+                    onToggleFillHC={handleToggleFillHC}
+                    onRefreshFixedData={handleRefreshFixedData}
+                    conflictCount={conflictCount}
+                    hasLeaderDup={hasLeaderDup}
+                    leaderErrorsCount={leaderErrors.length}
                   />
                 }
               />

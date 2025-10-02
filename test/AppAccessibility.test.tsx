@@ -111,13 +111,18 @@ describe("App accessibility", () => {
     expect(brandLink).toHaveFocus()
   })
 
-  it("renders breadcrumb navigation for the current route", async () => {
+  it("renders an accessible heading for the schedule route", async () => {
     renderApp()
 
-    const breadcrumbNav = await screen.findByRole("navigation", { name: /breadcrumb/i })
-    expect(breadcrumbNav).toBeInTheDocument()
-    expect(breadcrumbNav).toHaveTextContent("Dashboard")
-    expect(breadcrumbNav).toHaveTextContent("Schedule")
+    const heading = await screen.findByRole("heading", {
+      level: 2,
+      name: /schedule management/i,
+    })
+    expect(heading).toBeInTheDocument()
+    expect(heading).toHaveClass("sr-only")
+
+    const scheduleBody = await screen.findByTestId("schedule-body")
+    expect(scheduleBody).toBeInTheDocument()
   })
 
   it("has no major accessibility violations", async () => {

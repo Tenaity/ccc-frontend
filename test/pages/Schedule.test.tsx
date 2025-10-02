@@ -6,6 +6,7 @@ import { vi } from "vitest"
 import SchedulePage from "../../src/pages/Schedule"
 import type { DayPlaceSummary, ExpectedByDay } from "../../src/types"
 import type { Cell } from "../../src/utils/mergeCellIndex"
+import { UiProvider } from "../../src/components/ui/UiProvider"
 
 vi.mock("@/components/Schedule/MatrixTable", () => ({
   __esModule: true,
@@ -48,12 +49,21 @@ describe("SchedulePage", () => {
       matrixLoading: false,
       matrixError: null,
       fetchStaff: vi.fn(),
-      toolbarActions: <div data-testid="extra">extra</div>,
       legend: <div data-testid="legend">legend</div>,
+      fillHC: false,
+      onToggleFillHC: vi.fn(),
+      onRefreshFixedData: vi.fn(),
+      conflictCount: 0,
+      hasLeaderDup: false,
+      leaderErrorsCount: 0,
       ...overrides,
     }
 
-    return render(<SchedulePage {...props} />)
+    return render(
+      <UiProvider>
+        <SchedulePage {...props} />
+      </UiProvider>,
+    )
   }
 
   it("keeps header minimal and renders stats with toolbar in the body", async () => {
@@ -64,23 +74,12 @@ describe("SchedulePage", () => {
 
     renderPage({ onGenerate, onValidate, onExport })
 
-    const header = screen.getByTestId("schedule-header")
-    const heading = within(header).getByRole("heading", {
-      level: 1,
-      name: /schedule/i,
-    })
-    expect(heading).toBeInTheDocument()
-    expect(
-      within(header).getByText("Quản lý lịch phân ca dạng ma trận"),
-    ).toBeInTheDocument()
-
     const body = screen.getByTestId("schedule-body")
-    // Updated to match new badge-based layout
     expect(within(body).getByText("Tháng")).toBeInTheDocument()
     expect(within(body).getByText("09/2024")).toBeInTheDocument()
     expect(within(body).getByText("Nhân sự")).toBeInTheDocument()
     expect(within(body).getByText("0 nhân sự")).toBeInTheDocument()
-    expect(within(body).getByTestId("extra")).toBeInTheDocument()
+    expect(within(body).getByLabelText("Tự động bù HC")).toBeInTheDocument()
     expect(within(body).getByTestId("legend")).toBeInTheDocument()
     expect(screen.getByTestId("matrix-table")).toHaveTextContent("rows-0")
 

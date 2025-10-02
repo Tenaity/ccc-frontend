@@ -1,13 +1,14 @@
-import { type ReactNode, useMemo } from "react"
+import { type ReactNode, useMemo, useState } from "react"
 
-import { DownloadIcon, Sparkles, CheckCircle2, Loader2 } from "lucide-react"
+import { DownloadIcon, Sparkles, CheckCircle2, Loader2, BarChart3 } from "lucide-react"
 
 import MatrixTable from "@/components/Schedule/MatrixTable"
 import { GlassPanel, GlassBadge, GlassButton } from "@/components/ui/glass"
 import { cn } from "@/lib/utils"
 
-export type ScheduleMatrixRouteProps = React.ComponentProps<
-  typeof MatrixTable
+export type ScheduleMatrixRouteProps = Omit<
+  React.ComponentProps<typeof MatrixTable>,
+  "showAdvanced"
 > & {
   toolbarActions?: ReactNode
   extraPrimaryActions?: ReactNode
@@ -19,8 +20,6 @@ export type ScheduleMatrixRouteProps = React.ComponentProps<
   validating?: boolean
   generating?: boolean
   legend?: ReactNode
-  intro?: ReactNode
-  description?: string
 }
 
 export default function ScheduleMatrixRoute({
@@ -34,8 +33,6 @@ export default function ScheduleMatrixRoute({
   validating = false,
   generating = false,
   legend,
-  intro,
-  description,
   ...matrixProps
 }: ScheduleMatrixRouteProps) {
   const monthLabel = useMemo(
@@ -47,11 +44,10 @@ export default function ScheduleMatrixRoute({
     ? "Đang tải nhân sự…"
     : `${matrixProps.staff.length} nhân sự`
 
-  const headingDescription =
-    description ?? "Quản lý lịch phân ca dạng ma trận"
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
   const actionButtonClass =
-    "h-11 px-5 font-semibold shadow-md transition-all duration-200 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:shadow-lg"
+    "h-11 rounded-ios-lg px-5 font-semibold shadow-md transition-all duration-200 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:shadow-lg"
 
   return (
     <div className="mx-auto w-full max-w-[1600px] space-y-8 px-4 pb-12 md:px-8">
@@ -59,19 +55,6 @@ export default function ScheduleMatrixRoute({
         <h2 id="schedule-heading" className="sr-only">
           Schedule Management
         </h2>
-        {intro ? (
-          <GlassPanel
-            variant="subtle"
-            className="flex flex-col gap-2 rounded-3xl bg-white/60 px-6 py-5 text-sm text-muted-foreground shadow-[0_12px_40px_rgba(15,23,42,0.08)] dark:bg-slate-950/55 dark:text-slate-300"
-            data-testid="schedule-breadcrumbs"
-          >
-            {intro}
-            <p className="text-xs font-medium uppercase tracking-[0.35em] text-foreground/50 dark:text-white/40">
-              {headingDescription}
-            </p>
-          </GlassPanel>
-        ) : null}
-
         <div data-testid="schedule-body" className="space-y-10">
           <GlassPanel variant="strong" className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between">
             <div className="flex flex-wrap items-center gap-3">
@@ -145,6 +128,16 @@ export default function ScheduleMatrixRoute({
                   {extraPrimaryActions}
                 </div>
               ) : null}
+              <GlassButton
+                type="button"
+                variant={showAdvanced ? "secondary" : "outline"}
+                size="md"
+                onClick={() => setShowAdvanced((prev) => !prev)}
+                className="min-w-[180px] justify-center"
+              >
+                <BarChart3 className="mr-2 h-4 w-4" aria-hidden="true" />
+                {showAdvanced ? "Ẩn thống kê nâng cao" : "Hiện thống kê nâng cao"}
+              </GlassButton>
             </div>
           </GlassPanel>
 
@@ -165,6 +158,7 @@ export default function ScheduleMatrixRoute({
             {...matrixProps}
             withCard={false}
             containerClassName="rounded-3xl bg-white/70 shadow-[0_24px_80px_rgba(15,23,42,0.12)] backdrop-blur-2xl dark:bg-slate-950/70 dark:shadow-[0_24px_90px_rgba(0,0,0,0.45)]"
+            showAdvanced={showAdvanced}
           />
         </div>
       </section>

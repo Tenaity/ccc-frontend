@@ -9,11 +9,13 @@ export default function MatrixHeader({
   month,
   days,
   perDayLeaders,
+  showAdvanced = false,
 }: {
   year: number;
   month: number;
   days: number[];
   perDayLeaders: Record<number, number>;
+  showAdvanced?: boolean;
 }) {
   return (
     <TableHeader sticky className="z-30">
@@ -23,10 +25,10 @@ export default function MatrixHeader({
         "shadow-[0_12px_32px_rgba(15,23,42,0.12)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.5)]"
       )}>
         <TableHead
-          rowSpan={3}
+          rowSpan={showAdvanced ? 3 : 2}
           scope="col"
           className={cn(
-            "sticky left-0 top-0 z-40 min-w-[240px] rounded-tl-3xl",
+            "sticky left-0 top-0 z-30 min-w-[240px] rounded-tl-3xl",
             "bg-white/96 dark:bg-slate-950/96",
             "backdrop-blur-3xl backdrop-saturate-150",
             "px-6 py-4 text-left text-sm font-bold text-foreground",
@@ -46,7 +48,7 @@ export default function MatrixHeader({
               key={`day-${day}`}
               scope="col"
               className={cn(
-                "sticky top-0 z-30 min-w-[72px]",
+                "sticky top-0 z-50 min-w-[72px]",
                 "px-4 py-3 text-center text-sm font-bold",
                 "shadow-[inset_0_-1px_0_rgba(148,163,184,0.18)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]",
                 weekend
@@ -56,22 +58,37 @@ export default function MatrixHeader({
             >
               <div className="flex flex-col items-center gap-1">
                 <span className="text-base">{day}</span>
-                <span
-                  className={cn(
-                    "inline-flex min-w-[52px] items-center justify-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide",
-                    "backdrop-blur-sm transition-all duration-200",
-                    ok
-                      ? "border-0 bg-emerald-500/90 text-white shadow-sm"
-                      : "border-0 bg-destructive/90 text-white shadow-sm"
-                  )}
-                >
-                  {ok ? "OK" : `K=${leaderCount}`}
-                </span>
+                {showAdvanced ? (
+                  <span
+                    className={cn(
+                      "inline-flex min-w-[52px] items-center justify-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide",
+                      "backdrop-blur-sm transition-all duration-200",
+                      ok
+                        ? "border-0 bg-emerald-500/90 text-white shadow-sm"
+                        : "border-0 bg-destructive/90 text-white shadow-sm"
+                    )}
+                  >
+                    {ok ? "OK" : `K=${leaderCount}`}
+                  </span>
+                ) : (
+                  <>
+                    <span
+                      className={cn(
+                        "mt-1 inline-flex h-2.5 w-2.5 rounded-full",
+                        ok ? "bg-emerald-400" : "bg-destructive"
+                      )}
+                      aria-hidden="true"
+                    />
+                    <span className="sr-only">
+                      {ok ? "Đủ trưởng ca" : `Thiếu trưởng ca: ${leaderCount}`}
+                    </span>
+                  </>
+                )}
               </div>
             </TableHead>
           );
         })}
-        {[
+        {showAdvanced && [
           "CA1",
           "CA2",
           "K",
@@ -111,7 +128,7 @@ export default function MatrixHeader({
               key={`dow-${day}`}
               scope="col"
               className={cn(
-                "sticky top-[52px] z-30",
+                "sticky top-[52px] z-45",
                 "px-3 py-2 text-center text-[11px] font-bold uppercase tracking-wider",
                 "shadow-[inset_0_-1px_0_rgba(148,163,184,0.12)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.45)]",
                 weekend
@@ -124,32 +141,34 @@ export default function MatrixHeader({
           );
         })}
       </TableRow>
-      <TableRow className={cn(
-        "bg-white/80 dark:bg-slate-950/82",
-        "backdrop-blur-xl",
-        "shadow-[0_8px_20px_rgba(15,23,42,0.08)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.45)]"
-      )}>
-        {days.map((day) => {
-          const weekend = isWeekend(getDow(year, month, day));
-          const leaders = perDayLeaders[day] ?? 0;
-          return (
-            <TableHead
-              key={`leaders-${day}`}
-              scope="col"
-              className={cn(
-                "sticky top-[84px] z-30",
-                "px-3 py-2 text-center text-[10px] font-semibold",
-                "shadow-[inset_0_-1px_0_rgba(148,163,184,0.12)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.45)]",
-                weekend
-                  ? "bg-amber-50/60 dark:bg-amber-900/15 text-amber-700 dark:text-amber-300 backdrop-blur-lg"
-                  : "bg-white/60 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 backdrop-blur-lg"
-              )}
-            >
-              Leader TD: {leaders}
-            </TableHead>
-          );
-        })}
-      </TableRow>
+      {showAdvanced && (
+        <TableRow className={cn(
+          "bg-white/80 dark:bg-slate-950/82",
+          "backdrop-blur-xl",
+          "shadow-[0_8px_20px_rgba(15,23,42,0.08)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.45)]"
+        )}>
+          {days.map((day) => {
+            const weekend = isWeekend(getDow(year, month, day));
+            const leaders = perDayLeaders[day] ?? 0;
+            return (
+              <TableHead
+                key={`leaders-${day}`}
+                scope="col"
+                className={cn(
+                  "sticky top-[84px] z-40",
+                  "px-3 py-2 text-center text-[10px] font-semibold",
+                  "shadow-[inset_0_-1px_0_rgba(148,163,184,0.12)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.45)]",
+                  weekend
+                    ? "bg-amber-50/60 dark:bg-amber-900/15 text-amber-700 dark:text-amber-300 backdrop-blur-lg"
+                    : "bg-white/60 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 backdrop-blur-lg"
+                )}
+              >
+                Leader TD: {leaders}
+              </TableHead>
+            );
+          })}
+        </TableRow>
+      )}
     </TableHeader>
   );
 }

@@ -3,10 +3,10 @@
 exports[`matrix row renders leader badges and duplicate highlighting 1`] = `
 <tbody>
   <tr
-    class="border-b border-border/60 transition-all duration-200 backdrop-blur-sm hover:bg-primary/20 dark:hover:bg-primary/15 bg-white/40 dark:bg-slate-900/40"
+    class="border-b border-slate-200/60 dark:border-slate-800/60 ease-ios transition-all duration-200 backdrop-blur-md hover:bg-primary/15 dark:hover:bg-primary/10 bg-white/55 dark:bg-slate-900/45"
   >
     <th
-      class="sticky left-0 z-20 min-w-[240px] border-r-0 border-b border-white/10 dark:border-white/5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-3xl backdrop-saturate-150 px-6 py-4 text-left shadow-[8px_0_24px_-8px_rgba(0,0,0,0.12)] dark:shadow-[8px_0_24px_-8px_rgba(0,0,0,0.4)] transition-all duration-300"
+      class="sticky left-0 z-20 min-w-[240px] bg-white/92 dark:bg-slate-950/92 backdrop-blur-3xl backdrop-saturate-150 px-6 py-4 text-left shadow-[8px_0_28px_-12px_rgba(15,23,42,0.22)] dark:shadow-[8px_0_28px_-12px_rgba(0,0,0,0.5)] transition-all duration-300"
       scope="row"
     >
       <div
@@ -27,13 +27,13 @@ exports[`matrix row renders leader badges and duplicate highlighting 1`] = `
               TC
             </span>
             <span
-              class="rounded-lg border-0 bg-primary/15 dark:bg-primary/25 px-2 py-1 font-bold text-primary backdrop-blur-sm"
+              class="rounded-lg border-0 bg-primary/10 px-2 py-1 font-bold text-primary backdrop-blur-sm dark:bg-primary/20"
             >
               #
               1978
             </span>
             <span
-              class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold backdrop-blur-sm transition-all duration-200 border-0 bg-primary/90 text-white shadow-sm"
+              class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold backdrop-blur-sm transition-all duration-200 border border-primary bg-primary text-primary-foreground shadow-sm"
             >
               Rank 
               1
@@ -63,14 +63,14 @@ exports[`matrix row renders leader badges and duplicate highlighting 1`] = `
       </div>
     </th>
     <td
-      class="p-3 align-middle text-sm relative h-16 min-w-[72px] border-r-0 border-b border-white/10 dark:border-white/5 px-2 py-2 text-center transition-all duration-200"
+      class="p-3 align-middle font-sf-pro text-ios-callout relative h-16 min-w-[72px] px-2 py-2 text-center transition-all duration-200 shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
     >
       <div
         class="flex h-full w-full items-center justify-center"
         data-state="closed"
       >
         <div
-          class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 inline-flex min-w-[3rem] items-center justify-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold uppercase tracking-tight transition-colors bg-emerald-100 ring-2 ring-destructive/70 text-destructive shadow-[0_0_0_1px_rgba(248,113,113,0.3)] border border-transparent"
+          class="font-sf-pro duration-200 ease-ios focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue focus-visible:ring-offset-1 dark:bg-ios-red/20 dark:text-ios-red backdrop-blur-xl inline-flex min-w-[3rem] items-center justify-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold uppercase tracking-tight transition-colors bg-emerald-100 ring-2 ring-destructive/70 text-destructive shadow-[0_0_0_1px_rgba(248,113,113,0.3)] border border-transparent"
         >
           <span>
             K
@@ -99,14 +99,14 @@ exports[`matrix row renders leader badges and duplicate highlighting 1`] = `
       </div>
     </td>
     <td
-      class="p-3 align-middle text-sm relative h-16 min-w-[72px] border-r-0 border-b border-white/10 dark:border-white/5 px-2 py-2 text-center transition-all duration-200"
+      class="p-3 align-middle font-sf-pro text-ios-callout relative h-16 min-w-[72px] px-2 py-2 text-center transition-all duration-200 shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
     >
       <div
         class="flex h-full w-full items-center justify-center"
         data-state="closed"
       >
         <div
-          class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-slate-900 text-slate-50 shadow-[0_1px_0_rgba(15,23,42,0.55)] inline-flex min-w-[3rem] items-center justify-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold uppercase tracking-tight transition-colors border border-primary/60"
+          class="font-sf-pro duration-200 ease-ios focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue focus-visible:ring-offset-1 bg-gradient-to-br from-slate-900/95 via-slate-800/90 to-slate-900/95 text-slate-50 shadow-ios-sm backdrop-blur-xl inline-flex min-w-[3rem] items-center justify-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold uppercase tracking-tight transition-colors border border-primary/60"
         >
           <span>
             Đ
@@ -133,51 +133,6 @@ exports[`matrix row renders leader badges and duplicate highlighting 1`] = `
           </svg>
         </div>
       </div>
-    </td>
-    <td
-      class="p-3 align-middle text-center text-sm font-semibold text-foreground border-b border-white/10 dark:border-white/5"
-    >
-      0
-    </td>
-    <td
-      class="p-3 align-middle text-center text-sm font-semibold text-foreground border-b border-white/10 dark:border-white/5"
-    >
-      0
-    </td>
-    <td
-      class="p-3 align-middle text-center text-sm font-semibold text-foreground border-b border-white/10 dark:border-white/5"
-    >
-      1
-    </td>
-    <td
-      class="p-3 align-middle text-center text-sm font-semibold text-foreground border-b border-white/10 dark:border-white/5"
-    >
-      0
-    </td>
-    <td
-      class="p-3 align-middle text-center text-sm font-semibold text-foreground border-b border-white/10 dark:border-white/5"
-    >
-      1
-    </td>
-    <td
-      class="p-3 align-middle text-center text-sm font-semibold text-foreground border-b border-white/10 dark:border-white/5"
-    >
-      0
-    </td>
-    <td
-      class="p-3 align-middle text-center text-sm font-bold text-foreground border-b border-white/10 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm"
-    >
-      1
-    </td>
-    <td
-      class="p-3 align-middle text-center text-sm font-bold text-foreground border-b border-white/10 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm"
-    >
-      1
-    </td>
-    <td
-      class="p-3 align-middle text-center text-sm font-extrabold text-foreground border-b border-white/10 dark:border-white/5 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md"
-    >
-      4
     </td>
   </tr>
 </tbody>

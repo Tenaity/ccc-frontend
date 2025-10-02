@@ -34,6 +34,7 @@ export default function MatrixRow({
   fixedByDayStaff,
   offByDayStaff,
   leaderCountsByDay,
+  showAdvanced = false,
   onEditCell,
 }: {
   staff: Staff;
@@ -57,6 +58,7 @@ export default function MatrixRow({
   fixedByDayStaff: Map<string, boolean>;
   offByDayStaff: Map<string, boolean>;
   leaderCountsByDay: Map<number, { day: number; night: number }>;
+  showAdvanced?: boolean;
   onEditCell?: (staff: Staff, day: number) => void;
 }) {
   const sum =
@@ -208,63 +210,67 @@ export default function MatrixRow({
         );
       })}
 
-      <TableCell className={cn(
-        "text-center text-sm font-semibold text-foreground",
-        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
-      )}>
-        {sum.counts["CA1"] || 0}
-      </TableCell>
-      <TableCell className={cn(
-        "text-center text-sm font-semibold text-foreground",
-        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
-      )}>
-        {sum.counts["CA2"] || 0}
-      </TableCell>
-      <TableCell className={cn(
-        "text-center text-sm font-semibold text-foreground",
-        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
-      )}>
-        {sum.counts["K"] || 0}
-      </TableCell>
-      <TableCell className={cn(
-        "text-center text-sm font-semibold text-foreground",
-        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
-      )}>
-        {sum.counts["HC"] || 0}
-      </TableCell>
-      <TableCell className={cn(
-        "text-center text-sm font-semibold text-foreground",
-        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
-      )}>
-        {sum.counts["Đ"] || 0}
-      </TableCell>
-      <TableCell className={cn(
-        "text-center text-sm font-semibold text-foreground",
-        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
-      )}>
-        {sum.counts["P"] || 0}
-      </TableCell>
-      <TableCell className={cn(
-        "text-center text-sm font-bold text-foreground",
-        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.2)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]",
-        "bg-white/25 dark:bg-slate-900/30 backdrop-blur-sm"
-      )}>
-        {sum.dayCount || 0}
-      </TableCell>
-      <TableCell className={cn(
-        "text-center text-sm font-bold text-foreground",
-        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.2)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]",
-        "bg-white/25 dark:bg-slate-900/30 backdrop-blur-sm"
-      )}>
-        {sum.nightCount || 0}
-      </TableCell>
-      <TableCell className={cn(
-        "text-center text-sm font-extrabold text-foreground",
-        "shadow-[inset_0_-1px_0_rgba(148,163,184,0.24)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]",
-        "bg-white/45 dark:bg-slate-900/45 backdrop-blur-md"
-      )}>
-        {sum.credit || 0}
-      </TableCell>
+      {showAdvanced ? (
+        <>
+          <TableCell className={cn(
+            "text-center text-sm font-semibold text-foreground",
+            "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
+          )}>
+            {sum.counts["CA1"] || 0}
+          </TableCell>
+          <TableCell className={cn(
+            "text-center text-sm font-semibold text-foreground",
+            "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
+          )}>
+            {sum.counts["CA2"] || 0}
+          </TableCell>
+          <TableCell className={cn(
+            "text-center text-sm font-semibold text-foreground",
+            "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
+          )}>
+            {sum.counts["K"] || 0}
+          </TableCell>
+          <TableCell className={cn(
+            "text-center text-sm font-semibold text-foreground",
+            "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
+          )}>
+            {sum.counts["HC"] || 0}
+          </TableCell>
+          <TableCell className={cn(
+            "text-center text-sm font-semibold text-foreground",
+            "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
+          )}>
+            {sum.counts["Đ"] || 0}
+          </TableCell>
+          <TableCell className={cn(
+            "text-center text-sm font-semibold text-foreground",
+            "shadow-[inset_0_-1px_0_rgba(148,163,184,0.16)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]"
+          )}>
+            {sum.counts["P"] || 0}
+          </TableCell>
+          <TableCell className={cn(
+            "text-center text-sm font-bold text-foreground",
+            "shadow-[inset_0_-1px_0_rgba(148,163,184,0.2)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]",
+            "bg-white/25 dark:bg-slate-900/30 backdrop-blur-sm"
+          )}>
+            {sum.dayCount || 0}
+          </TableCell>
+          <TableCell className={cn(
+            "text-center text-sm font-bold text-foreground",
+            "shadow-[inset_0_-1px_0_rgba(148,163,184,0.2)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]",
+            "bg-white/25 dark:bg-slate-900/30 backdrop-blur-sm"
+          )}>
+            {sum.nightCount || 0}
+          </TableCell>
+          <TableCell className={cn(
+            "text-center text-sm font-extrabold text-foreground",
+            "shadow-[inset_0_-1px_0_rgba(148,163,184,0.24)] dark:shadow-[inset_0_-1px_0_rgba(15,23,42,0.55)]",
+            "bg-white/45 dark:bg-slate-900/45 backdrop-blur-md"
+          )}>
+            {sum.credit || 0}
+          </TableCell>
+        </>
+      ) : null}
     </TableRow>
   );
 }
