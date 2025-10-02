@@ -1,9 +1,8 @@
 import { type ReactNode, useMemo } from "react"
 
-import { DownloadIcon, Sparkles, CheckCircle2, Loader2, CalendarIcon } from "lucide-react"
+import { DownloadIcon, Sparkles, CheckCircle2, Loader2 } from "lucide-react"
 
 import MatrixTable from "@/components/Schedule/MatrixTable"
-import { Card, CardContent } from "@/components/ui/card"
 import { GlassPanel, GlassBadge, GlassButton } from "@/components/ui/glass"
 import { cn } from "@/lib/utils"
 
@@ -55,43 +54,25 @@ export default function ScheduleMatrixRoute({
     "h-11 px-5 font-semibold shadow-md transition-all duration-200 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:shadow-lg"
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] space-y-0 px-4 pb-12 md:px-8">
-      <section aria-labelledby="schedule-heading" className="space-y-6">
-        {/* Apple-level Glass Header - sticky with glass overlay */}
-        <header
-          data-testid="schedule-header"
-          className={cn(
-            "sticky top-0 z-40 -mx-4 md:-mx-8 px-4 md:px-8 py-6 mb-6",
-            "bg-white/85 dark:bg-slate-950/85",
-            "backdrop-blur-2xl backdrop-saturate-150",
-            "border-b border-white/30 dark:border-white/15",
-            "shadow-[0_4px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.3)]",
-            "transition-all duration-300"
-          )}
-        >
-          {intro ? <div className="mb-4 text-sm">{intro}</div> : null}
-          <div className="flex items-center gap-4">
-            <div className={cn(
-              "flex items-center justify-center rounded-2xl p-3",
-              "bg-gradient-to-br from-primary to-primary/80",
-              "shadow-lg shadow-primary/25",
-              "backdrop-blur-sm"
-            )}>
-              <CalendarIcon className="size-7 text-primary-foreground" />
-            </div>
-            <div>
-              <h1
-                id="schedule-heading"
-                className="text-2xl font-bold tracking-tight text-foreground"
-              >
-                Schedule Management
-              </h1>
-              <p className="text-sm text-muted-foreground/90">{headingDescription}</p>
-            </div>
-          </div>
-        </header>
+    <div className="mx-auto w-full max-w-[1600px] space-y-8 px-4 pb-12 md:px-8">
+      <section aria-labelledby="schedule-heading" className="space-y-8">
+        <h2 id="schedule-heading" className="sr-only">
+          Schedule Management
+        </h2>
+        {intro ? (
+          <GlassPanel
+            variant="subtle"
+            className="flex flex-col gap-2 rounded-3xl bg-white/60 px-6 py-5 text-sm text-muted-foreground shadow-[0_12px_40px_rgba(15,23,42,0.08)] dark:bg-slate-950/55 dark:text-slate-300"
+            data-testid="schedule-breadcrumbs"
+          >
+            {intro}
+            <p className="text-xs font-medium uppercase tracking-[0.35em] text-foreground/50 dark:text-white/40">
+              {headingDescription}
+            </p>
+          </GlassPanel>
+        ) : null}
 
-        <div data-testid="schedule-body" className="space-y-8">
+        <div data-testid="schedule-body" className="space-y-10">
           <GlassPanel variant="strong" className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between">
             <div className="flex flex-wrap items-center gap-3">
               <GlassBadge variant="primary" className="gap-3 px-5 py-2.5">
@@ -180,15 +161,11 @@ export default function ScheduleMatrixRoute({
           ) : null}
 
           {/* Matrix Table with enhanced glass card */}
-          <Card className="overflow-hidden shadow-xl">
-            <CardContent className="p-0">
-              <MatrixTable
-                {...matrixProps}
-                withCard={false}
-                containerClassName="rounded-none border-0 bg-transparent shadow-none"
-              />
-            </CardContent>
-          </Card>
+          <MatrixTable
+            {...matrixProps}
+            withCard={false}
+            containerClassName="rounded-3xl bg-white/70 shadow-[0_24px_80px_rgba(15,23,42,0.12)] backdrop-blur-2xl dark:bg-slate-950/70 dark:shadow-[0_24px_90px_rgba(0,0,0,0.45)]"
+          />
         </div>
       </section>
     </div>
