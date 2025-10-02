@@ -5,40 +5,41 @@ import { cn } from "@/lib/utils"
 
 /**
  * Glass UI Design System
- * iOS 26-inspired glassmorphism components with enhanced visibility
+ * Apple/iOS-inspired glassmorphism components with Big Tech aesthetics
+ * Optimized for visibility and accessibility
  */
 
 // Glass Card Variants
 const glassCardVariants = cva(
   [
-    "rounded-2xl",
-    "backdrop-blur-2xl backdrop-saturate-150",
+    "rounded-ios-lg font-sf-pro",
+    "backdrop-blur-3xl backdrop-saturate-150",
     "border",
-    "shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]",
-    "transition-all duration-300",
+    "shadow-glass dark:shadow-glass-lg",
+    "transition-all duration-300 ease-ios",
   ],
   {
     variants: {
       variant: {
         default: [
           "bg-white/90 dark:bg-slate-900/90",
-          "border-white/30 dark:border-white/20",
+          "border-slate-200/50 dark:border-slate-800/50",
         ],
         subtle: [
-          "bg-white/70 dark:bg-slate-900/70",
-          "border-white/20 dark:border-white/10",
+          "bg-white/75 dark:bg-slate-900/75",
+          "border-slate-200/40 dark:border-slate-800/40",
         ],
         strong: [
           "bg-white/95 dark:bg-slate-900/95",
-          "border-white/40 dark:border-white/30",
+          "border-slate-200/60 dark:border-slate-800/60",
         ],
         frosted: [
-          "bg-white/80 dark:bg-slate-900/80",
-          "border-white/25 dark:border-white/15",
+          "bg-white/85 dark:bg-slate-900/85",
+          "border-slate-200/45 dark:border-slate-800/45",
         ],
       },
       hoverable: {
-        true: "hover:scale-[1.02] hover:shadow-[0_12px_40px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_12px_40px_rgba(0,0,0,0.5)]",
+        true: "hover:scale-[1.01] hover:shadow-glass-lg active:scale-[0.99] cursor-pointer",
         false: "",
       },
     },
@@ -64,71 +65,72 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
 )
 GlassCard.displayName = "GlassCard"
 
-// Glass Button Variants
+// Glass Button Variants - iOS/Big Tech Style
 const glassButtonVariants = cva(
   [
-    "inline-flex items-center justify-center gap-2",
-    "rounded-xl px-4 py-2",
-    "text-sm font-medium",
-    "backdrop-blur-xl backdrop-saturate-150",
+    "inline-flex items-center justify-center gap-2 font-sf-pro",
+    "rounded-ios px-4 py-2",
+    "text-ios-callout font-semibold",
+    "backdrop-blur-3xl backdrop-saturate-150",
     "border",
-    "transition-all duration-200",
+    "transition-all duration-200 ease-ios",
     "disabled:pointer-events-none disabled:opacity-50",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue focus-visible:ring-offset-2",
   ],
   {
     variants: {
       variant: {
         default: [
-          "bg-white/80 dark:bg-black/40",
-          "border-white/40 dark:border-white/20",
-          "hover:bg-white/90 dark:hover:bg-black/50",
+          "bg-white/85 dark:bg-slate-800/85",
+          "border-slate-200/50 dark:border-slate-700/50",
+          "hover:bg-white/95 dark:hover:bg-slate-800/95",
           "text-foreground",
-          "shadow-sm hover:shadow-md",
+          "shadow-ios hover:shadow-ios-lg",
         ],
         primary: [
-          "bg-gradient-to-r from-primary/90 to-primary/80",
-          "hover:from-primary hover:to-primary/90",
-          "border-primary/30",
-          "text-primary-foreground",
-          "shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30",
+          "bg-gradient-to-br from-ios-blue via-ios-blue/95 to-ios-blue/85",
+          "hover:from-ios-blue hover:to-ios-blue/90",
+          "border-ios-blue/30",
+          "text-white",
+          "shadow-ios-lg shadow-ios-blue/25 hover:shadow-ios-xl hover:shadow-ios-blue/35",
         ],
         secondary: [
-          "bg-gradient-to-r from-purple-500/30 to-pink-500/30",
-          "hover:from-purple-500/40 hover:to-pink-500/40",
-          "border-purple-300/50 dark:border-purple-700/50",
-          "text-foreground",
-          "shadow-md hover:shadow-lg",
+          "bg-gradient-to-br from-ios-purple/35 to-ios-pink/35",
+          "hover:from-ios-purple/45 hover:to-ios-pink/45",
+          "border-ios-purple/40 dark:border-ios-purple/50",
+          "text-foreground font-semibold",
+          "shadow-ios hover:shadow-ios-lg",
         ],
         outline: [
-          "bg-white/50 dark:bg-black/30",
-          "border-white/60 dark:border-white/30",
-          "hover:bg-white/70 dark:hover:bg-black/40",
-          "hover:border-primary/50",
+          "bg-white/60 dark:bg-slate-900/60",
+          "border-slate-300/60 dark:border-slate-700/60",
+          "hover:bg-white/80 dark:hover:bg-slate-900/80",
+          "hover:border-ios-blue/50",
           "text-foreground",
+          "shadow-ios-sm hover:shadow-ios",
         ],
         ghost: [
           "bg-transparent",
           "border-transparent",
-          "hover:bg-white/30 dark:hover:bg-black/20",
+          "hover:bg-slate-100/50 dark:hover:bg-slate-800/50",
           "text-foreground",
         ],
         destructive: [
-          "bg-gradient-to-r from-destructive/90 to-destructive/80",
-          "hover:from-destructive hover:to-destructive/90",
-          "border-destructive/30",
-          "text-destructive-foreground",
-          "shadow-lg shadow-destructive/20 hover:shadow-xl hover:shadow-destructive/30",
+          "bg-gradient-to-br from-ios-red via-ios-red/95 to-ios-red/85",
+          "hover:from-ios-red hover:to-ios-red/90",
+          "border-ios-red/30",
+          "text-white",
+          "shadow-ios-lg shadow-ios-red/25 hover:shadow-ios-xl hover:shadow-ios-red/35",
         ],
       },
       size: {
-        sm: "h-8 px-3 text-xs rounded-lg",
-        md: "h-9 px-4 text-sm rounded-xl",
-        lg: "h-11 px-6 text-base rounded-xl",
-        icon: "h-9 w-9 p-0 rounded-xl",
+        sm: "h-8 px-3 text-ios-footnote rounded-ios-sm",
+        md: "h-10 px-4 text-ios-callout rounded-ios",
+        lg: "h-11 px-6 text-ios-body rounded-ios-lg",
+        icon: "h-10 w-10 p-0 rounded-ios",
       },
       interactive: {
-        true: "hover:scale-105 active:scale-95",
+        true: "active:scale-95 ios-active",
         false: "",
       },
     },
@@ -157,49 +159,49 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
 )
 GlassButton.displayName = "GlassButton"
 
-// Glass Badge Variants
+// Glass Badge Variants - iOS/Big Tech Style
 const glassBadgeVariants = cva(
   [
-    "inline-flex items-center gap-1.5",
-    "rounded-xl px-3 py-1.5",
-    "text-xs font-medium",
-    "backdrop-blur-md backdrop-saturate-150",
+    "inline-flex items-center gap-2 font-sf-pro",
+    "rounded-ios px-3 py-1.5",
+    "text-ios-footnote font-semibold",
+    "backdrop-blur-2xl backdrop-saturate-150",
     "border",
-    "shadow-sm",
-    "transition-all duration-200",
+    "shadow-ios-sm",
+    "transition-all duration-200 ease-ios",
   ],
   {
     variants: {
       variant: {
         default: [
-          "bg-white/70 dark:bg-black/30",
-          "border-white/40 dark:border-white/20",
+          "bg-white/75 dark:bg-slate-800/75",
+          "border-slate-200/50 dark:border-slate-700/50",
           "text-foreground",
         ],
         primary: [
-          "bg-primary/20 dark:bg-primary/30",
-          "border-primary/30 dark:border-primary/40",
-          "text-primary dark:text-primary-foreground",
+          "bg-ios-blue/15 dark:bg-ios-blue/25",
+          "border-ios-blue/30 dark:border-ios-blue/40",
+          "text-ios-blue dark:text-ios-blue-light",
         ],
         success: [
-          "bg-green-500/20 dark:bg-green-500/30",
-          "border-green-500/30 dark:border-green-500/40",
-          "text-green-700 dark:text-green-300",
+          "bg-ios-green/15 dark:bg-ios-green/25",
+          "border-ios-green/30 dark:border-ios-green/40",
+          "text-ios-green dark:text-ios-green-light",
         ],
         warning: [
-          "bg-yellow-500/20 dark:bg-yellow-500/30",
-          "border-yellow-500/30 dark:border-yellow-500/40",
-          "text-yellow-700 dark:text-yellow-300",
+          "bg-ios-orange/15 dark:bg-ios-orange/25",
+          "border-ios-orange/30 dark:border-ios-orange/40",
+          "text-ios-orange dark:text-ios-orange-light",
         ],
         destructive: [
-          "bg-destructive/20 dark:bg-destructive/30",
-          "border-destructive/30 dark:border-destructive/40",
-          "text-destructive dark:text-destructive-foreground",
+          "bg-ios-red/15 dark:bg-ios-red/25",
+          "border-ios-red/30 dark:border-ios-red/40",
+          "text-ios-red dark:text-ios-red-light",
         ],
         info: [
-          "bg-blue-500/20 dark:bg-blue-500/30",
-          "border-blue-500/30 dark:border-blue-500/40",
-          "text-blue-700 dark:text-blue-300",
+          "bg-ios-teal/15 dark:bg-ios-teal/25",
+          "border-ios-teal/30 dark:border-ios-teal/40",
+          "text-ios-teal-dark dark:text-ios-teal-light",
         ],
       },
     },
@@ -224,7 +226,7 @@ const GlassBadge = React.forwardRef<HTMLDivElement, GlassBadgeProps>(
 )
 GlassBadge.displayName = "GlassBadge"
 
-// Glass Panel Component
+// Glass Panel Component - iOS/Big Tech Style
 interface GlassPanelProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "subtle" | "strong"
 }
@@ -232,20 +234,20 @@ interface GlassPanelProps extends React.HTMLAttributes<HTMLDivElement> {
 const GlassPanel = React.forwardRef<HTMLDivElement, GlassPanelProps>(
   ({ className, variant = "default", ...props }, ref) => {
     const variantClasses = {
-      default: "bg-white/80 dark:bg-slate-900/80 border-white/30 dark:border-white/20",
-      subtle: "bg-white/60 dark:bg-slate-900/60 border-white/20 dark:border-white/10",
-      strong: "bg-white/90 dark:bg-slate-900/90 border-white/40 dark:border-white/30",
+      default: "bg-white/85 dark:bg-slate-900/85 border-slate-200/50 dark:border-slate-800/50",
+      subtle: "bg-white/70 dark:bg-slate-900/70 border-slate-200/40 dark:border-slate-800/40",
+      strong: "bg-white/95 dark:bg-slate-900/95 border-slate-200/60 dark:border-slate-800/60",
     }
 
     return (
       <div
         ref={ref}
         className={cn(
-          "rounded-2xl p-5",
-          "backdrop-blur-2xl backdrop-saturate-150",
+          "rounded-ios-lg p-5 font-sf-pro",
+          "backdrop-blur-3xl backdrop-saturate-150",
           "border",
-          "shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]",
-          "transition-all duration-300",
+          "shadow-glass dark:shadow-glass-lg",
+          "transition-all duration-300 ease-ios",
           variantClasses[variant],
           className
         )}
@@ -288,7 +290,7 @@ const GlassContainer = React.forwardRef<HTMLDivElement, GlassContainerProps>(
 )
 GlassContainer.displayName = "GlassContainer"
 
-// Glass Input Wrapper
+// Glass Input Wrapper - iOS/Big Tech Style
 const GlassInput = React.forwardRef<
   HTMLInputElement,
   React.InputHTMLAttributes<HTMLInputElement>
@@ -296,14 +298,15 @@ const GlassInput = React.forwardRef<
   <input
     ref={ref}
     className={cn(
-      "flex h-10 w-full rounded-xl px-3 py-2 text-sm",
-      "bg-white/70 dark:bg-black/30",
-      "backdrop-blur-xl backdrop-saturate-150",
-      "border border-white/40 dark:border-white/20",
-      "text-foreground placeholder:text-muted-foreground",
-      "transition-all duration-200",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-      "focus-visible:border-primary/50",
+      "flex h-11 w-full rounded-ios px-4 py-2 font-sf-pro text-ios-body",
+      "bg-white/80 dark:bg-slate-900/80",
+      "backdrop-blur-2xl backdrop-saturate-150",
+      "border border-slate-200/50 dark:border-slate-700/50",
+      "text-foreground placeholder:text-muted-foreground/70",
+      "shadow-ios-sm",
+      "transition-all duration-200 ease-ios",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue",
+      "focus-visible:border-ios-blue/60",
       "disabled:cursor-not-allowed disabled:opacity-50",
       className
     )}
