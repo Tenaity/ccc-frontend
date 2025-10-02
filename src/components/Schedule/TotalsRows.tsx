@@ -19,9 +19,9 @@ export default function TotalsRows({
   expectedByDay: ExpectedByDay;
 }) {
   const stickyColumnBase =
-    "sticky left-0 z-20 min-w-[220px] border-r border-border bg-background/95 backdrop-blur-[2px] supports-[backdrop-filter]:bg-background/60";
+    "sticky left-0 z-20 min-w-[220px] bg-white/92 px-4 py-2 text-left shadow-[8px_0_28px_-12px_rgba(15,23,42,0.18)] backdrop-blur-2xl dark:bg-slate-950/90 dark:shadow-[8px_0_28px_-12px_rgba(0,0,0,0.45)]";
   const weekendClass = (day: number) =>
-    isWeekend(getDow(year, month, day)) ? "bg-amber-50/60" : "";
+    isWeekend(getDow(year, month, day)) ? "bg-amber-50/35 dark:bg-amber-900/15" : "";
 
   const tdTotal = (summary: DayPlaceSummary) =>
     summary.TD.K + summary.TD.CA1 + summary.TD.CA2 + summary.TD.D;
@@ -44,7 +44,7 @@ export default function TotalsRows({
         scope="row"
         className={cn(
           stickyColumnBase,
-          "px-4 py-2 font-medium",
+          "font-medium",
           options.expected && "text-xs italic text-muted-foreground"
         )}
       >
@@ -68,10 +68,10 @@ export default function TotalsRows({
 
   return (
     <>
-      <TableRow className="bg-sky-50/60 text-sm font-semibold">
+      <TableRow className="bg-sky-50/40 text-sm font-semibold backdrop-blur-sm">
         <th
           scope="row"
-          className={cn(stickyColumnBase, "px-4 py-2")}
+          className={stickyColumnBase}
         >
           — TỔNG ĐÀI (TD) —
         </th>
@@ -92,7 +92,7 @@ export default function TotalsRows({
       {renderDataRow(
         "td-leader-expected",
         "Chuẩn · TD · K 👑",
-        "bg-muted/40",
+        "bg-muted/30 backdrop-blur-sm",
         (_, day) => expectedByDay?.[day]?.expectedTD?.K ?? "-",
         { expected: true }
       )}
@@ -100,13 +100,13 @@ export default function TotalsRows({
       {renderDataRow(
         "td-ca1",
         "TD · CA1 (ngày)",
-        "bg-blue-50/70",
+        "bg-blue-50/50 backdrop-blur-sm",
         (summary) => summary?.TD.CA1 ?? 0
       )}
       {renderDataRow(
         "td-ca1-expected",
         "Chuẩn · TD · CA1",
-        "bg-muted/40",
+        "bg-muted/30 backdrop-blur-sm",
         (_, day) => expectedByDay?.[day]?.expectedTD?.CA1 ?? "-",
         { expected: true }
       )}
@@ -114,13 +114,13 @@ export default function TotalsRows({
       {renderDataRow(
         "td-ca2",
         "TD · CA2 (ngày)",
-        "bg-amber-50/70",
+        "bg-amber-50/55 backdrop-blur-sm",
         (summary) => summary?.TD.CA2 ?? 0
       )}
       {renderDataRow(
         "td-ca2-expected",
         "Chuẩn · TD · CA2",
-        "bg-muted/40",
+        "bg-muted/30 backdrop-blur-sm",
         (_, day) => expectedByDay?.[day]?.expectedTD?.CA2 ?? "-",
         { expected: true }
       )}
@@ -128,21 +128,21 @@ export default function TotalsRows({
       {renderDataRow(
         "td-night",
         "TD · Đ (đêm)",
-        "bg-rose-50/70",
+        "bg-rose-50/55 backdrop-blur-sm",
         (summary) => summary?.TD.D ?? 0
       )}
       {renderDataRow(
         "td-night-expected",
         "Chuẩn · TD · Đ",
-        "bg-muted/40",
+        "bg-muted/30 backdrop-blur-sm",
         (_, day) => expectedByDay?.[day]?.expectedTD?.D ?? "-",
         { expected: true }
       )}
 
-      <TableRow className="bg-rose-50 text-sm font-semibold">
+      <TableRow className="bg-rose-50/45 text-sm font-semibold backdrop-blur-sm">
         <th
           scope="row"
-          className={cn(stickyColumnBase, "px-4 py-2")}
+          className={stickyColumnBase}
         >
           — PHÒNG GIAO DỊCH (PGD) —
         </th>
@@ -163,7 +163,7 @@ export default function TotalsRows({
       {renderDataRow(
         "pgd-k-expected",
         "Chuẩn · PGD · K",
-        "bg-muted/40",
+        "bg-muted/30 backdrop-blur-sm",
         (_, day) => expectedByDay?.[day]?.expectedPGD?.K ?? "-",
         { expected: true }
       )}
@@ -171,13 +171,13 @@ export default function TotalsRows({
       {renderDataRow(
         "pgd-ca2",
         "PGD · CA2 (ngày)",
-        "bg-rose-100/60",
+        "bg-rose-100/45 backdrop-blur-sm",
         (summary) => summary?.PGD.CA2 ?? 0
       )}
       {renderDataRow(
         "pgd-ca2-expected",
         "Chuẩn · PGD · CA2",
-        "bg-muted/40",
+        "bg-muted/30 backdrop-blur-sm",
         (_, day) => expectedByDay?.[day]?.expectedPGD?.CA2 ?? "-",
         { expected: true }
       )}
@@ -185,21 +185,21 @@ export default function TotalsRows({
       {renderDataRow(
         "pgd-d",
         "PGD · Đ (đêm)",
-        "bg-rose-200/40",
+        "bg-rose-200/35 backdrop-blur-sm",
         (summary) => summary?.PGD.D ?? 0
       )}
       {renderDataRow(
         "pgd-d-expected",
         "Chuẩn · PGD · Đ",
-        "bg-muted/40",
+        "bg-muted/30 backdrop-blur-sm",
         (_, day) => expectedByDay?.[day]?.expectedPGD?.D ?? "-",
         { expected: true }
       )}
 
-      <TableRow className="bg-blue-100/50 font-semibold">
+      <TableRow className="bg-blue-100/45 font-semibold backdrop-blur-sm">
         <th
           scope="row"
-          className={cn(stickyColumnBase, "px-4 py-2")}
+          className={stickyColumnBase}
         >
           TỔNG TD
         </th>
@@ -216,8 +216,8 @@ export default function TotalsRows({
         </TableCell>
       </TableRow>
 
-      <TableRow className="bg-rose-100/50 font-semibold">
-        <TableCell className={cn(stickyColumnBase, "px-4 py-2")}>
+      <TableRow className="bg-rose-100/45 font-semibold backdrop-blur-sm">
+        <TableCell className={stickyColumnBase}>
           TỔNG PGD
         </TableCell>
         {days.map((day) => (
@@ -233,8 +233,8 @@ export default function TotalsRows({
         </TableCell>
       </TableRow>
 
-      <TableRow className="bg-muted/60 font-semibold">
-        <TableCell className={cn(stickyColumnBase, "px-4 py-2")}>
+      <TableRow className="bg-muted/40 font-semibold backdrop-blur-sm">
+        <TableCell className={stickyColumnBase}>
           TỔNG (TD + PGD)
         </TableCell>
         {days.map((day) => (

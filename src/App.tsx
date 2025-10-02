@@ -3,7 +3,6 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom"
 
 import { matchRoute } from "@/app/routes"
 import { AppSidebar } from "@/components/app-sidebar"
-import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -11,6 +10,7 @@ import { useExportCsv } from "@/hooks/useExportCsv"
 import { useScheduleData } from "@/hooks/useScheduleData"
 import { useToast } from "@/components/ui/use-toast"
 import Legend from "@/components/Legend"
+import { cn } from "@/lib/utils"
 
 import DashboardPage from "./pages/Dashboard"
 import FixedOffHolidayBtn from "./components/Schedule/FixedOffHolidayBtn"
@@ -30,6 +30,10 @@ export default function App() {
   const location = useLocation()
   const routeMeta = matchRoute(location.pathname) ?? matchRoute("/")!
   const scheduleEnabled = routeMeta.path === "/schedule"
+  const RouteIcon = routeMeta.icon
+  const heroTitle = routeMeta.path === "/schedule" ? "Schedule Management" : routeMeta.label
+  const heroTagline = routeMeta.path === "/" ? "Operational Overview" : routeMeta.label
+  const heroDescription = routeMeta.description ?? "Tăng tốc quy trình làm việc với trải nghiệm lấy cảm hứng từ iOS/macOS."
 
   const handleSkipToContent = React.useCallback(
     (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -235,11 +239,56 @@ export default function App() {
       </a>
       <AppSidebar />
       <SidebarInset
-        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className={cn(
+          "relative flex min-h-screen flex-1 flex-col",
+          "bg-[radial-gradient(circle_at_20%_20%,rgba(99,102,241,0.18),transparent_45%),radial-gradient(circle_at_80%_0%,rgba(236,72,153,0.14),transparent_40%),radial-gradient(circle_at_50%_100%,rgba(59,130,246,0.12),transparent_45%)]",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        )}
         id={MAIN_CONTENT_ID}
         tabIndex={-1}
       >
-        <SiteHeader title={routeMeta.label} />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/70 via-white/60 to-white/80 dark:from-slate-950/80 dark:via-slate-950/70 dark:to-slate-950/85" aria-hidden="true" />
+        <div className="relative z-10 flex-1">
+          <header
+            className={cn(
+              "sticky top-0 z-40 -mx-3 px-3 py-6 md:-mx-6 md:px-6",
+              "backdrop-blur-3xl backdrop-saturate-150",
+              "transition-all duration-300"
+            )}
+          >
+            <div
+              className={cn(
+                "mx-auto flex w-full max-w-[1400px] flex-col gap-5",
+                "rounded-3xl border border-white/30 bg-white/75 p-6 shadow-[0_20px_80px_rgba(15,23,42,0.08)]",
+                "dark:border-white/10 dark:bg-slate-950/70 dark:shadow-[0_20px_80px_rgba(0,0,0,0.45)]"
+              )}
+            >
+              <div className="flex flex-wrap items-center gap-4">
+                {RouteIcon ? (
+                  <span
+                    className={cn(
+                      "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl",
+                      "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500",
+                      "shadow-lg shadow-indigo-500/30"
+                    )}
+                  >
+                    <RouteIcon className="h-7 w-7 text-white" aria-hidden="true" />
+                  </span>
+                ) : null}
+                <div className="space-y-1">
+                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-indigo-500/80 dark:text-indigo-300/70">
+                    {heroTagline}
+                  </span>
+                  <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+                    {heroTitle}
+                  </h1>
+                  <p className="max-w-3xl text-sm text-muted-foreground/90 md:text-base">
+                    {heroDescription}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </header>
         <Suspense
           fallback={
             <div className="mx-auto w-full max-w-[1400px] px-3 md:px-6">
@@ -251,7 +300,7 @@ export default function App() {
             </div>
           }
         >
-          <div className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col gap-6 px-3 pb-10 md:px-6">
+          <div className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col gap-6 px-3 pb-10 pt-4 md:px-6">
             <Routes>
               <Route path="/" element={<DashboardPage />} />
               <Route
@@ -293,7 +342,7 @@ export default function App() {
             </Routes>
           </div>
         </Suspense>
-
+        </div>
       </SidebarInset>
     </SidebarProvider>
   )
