@@ -42,7 +42,10 @@ describe("ConfigPage", () => {
     },
   }
 
-  const defaultHolidays: any[] = []
+  let monthConfigResponse: typeof defaultMonthConfig | null
+  let shiftDefaultsResponse: typeof defaultShiftDefaults | null
+  let holidayResponse: any[]
+  let nextImportedHolidays: any[]
 
   let fetchMock: ReturnType<typeof vi.fn>
   let savedMonthConfigBody: any
@@ -71,33 +74,52 @@ describe("ConfigPage", () => {
     savedMonthConfigBody = null
     savedShiftDefaultsBody = null
     savedGenerateBody = null
+    monthConfigResponse = { ...defaultMonthConfig }
+    shiftDefaultsResponse = { ...defaultShiftDefaults }
+    holidayResponse = []
+    nextImportedHolidays = []
 
     fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = typeof input === "string" ? input : input.url
       const method = (init?.method || (typeof input !== "string" ? input.method : undefined) || "GET").toUpperCase()
 
       if (url.startsWith("/api/holidays") && method === "GET") {
-        return jsonResponse(defaultHolidays)
+        return jsonResponse(holidayResponse)
+      }
+
+      if (url === "/api/holidays/import-nager" && method === "POST") {
+        const imported = nextImportedHolidays.length
+        holidayResponse = [...holidayResponse, ...nextImportedHolidays]
+        nextImportedHolidays = []
+        return jsonResponse({ imported })
       }
 
       if (url.startsWith("/api/month-config") && method === "GET") {
-        return jsonResponse(defaultMonthConfig)
+        if (!monthConfigResponse) {
+          return new Response("", { status: 404 })
+        }
+        return jsonResponse(monthConfigResponse)
       }
 
       if (url.startsWith("/api/shift-defaults") && method === "GET") {
-        return jsonResponse(defaultShiftDefaults)
+        if (!shiftDefaultsResponse) {
+          return new Response("", { status: 404 })
+        }
+        return jsonResponse(shiftDefaultsResponse)
       }
 
       if (url === "/api/month-config" && method === "PUT") {
         const body = JSON.parse(init?.body as string)
         savedMonthConfigBody = body
-        return jsonResponse({ ...defaultMonthConfig, ...body })
+        monthConfigResponse = { ...defaultMonthConfig, ...body }
+        return jsonResponse(monthConfigResponse)
       }
 
       if (url === "/api/shift-defaults" && method === "PUT") {
         const body = JSON.parse(init?.body as string)
         savedShiftDefaultsBody = body
-        return jsonResponse({ ...defaultShiftDefaults, defaults: body.defaults })
+        shiftDefaultsResponse = { ...defaultShiftDefaults, defaults: body.defaults }
+        return jsonResponse(shiftDefaultsResponse)
       }
 
       if (url === "/api/schedule/generate" && method === "POST") {
@@ -172,6 +194,29 @@ describe("ConfigPage", () => {
     })
   })
 
+  it("shows increased holiday count after importing", async () => {
+    holidayResponse = [
+      { id: 1, day: `${currentYear}-01-01`, name: "New Year" },
+    ]
+    nextImportedHolidays = [
+      { id: 2, day: `${currentYear}-04-30`, name: "Holiday 1" },
+      { id: 3, day: `${currentYear}-05-01`, name: "Holiday 2" },
+    ]
+
+    renderConfig()
+
+    const user = userEvent.setup()
+    const importButton = await screen.findByRole("button", { name: /Import from Nager/i })
+    expect(screen.getByTestId("holiday-count")).toHaveTextContent("1")
+
+    await user.click(importButton)
+
+    await waitFor(() => {
+      expect(screen.getByTestId("holiday-count-diff")).toHaveTextContent("(+2)")
+    })
+    expect(screen.getByTestId("holiday-count")).toHaveTextContent("3")
+  })
+
   it("sends schedule generation request with current selection", async () => {
     renderConfig()
 
@@ -192,5 +237,24 @@ describe("ConfigPage", () => {
       month: currentMonth,
       fill_hc: false,
     })
+  })
+
+  it("shows banner when generating without existing month config", async () => {
+    monthConfigResponse = null
+
+    renderConfig()
+
+    const user = userEvent.setup()
+    await user.click(screen.getByRole("tab", { name: /Month plan/i }))
+
+    const generateButton = await screen.findByRole("button", { name: /Generate Schedule/i })
+    await waitFor(() => expect(generateButton).not.toBeDisabled())
+
+    await user.click(generateButton)
+
+    const alert = await screen.findByRole("alert")
+    expect(alert).toHaveTextContent("Thiếu cấu hình tháng")
+    expect(alert).toHaveTextContent("Vui lòng lưu thiết lập trước khi sinh lịch")
+    expect(savedGenerateBody).toBeNull()
   })
 })
