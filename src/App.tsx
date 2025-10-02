@@ -15,6 +15,7 @@ const SchedulePage = lazy(() => import("./pages/Schedule"))
 const ChatbotCRUDPage = lazy(() => import("./pages/ChatbotCRUD"))
 const ChatbotUploadPage = lazy(() => import("./pages/ChatbotUpload"))
 const ChatbotChunkingPage = lazy(() => import("./pages/ChatbotChunking"))
+const ConfigPage = lazy(() => import("./pages/Config"))
 
 const MAIN_CONTENT_ID = "app-main-content"
 
@@ -277,6 +278,7 @@ export default function App() {
                     />
                   }
                 />
+                <Route path="/config" element={<ConfigPage />} />
                 <Route path="/chatbot" element={<ChatbotCRUDPage />} />
                 <Route path="/chatbot/upload" element={<ChatbotUploadPage />} />
                 <Route path="/chatbot/chunking" element={<ChatbotChunkingPage />} />

@@ -82,5 +82,5 @@ test('App renders inside UiProvider without crashing', () => {
     </UiProvider>,
   )
 
-  expect(screen.getByRole('heading', { name: /dashboard/i })).toBeInTheDocument()
+  expect(screen.getByTestId('dashboard')).toBeInTheDocument()
 })
