@@ -1,4 +1,4 @@
-import { CalendarIcon, LayoutDashboardIcon, BotIcon, Upload, Scissors, Settings2, TableIcon } from "lucide-react"
+import { CalendarIcon, LayoutDashboardIcon, BotIcon, Upload, Scissors, Settings2, TableIcon, Building2, Users, Clock } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
 export type AppRoute = {
@@ -33,6 +33,18 @@ export const appRoutes: AppRoute[] = [
         label: "Config",
         description: "Thiết lập ngày nghỉ và cấu hình tháng",
         icon: Settings2,
+      },
+      {
+        path: "/departments",
+        label: "Departments",
+        description: "Quản lý phòng ban và nhân viên",
+        icon: Building2,
+      },
+      {
+        path: "/shift-config",
+        label: "Shift Config",
+        description: "Cấu hình ca làm việc tùy chỉnh",
+        icon: Clock,
       },
     ],
   },

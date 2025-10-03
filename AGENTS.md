@@ -1,9 +1,10 @@
 # AGENTS
 
 ## Project overview
-- Vite + React + TypeScript app with Tailwind CSS and Radix UI primitives. Source is under `src/` with domain logic in `components/`, `hooks/`, `lib/`, `pages/`, `routes/`, and shared types in `types.ts`. `@` is aliased to `src` in both Vite and Vitest configs—prefer that import style for stability. 【F:package.json†L1-L56】【F:vitest.config.ts†L1-L40】
-- The schedule workflow drives most domain logic: hooks in `src/hooks/`, API helpers in `src/lib/api.ts`, and domain types in `src/types.ts`. Review those before touching schedule features to avoid breaking constraints (leader duplication, quotas, fixed/off day rules). 【F:src/App.tsx†L1-L120】【F:src/lib/api.ts†L1-L120】【F:src/types.ts†L1-L120】
-- Tests live in the top-level `test/` directory (Vitest + React Testing Library) with additional colocated specs inside `src/components/**/__tests__`. Always add or update tests alongside logic changes. 【F:test/AppProviders.test.tsx†L1-L22】【F:package.json†L6-L18】
+- Vite + React + TypeScript app with Tailwind CSS and Radix UI primitives. Source is under `src/` with domain logic in `components/`, `hooks/`, `lib/`, `pages/`, `routes/`, and shared types in `types.ts`. `@` is aliased to `src` in both Vite and Vitest configs—prefer that import style for stability.
+- The schedule workflow drives most domain logic: hooks in `src/hooks/`, API helpers in `src/lib/api.ts`, and domain types in `src/types.ts`. Review those before touching schedule features to avoid breaking constraints (leader duplication, quotas, fixed/off day rules).
+- Tests live in the top-level `test/` directory (Vitest + React Testing Library) with additional colocated specs inside `src/components/**/__tests__`. Always add or update tests alongside logic changes.
+- **Multi-department support**: Phase 1 & 2 added department management (`/departments`) and custom shift configuration (`/shift-config`) with Apple-inspired premium UI.
 
 ## Local commands
 - `npm install` – install dependencies (Node ≥20.15.1).
@@ -12,9 +13,172 @@
 - `npm run typecheck`, `npm run lint`, and `npm run build` – keep CI parity locally. 【F:package.json†L6-L54】【F:scripts/run-vitest.mjs†L1-L40】
 
 ## Frontend architecture
-- **Layout & routing**: `src/App.tsx` mounts the glass sidebar shell and lazy-loads the large pages (`Dashboard`, `Schedule`, `Chatbot*`). Shared layout primitives are in `src/components/layout/` and `src/components/app-sidebar.tsx`. Keep skip-links and focus management intact. 【F:src/App.tsx†L1-L160】【F:src/components/app-sidebar.tsx†L1-L160】
-- **UI system**: Glassmorphism primitives (`GlassCard`, `GlassButton`, `GlassBadge`, etc.) live in `src/components/ui/glass.tsx`. Always reach for these wrappers instead of raw shadcn components to keep styling consistent. The Tailwind tokens that back them are declared in `src/index.css` under the glass utility layer. 【F:src/components/ui/glass.tsx†L1-L160】【F:src/index.css†L1-L120】
-- **Domain widgets**: Schedule matrix, fixed/off panels, toolbar, and legend are under `src/components/Schedule/` and `src/components/Toolbar.tsx`. Dashboard cards and charts are under `src/components/section-cards.tsx` and `chart-area-interactive.tsx`. Respect their prop contracts when extending features. 【F:src/components/Schedule/MatrixTable.tsx†L1-L80】【F:src/components/Toolbar.tsx†L1-L120】
+- **Layout & routing**: `src/App.tsx` mounts the Apple-inspired sidebar shell (`AppleSidebar.tsx`) and lazy-loads pages (`Dashboard`, `Schedule`, `Chatbot*`, `DepartmentManagement`, `ShiftConfig`). Routes defined in `src/app/routes.tsx`. Keep skip-links and focus management intact.
+- **UI system**: Glassmorphism primitives (`GlassCard`, `GlassButton`, `GlassBadge`, `GlassPanel`) live in `src/components/ui/glass.tsx`. Always use these instead of raw components for consistent styling. Tailwind tokens in `src/index.css` under glass utility layer.
+- **Domain widgets**: Schedule matrix, fixed/off panels, toolbar, and legend are under `src/components/Schedule/`. Dashboard cards under `src/components/section-cards.tsx`. **New**: Department & shift management pages under `src/pages/DepartmentManagement.tsx` and `src/pages/ShiftConfig.tsx`.
+
+## Phase 1 & 2: Multi-Department Support (COMPLETED)
+
+### New Pages
+
+#### 1. DepartmentManagement (`src/pages/DepartmentManagement.tsx`)
+**Route**: `/departments`
+
+**Features**:
+- **Stats Cards** (3 cards):
+  - Total Departments - sky-indigo gradient
+  - Total Staff - emerald-teal gradient
+  - Custom Shifts - violet-purple gradient
+- **Department Cards Grid**:
+  - Display: name, code, icon (colored circle), description
+  - Stats: staff_count, shift_count
+  - Hover effects reveal Edit/Delete buttons
+  - Delete validation prevents deletion if staff exists
+- **Create/Edit Dialog**:
+  - Name & Code inputs
+  - Icon Picker: 8 options (Building2, Users, Headphones, Briefcase, Monitor, Heart, ShoppingCart, Truck)
+  - Color Picker: 8 colors (#3b82f6, #10b981, #8b5cf6, #f59e0b, #ec4899, #06b6d4, #f97316, #14b8a6)
+  - Description textarea (optional)
+  - Form validation & error handling
+
+**APIs Used**:
+```typescript
+GET /api/departments
+POST /api/departments
+PUT /api/departments/:id
+DELETE /api/departments/:id
+```
+
+**Components**:
+- `PageHeader` - Gradient title with description
+- `GlassPanel` - Container with glass-morphism
+- `Button`, `Input`, `Label`, `Textarea`, `Dialog`
+
+#### 2. ShiftConfig (`src/pages/ShiftConfig.tsx`)
+**Route**: `/shift-config`
+
+**Features**:
+- **Stats Cards** (3 cards):
+  - Total Shifts for selected department
+  - Active Department (name + color indicator)
+  - Total Departments count
+- **Department Selector**:
+  - Dropdown to switch between departments
+  - Shows department color dot + name + code
+- **Shift Cards Grid**:
+  - Display: name, code (color-coded badge), start/end times, icon
+  - Hover effects reveal Edit/Delete buttons
+  - Empty state when no shifts configured
+- **Create/Edit Dialog**:
+  - Name & Code inputs
+  - Start/End Time pickers (type="time")
+  - Icon Picker: 8 shift-specific icons (Sun, Moon, Coffee, Clock, Calendar, Star, Briefcase, Headphones)
+  - Color Picker: 10 pastel colors (#60a5fa, #34d399, #a78bfa, #fbbf24, #f472b6, #22d3ee, #fb923c, #2dd4bf, #c084fc, #fb7185)
+  - Display order (auto-incremented)
+
+**APIs Used**:
+```typescript
+GET /api/shift-configs?department_id=:id
+POST /api/shift-configs
+PUT /api/shift-configs/:id
+DELETE /api/shift-configs/:id
+```
+
+### New Components
+
+#### `PageHeader.tsx` (`src/components/ui/page-header.tsx`)
+```typescript
+interface PageHeaderProps {
+  title: string
+  description?: string
+  className?: string
+}
+```
+- Gradient title (sky-600 to indigo-600)
+- Muted description text
+- Reusable across all pages
+
+#### `Textarea.tsx` (`src/components/ui/textarea.tsx`)
+```typescript
+interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement>
+```
+- Standard textarea with consistent styling
+- Border, focus ring, disabled states
+- Integrates with Form components
+
+### Routing Updates
+
+**`src/app/routes.tsx`**:
+```typescript
+{
+  path: "/schedule",
+  label: "Schedule",
+  children: [
+    { path: "/schedule", label: "Matrix View", icon: TableIcon },
+    { path: "/config", label: "Config", icon: Settings2 },
+    { path: "/departments", label: "Departments", icon: Building2 }, // NEW
+    { path: "/shift-config", label: "Shift Config", icon: Clock },  // NEW
+  ]
+}
+```
+
+**`src/App.tsx`**:
+```typescript
+const DepartmentManagementPage = lazy(() => import("./pages/DepartmentManagement"))
+const ShiftConfigPage = lazy(() => import("./pages/ShiftConfig"))
+
+// Routes
+<Route path="/departments" element={<DepartmentManagementPage />} />
+<Route path="/shift-config" element={<ShiftConfigPage />} />
+```
+
+### Design System Adherence
+
+All new pages follow the established design system:
+
+**Colors**:
+- Primary gradient: `from-sky-600 to-indigo-600`
+- Stats card gradients: sky-indigo, emerald-teal, violet-purple
+- Pastel shift colors for better UX
+
+**Glass-morphism**:
+- `GlassPanel` variant="strong" - `bg-white/95 backdrop-blur-3xl`
+- Consistent border opacity and shadows
+- Smooth 300ms transitions
+
+**Typography**:
+- Gradient text for titles: `bg-gradient-to-r bg-clip-text text-transparent`
+- Font weights: semibold (600) for labels, bold (700) for stats
+- Text hierarchy: 3xl titles, base descriptions, sm labels
+
+**Interactions**:
+- Hover scale effects: `group-hover:scale-110`
+- Button shadows: `shadow-md hover:shadow-lg`
+- Smooth transitions: `transition-all duration-300`
+- Active states with proper focus rings
+
+### Integration Points
+
+**With Backend**:
+- All endpoints return proper error messages
+- Delete operations validate dependencies
+- Auto-migration adds `department_id` to existing staff
+
+**With Existing UI**:
+- Matches AppleSidebar navigation pattern
+- Uses same GlassPanel variants as Config page
+- Color palette extends existing gradient system
+- Icons from same Lucide React library
+
+### Testing Checklist
+- ✅ All pages compile without TypeScript errors
+- ✅ All components properly imported (PageHeader, Textarea, GlassPanel)
+- ✅ Backend APIs functional (tested with curl)
+- ✅ Frontend fetches and displays data correctly
+- ✅ Create/Edit/Delete operations work end-to-end
+- ✅ Validation prevents invalid operations (delete with staff, duplicate codes)
+- ✅ No console errors or warnings
+- ⏸️ Unit tests pending (add when feature stabilizes)
 
 ## Styling & UX rules
 - Keep the glass visual language: backgrounds at 85–95% opacity, `backdrop-blur-3xl`, gradients for primary CTAs, and the `shadow-glass` / `shadow-ios` shadows defined in the design system. Reference existing variants in `glass.tsx` instead of adding bespoke Tailwind classes. 【F:src/components/ui/glass.tsx†L1-L160】

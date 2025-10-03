@@ -30,7 +30,6 @@ const PopoverContent = React.forwardRef<
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-96 data-[state=open]:zoom-in-96",
         "transition-all duration-150 ease-out",
-        "origin-[--radix-popover-content-transform-origin]",
         className
       )}
       {...props}

@@ -23,7 +23,7 @@ export function PageHeader({ icon: Icon, tagline, title, description }: PageHead
           <span
             className={cn(
               "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl",
-              "bg-gradient-to-br from-sky-500 via-indigo-500 to-pink-500",
+              "bg-gradient-to-br from-sky-500 via-indigo-300 to-pink-500",
               "shadow-[0_18px_36px_rgba(99,102,241,0.28)]"
             )}
           >
