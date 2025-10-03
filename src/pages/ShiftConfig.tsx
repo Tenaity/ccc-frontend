@@ -37,6 +37,7 @@ interface Department {
   name: string
   code: string
   color: string
+  is_active?: boolean
 }
 
 interface ShiftConfig {
