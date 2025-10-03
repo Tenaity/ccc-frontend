@@ -5,6 +5,7 @@ import App from "./App";
 import "./globals.css";
 import "./index.css";
 import { UiProvider } from "@/components/ui/UiProvider";
+import { DepartmentProvider } from "@/contexts/DepartmentContext";
 
 if (import.meta.env.MODE !== "production") {
   void import("./lib/a11y")
@@ -16,7 +17,9 @@ createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <UiProvider>
       <HashRouter>
-        <App />
+        <DepartmentProvider>
+          <App />
+        </DepartmentProvider>
       </HashRouter>
     </UiProvider>
   </React.StrictMode>

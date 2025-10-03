@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useMemo, useState } from "react"
 import { Navigate, Route, Routes } from "react-router-dom"
 
 import { AppleSidebar } from "@/components/AppleSidebar"
+import { DepartmentSwitcher } from "@/components/DepartmentSwitcher"
 import { useExportCsv } from "@/hooks/useExportCsv"
 import { useScheduleData } from "@/hooks/useScheduleData"
 import { useToast } from "@/components/ui/use-toast"
@@ -19,6 +20,7 @@ const ConfigPage = lazy(() => import("./pages/Config"))
 const DepartmentManagementPage = lazy(() => import("./pages/DepartmentManagement"))
 const ShiftConfigPage = lazy(() => import("./pages/ShiftConfig"))
 const StaffManagementPage = lazy(() => import("./pages/StaffManagement"))
+const StaffPreferencesPage = lazy(() => import("./pages/StaffPreferences"))
 
 const MAIN_CONTENT_ID = "app-main-content"
 
@@ -344,6 +346,11 @@ export default function App() {
             }
           >
             <div className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col gap-6 px-6 py-6">
+              {/* Department Switcher Header */}
+              <div className="flex items-center justify-between">
+                <DepartmentSwitcher />
+              </div>
+
               <Routes>
                 <Route path="/" element={<DashboardPage />} />
                 <Route
@@ -391,6 +398,7 @@ export default function App() {
                 <Route path="/departments" element={<DepartmentManagementPage />} />
                 <Route path="/shift-config" element={<ShiftConfigPage />} />
                 <Route path="/staff" element={<StaffManagementPage />} />
+                <Route path="/staff-preferences" element={<StaffPreferencesPage />} />
                 <Route path="/chatbot" element={<ChatbotCRUDPage />} />
                 <Route path="/chatbot/upload" element={<ChatbotUploadPage />} />
                 <Route path="/chatbot/chunking" element={<ChatbotChunkingPage />} />
