@@ -3,6 +3,7 @@ import { Plus, Users, Building2, UserCheck, UserX, Edit2, Trash2, Search } from 
 import { PageHeader } from "@/components/PageHeader"
 import { GlassPanel } from "@/components/ui/glass"
 import { Button } from "@/components/ui/button"
+import { useDepartment } from "@/contexts/DepartmentContext"
 import {
   Dialog,
   DialogContent,
@@ -42,13 +43,13 @@ interface Staff {
 }
 
 export default function StaffManagement() {
+  const { selectedDepartmentId, departments: contextDepartments } = useDepartment()
   const [staff, setStaff] = useState<Staff[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
   const [loading, setLoading] = useState(true)
   const [showDialog, setShowDialog] = useState(false)
   const [editingStaff, setEditingStaff] = useState<Staff | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
-  const [filterDepartment, setFilterDepartment] = useState<string>("all")
   const [filterRole, setFilterRole] = useState<string>("all")
 
   const [formData, setFormData] = useState({
@@ -62,11 +63,14 @@ export default function StaffManagement() {
 
   useEffect(() => {
     Promise.all([fetchStaff(), fetchDepartments()])
-  }, [])
+  }, [selectedDepartmentId])
 
   const fetchStaff = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/staff")
+      const url = selectedDepartmentId
+        ? `http://localhost:8000/api/staff?department_id=${selectedDepartmentId}`
+        : "http://localhost:8000/api/staff"
+      const res = await fetch(url)
       const data = await res.json()
       setStaff(data)
     } catch (err) {
@@ -161,14 +165,12 @@ export default function StaffManagement() {
     }
   }
 
-  // Filtered staff
+  // Filtered staff (already filtered by department via API)
   const filteredStaff = staff.filter((s) => {
     const matchesSearch = s.full_name.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesDept = filterDepartment === "all" ||
-      (filterDepartment === "unassigned" ? !s.department_id : s.department_id === parseInt(filterDepartment))
     const matchesRole = filterRole === "all" || s.role === filterRole
 
-    return matchesSearch && matchesDept && matchesRole
+    return matchesSearch && matchesRole
   })
 
   const totalStaff = staff.length
@@ -251,21 +253,6 @@ export default function StaffManagement() {
               />
             </div>
           </div>
-
-          <Select value={filterDepartment} onValueChange={setFilterDepartment}>
-            <SelectTrigger className="w-full md:w-[200px]">
-              <SelectValue placeholder="All Departments" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Departments</SelectItem>
-              <SelectItem value="unassigned">Unassigned</SelectItem>
-              {departments.map((dept) => (
-                <SelectItem key={dept.id} value={dept.id.toString()}>
-                  {dept.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
 
           <Select value={filterRole} onValueChange={setFilterRole}>
             <SelectTrigger className="w-full md:w-[180px]">
@@ -389,7 +376,7 @@ export default function StaffManagement() {
                   <td colSpan={7} className="px-6 py-12 text-center">
                     <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
                     <p className="text-muted-foreground">
-                      {searchQuery || filterDepartment !== "all" || filterRole !== "all"
+                      {searchQuery || filterRole !== "all" || selectedDepartmentId
                         ? "No staff found matching your filters"
                         : "No staff members yet. Click 'Add Staff' to create your first entry."}
                     </p>
