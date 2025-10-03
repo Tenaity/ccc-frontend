@@ -311,35 +311,46 @@ export function useScheduleData(
 
   /** onSave: chạy lại đúng tham số lần trước & lưu DB, sau đó reload assignments thật */
   const onSave = async () => {
-    if (!lastOptions) { alert("Hãy Generate hoặc Shuffle trước khi Save."); return; }
+    if (!lastOptions) {
+      throw new Error("Hãy Generate hoặc Shuffle trước khi lưu.");
+    }
+
     setLoadingGen(true);
     try {
-    await generateSchedule({ ...lastOptions, save: true });
-    await fetchAssignments();
-    await fetchEstimate();
-    await fetchExpected();
-      alert("Đã lưu lịch vào DB.");
+      await generateSchedule({ ...lastOptions, save: true });
+      await fetchAssignments();
+      await fetchEstimate();
+      await fetchExpected();
     } finally {
       setLoadingGen(false);
     }
   };
 
-  /** Reset mềm: xoá toàn bộ assignment nhưng giữ schema */
-  const onResetSoft = async () => {
-    if (!confirm("Xoá tất cả Assignment?")) return;
-    await fetch("/api/admin/reset?mode=soft", { method: "POST" });
+  async function postReset(mode: "soft" | "hard") {
+    const response = await fetch(`/api/admin/reset?mode=${mode}`, {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      const message = (await response.text()).trim();
+      throw new Error(
+        message.length > 0 ? message : `Không thể reset (${mode}).`,
+      );
+    }
+
     await fetchAssignments();
     await fetchEstimate();
     await fetchExpected();
+  }
+
+  /** Reset mềm: xoá toàn bộ assignment nhưng giữ schema */
+  const onResetSoft = async () => {
+    await postReset("soft");
   };
 
   /** Reset cứng: drop DB file + recreate schema */
   const onResetHard = async () => {
-    if (!confirm("Xoá file DB và tạo lại schema? (mất toàn bộ dữ liệu)")) return;
-    await fetch("/api/admin/reset?mode=hard", { method: "POST" });
-    await fetchAssignments();
-    await fetchEstimate();
-    await fetchExpected();
+    await postReset("hard");
   };
 
   // ====== SUMMARIES (cho panel bên phải và TotalsRows) ======

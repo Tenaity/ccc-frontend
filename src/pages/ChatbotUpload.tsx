@@ -2,9 +2,11 @@ import React, { useState, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Upload, X, FileText } from "lucide-react"
+import { Upload, X, FileText, CheckCircle2, AlertCircle, Sparkles, Cloud, RefreshCw } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { PageHeader } from "@/components/PageHeader"
+import { GlassPanel, GlassButton, GlassBadge } from "@/components/ui/glass"
+import { cn } from "@/lib/utils"
 
 const ALLOWED_FILE_TYPES = [
   'application/pdf',
@@ -110,23 +112,49 @@ export default function ChatbotUpload() {
     }
   }
 
+  const getFileIcon = () => {
+    if (!selectedFile) return null
+    return (
+      <div className={cn(
+        "p-4 rounded-2xl",
+        "bg-gradient-to-br from-sky-100 to-indigo-100 dark:from-sky-900/30 dark:to-indigo-900/30"
+      )}>
+        <FileText className="h-12 w-12 text-sky-600 dark:text-sky-400" />
+      </div>
+    )
+  }
+
   return (
     <>
       <PageHeader
         icon={Upload}
-        tagline="Upload File"
-        title="Upload File"
-        description="Upload và xử lý file qua webhook"
+        tagline="Smart File Processing"
+        title="Upload & Process Files"
+        description="Upload tài liệu và xử lý tự động qua AI-powered webhook"
       />
+
       <div className="space-y-6">
-        {/* Upload Section */}
-        <Card>
-        <CardContent className="space-y-4">
-          {/* Drag and drop zone */}
+        {/* Upload Section with Premium Glass Design */}
+        <GlassPanel variant="strong" className="p-8">
+          <div className="mb-6">
+            <h3 className="text-xl font-bold bg-gradient-to-br from-sky-600 to-indigo-600 bg-clip-text text-transparent">
+              Upload File
+            </h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Hỗ trợ: PDF, DOCX, Excel, CSV • Tối đa 10MB
+            </p>
+          </div>
+
+          {/* Enhanced Drag and Drop Zone */}
           <div
-            className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              dragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25"
-            }`}
+            className={cn(
+              "relative border-2 border-dashed rounded-2xl p-12 text-center",
+              "transition-all duration-300 ease-out",
+              dragActive
+                ? "border-sky-400 bg-sky-50/50 dark:bg-sky-900/20 scale-[1.02]"
+                : "border-slate-200/60 dark:border-slate-800/60 hover:border-sky-300 dark:hover:border-sky-700",
+              "backdrop-blur-sm"
+            )}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
@@ -141,16 +169,23 @@ export default function ChatbotUpload() {
             />
 
             {selectedFile ? (
-              <div className="flex items-center justify-center gap-3">
-                <FileText className="h-8 w-8 text-primary" />
+              <div className="flex items-center justify-between gap-6 max-w-2xl mx-auto">
+                {getFileIcon()}
                 <div className="flex-1 text-left">
-                  <p className="font-medium">{selectedFile.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {(selectedFile.size / 1024).toFixed(2)} KB
-                  </p>
+                  <p className="font-semibold text-lg text-foreground">{selectedFile.name}</p>
+                  <div className="flex items-center gap-4 mt-2">
+                    <GlassBadge variant="info" className="gap-1.5">
+                      <FileText className="h-3 w-3" />
+                      {selectedFile.type.split('/').pop()?.toUpperCase()}
+                    </GlassBadge>
+                    <GlassBadge variant="success" className="gap-1.5">
+                      <CheckCircle2 className="h-3 w-3" />
+                      {(selectedFile.size / 1024).toFixed(2)} KB
+                    </GlassBadge>
+                  </div>
                 </div>
-                <Button
-                  variant="ghost"
+                <GlassButton
+                  variant="outline"
                   size="sm"
                   onClick={() => {
                     setSelectedFile(null)
@@ -158,57 +193,117 @@ export default function ChatbotUpload() {
                       fileInputRef.current.value = ''
                     }
                   }}
+                  className="hover:border-red-400/50 hover:text-red-600"
                 >
                   <X className="h-4 w-4" />
-                </Button>
+                </GlassButton>
               </div>
             ) : (
-              <div className="space-y-2">
-                <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">
-                  Kéo thả file vào đây hoặc
-                </p>
-                <Button
-                  variant="outline"
+              <div className="space-y-6">
+                <div className={cn(
+                  "mx-auto w-20 h-20 rounded-3xl flex items-center justify-center",
+                  "bg-gradient-to-br from-sky-100 to-indigo-100 dark:from-sky-900/30 dark:to-indigo-900/30",
+                  "transition-transform duration-300",
+                  dragActive && "scale-110"
+                )}>
+                  <Cloud className={cn(
+                    "h-10 w-10 transition-colors duration-300",
+                    dragActive ? "text-sky-600" : "text-muted-foreground"
+                  )} />
+                </div>
+                <div>
+                  <p className="text-lg font-semibold text-foreground mb-2">
+                    Kéo thả file vào đây
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    hoặc click để chọn file từ máy tính
+                  </p>
+                </div>
+                <GlassButton
+                  variant="primary"
+                  size="lg"
                   onClick={() => fileInputRef.current?.click()}
+                  className="gap-2 shadow-lg shadow-sky-500/25"
                 >
+                  <Upload className="h-4 w-4" />
                   Chọn file
-                </Button>
+                </GlassButton>
               </div>
             )}
           </div>
 
-          <div className="flex justify-end">
-            <Button
-              onClick={handleUpload}
-              disabled={!selectedFile || uploading}
-            >
-              {uploading ? "Đang upload..." : "Upload"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Webhook Response Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Webhook Response</CardTitle>
-          <CardDescription>
-            Kết quả trả về từ webhook sau khi upload
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {webhookResponse ? (
-            <pre className="rounded-lg bg-muted p-4 overflow-auto text-sm">
-              {JSON.stringify(webhookResponse, null, 2)}
-            </pre>
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              Chưa có dữ liệu response. Upload file để xem kết quả.
-            </p>
+          {selectedFile && (
+            <div className="flex justify-end mt-6">
+              <GlassButton
+                variant="primary"
+                size="lg"
+                onClick={handleUpload}
+                disabled={uploading}
+                className={cn(
+                  "gap-2 min-w-[160px]",
+                  uploading && "opacity-80",
+                  !uploading && "shadow-lg shadow-sky-500/25"
+                )}
+              >
+                {uploading ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Đang upload...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    Upload & Process
+                  </>
+                )}
+              </GlassButton>
+            </div>
           )}
-        </CardContent>
-      </Card>
+        </GlassPanel>
+
+        {/* Premium Webhook Response Section */}
+        <GlassPanel variant="strong" className="p-8">
+          <div className="mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold bg-gradient-to-br from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                  Processing Result
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Kết quả xử lý từ AI webhook
+                </p>
+              </div>
+              {webhookResponse && (
+                <GlassBadge variant="success" className="gap-1.5">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  Thành công
+                </GlassBadge>
+              )}
+            </div>
+          </div>
+
+          {webhookResponse ? (
+            <div className={cn(
+              "rounded-xl border border-slate-200/60 dark:border-slate-800/60",
+              "bg-slate-50/50 dark:bg-slate-900/50",
+              "overflow-hidden"
+            )}>
+              <pre className="p-6 overflow-auto max-h-[400px] text-sm font-mono leading-relaxed">
+                {JSON.stringify(webhookResponse, null, 2)}
+              </pre>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 px-6 rounded-xl bg-slate-50/30 dark:bg-slate-900/30 border border-dashed border-slate-200/60 dark:border-slate-800/60">
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-100 to-gray-100 dark:from-slate-800/30 dark:to-gray-800/30 mb-4">
+                <AlertCircle className="h-10 w-10 text-muted-foreground" />
+              </div>
+              <p className="font-medium text-foreground mb-1">Chưa có dữ liệu</p>
+              <p className="text-sm text-muted-foreground text-center max-w-md">
+                Upload file để xem kết quả xử lý từ webhook
+              </p>
+            </div>
+          )}
+        </GlassPanel>
       </div>
     </>
   )
