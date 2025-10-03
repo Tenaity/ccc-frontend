@@ -16,6 +16,7 @@
 - **Layout & routing**: `src/App.tsx` mounts the Apple-inspired sidebar shell (`AppleSidebar.tsx`) and lazy-loads pages (`Dashboard`, `Schedule`, `Chatbot*`, `DepartmentManagement`, `ShiftConfig`). Routes defined in `src/app/routes.tsx`. Keep skip-links and focus management intact.
 - **UI system**: Glassmorphism primitives (`GlassCard`, `GlassButton`, `GlassBadge`, `GlassPanel`) live in `src/components/ui/glass.tsx`. Always use these instead of raw components for consistent styling. Tailwind tokens in `src/index.css` under glass utility layer.
 - **Domain widgets**: Schedule matrix, fixed/off panels, toolbar, and legend are under `src/components/Schedule/`. Dashboard cards under `src/components/section-cards.tsx`. **New**: Department & shift management pages under `src/pages/DepartmentManagement.tsx` and `src/pages/ShiftConfig.tsx`.
+- **Analytics hub**: `src/pages/Analytics.tsx` renders staff workload, department comparison, attendance, and cost widgets backed by hooks in `src/hooks/useAnalyticsMetrics.ts`. Metrics hooks normalize API responses via `src/types/analytics.ts` and expose loading/error/empty states for reuse.
 
 ## Phase 1 & 2: Multi-Department Support (COMPLETED)
 

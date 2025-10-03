@@ -18,6 +18,7 @@ const ChatbotChunkingPage = lazy(() => import("./pages/ChatbotChunking"))
 const ConfigPage = lazy(() => import("./pages/Config"))
 const DepartmentManagementPage = lazy(() => import("./pages/DepartmentManagement"))
 const ShiftConfigPage = lazy(() => import("./pages/ShiftConfig"))
+const AnalyticsPage = lazy(() => import("./pages/Analytics"))
 
 const MAIN_CONTENT_ID = "app-main-content"
 
@@ -345,6 +346,7 @@ export default function App() {
             <div className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col gap-6 px-6 py-6">
               <Routes>
                 <Route path="/" element={<DashboardPage />} />
+                <Route path="/analytics" element={<AnalyticsPage />} />
                 <Route
                   path="/schedule"
                   element={

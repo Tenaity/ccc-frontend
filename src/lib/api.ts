@@ -46,6 +46,13 @@ async function parseJsonResponse<T>(res: Response): Promise<T> {
   }
 }
 
+export async function fetchJson<T>(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+): Promise<T> {
+  return parseJsonResponse<T>(await fetch(input, init))
+}
+
 export type ValidationConflict = {
   type?: string
   detail?: unknown
