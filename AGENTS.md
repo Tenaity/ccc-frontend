@@ -406,3 +406,11 @@ await refetchScheduleData()
 - Fonts, animations, and theme tokens are configured in `src/globals.css` and `src/index.css`. Align new utility classes with these tokens; avoid inline hard-coded colors.
 - When introducing new shared components, export them through `src/components/index.ts` to keep barrel imports coherent. 【F:src/components/index.ts†L1-L160】
 - Keep documentation synchronized: major architecture adjustments should be reflected in `ARCHITECTURE.md` at the repo root (create/update if necessary).
+
+# Agent Guidelines
+
+- Mọi tài liệu mô tả business logic cho từng page phải được đặt trong `README.md` bên trong đúng thư mục con của page (ví dụ: `src/pages/department-management/README.md`).
+- Khi thêm page mới, luôn tạo `README.md` tương tự để ghi lại entry point, hook chính, component con và API liên quan.
+- Không đặt các mô tả trang vào file tài liệu chung khác ngoài luật này trừ khi có chỉ dẫn mới.
+- Khi chỉnh sửa logic hoặc tách component/hook, cập nhật README tương ứng trong cùng thư mục để phản ánh thay đổi.
+- README nên giữ cấu trúc: giới thiệu, hook chính, component con, shared constants/utils và danh sách endpoint backend sử dụng (nếu có).

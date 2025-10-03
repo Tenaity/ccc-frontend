@@ -77,42 +77,49 @@ SelectScrollDownButton.displayName =
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = "popper", sideOffset = 4, ...props }, ref) => (
-  <SelectPrimitive.Portal>
-    <SelectPrimitive.Content
-      ref={ref}
-      sideOffset={sideOffset}
-      className={cn(
-        "relative z-50 max-h-[--radix-select-content-available-height] min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-ios-lg font-sf-pro",
-        // iOS glass effect
-        "bg-white/95 dark:bg-slate-900/95",
-        "backdrop-blur-3xl backdrop-saturate-150",
-        "border border-slate-200/60 dark:border-slate-800/60",
-        "shadow-glass-lg",
-        "text-foreground",
-        "data-[state=open]:animate-in data-[state=closed]:animate-out",
-        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-        "data-[state=closed]:zoom-out-96 data-[state=open]:zoom-in-96",
-        "transition-all duration-150 ease-out",
-        className
-      )}
-      position={position}
-      {...props}
-    >
-      <SelectScrollUpButton />
-      <SelectPrimitive.Viewport
+>(({ className, children, position = "item-aligned", sideOffset = 4, ...props }, ref) => {
+  const contentProps =
+    position === "popper"
+      ? { position }
+      : {}
+
+  return (
+    <SelectPrimitive.Portal>
+      <SelectPrimitive.Content
+        ref={ref}
+        sideOffset={sideOffset}
         className={cn(
-          "p-1",
-          position === "popper" &&
-            "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
+          "relative z-50 max-h-[--radix-select-content-available-height] min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-ios-lg font-sf-pro",
+          // iOS glass effect
+          "bg-white/95 dark:bg-slate-900/95",
+          "backdrop-blur-3xl backdrop-saturate-150",
+          "border border-slate-200/60 dark:border-slate-800/60",
+          "shadow-glass-lg",
+          "text-foreground",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out",
+          "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          "data-[state=closed]:zoom-out-96 data-[state=open]:zoom-in-96",
+          "transition-all duration-150 ease-out",
+          className
         )}
+        {...contentProps}
+        {...props}
       >
-        {children}
-      </SelectPrimitive.Viewport>
-      <SelectScrollDownButton />
-    </SelectPrimitive.Content>
-  </SelectPrimitive.Portal>
-))
+        <SelectScrollUpButton />
+        <SelectPrimitive.Viewport
+          className={cn(
+            "p-1",
+            position === "popper" &&
+              "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
+          )}
+        >
+          {children}
+        </SelectPrimitive.Viewport>
+        <SelectScrollDownButton />
+      </SelectPrimitive.Content>
+    </SelectPrimitive.Portal>
+  )
+})
 SelectContent.displayName = SelectPrimitive.Content.displayName
 
 const SelectLabel = React.forwardRef<
