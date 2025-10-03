@@ -68,6 +68,10 @@ export default function App() {
     fixedByDayStaff,
     offByDayStaff,
     onGenerate,
+    onShuffle,
+    onSave,
+    onResetSoft,
+    onResetHard,
     fetchStaff,
     fetchFixed,
     fetchOffdays,
@@ -207,35 +211,103 @@ export default function App() {
     await fetchHolidays()
   }, [fetchFixed, fetchOffdays, fetchHolidays])
 
-  // CalendarHeader handlers
-  const handleShuffle = React.useCallback(() => {
-    toast({
-      title: "Shuffle",
-      description: "Chức năng shuffle chưa được implement.",
-    })
-  }, [toast])
+  // CalendarHeader handlers wired to schedule APIs
+  const handleShuffle = React.useCallback(async () => {
+    try {
+      const result = await onShuffle()
+      if (!result?.ok) {
+        const conflicts = result?.conflicts.length ?? 0
+        toast({
+          variant: "destructive",
+          title: "Không thể shuffle",
+          description: `${conflicts} xung đột cần xử lý trước khi xáo lịch.`,
+        })
+        return
+      }
 
-  const handleSave = React.useCallback(() => {
-    toast({
-      title: "Lưu lịch",
-      description: "Chức năng lưu lịch chưa được implement.",
-    })
-  }, [toast])
+      toast({
+        title: "Đã shuffle lịch",
+        description: `Đang xem trước tháng ${monthLabel}.`,
+      })
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Không thể shuffle lịch."
+      toast({
+        variant: "destructive",
+        title: "Shuffle thất bại",
+        description: message,
+      })
+    }
+  }, [monthLabel, onShuffle, toast])
 
-  const handleResetSoft = React.useCallback(() => {
-    toast({
-      title: "Reset soft",
-      description: "Chức năng reset soft chưa được implement.",
-    })
-  }, [toast])
+  const handleSave = React.useCallback(async () => {
+    try {
+      await onSave()
+      toast({
+        title: "Đã lưu lịch",
+        description: `Lịch tháng ${monthLabel} đã được lưu thành công.`,
+      })
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Không thể lưu lịch."
+      toast({
+        variant: "destructive",
+        title: "Lưu lịch thất bại",
+        description: message,
+      })
+    }
+  }, [monthLabel, onSave, toast])
 
-  const handleResetHard = React.useCallback(() => {
-    toast({
-      variant: "destructive",
-      title: "Reset hard",
-      description: "Chức năng reset hard chưa được implement.",
-    })
-  }, [toast])
+  const handleResetSoft = React.useCallback(async () => {
+    const confirmed = window.confirm(
+      "Bạn có chắc muốn reset lịch (soft)? Tất cả assignment sẽ bị xoá.",
+    )
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      await onResetSoft()
+      toast({
+        title: "Đã reset lịch",
+        description: "Lịch đã được reset (soft).",
+      })
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Không thể reset lịch (soft)."
+      toast({
+        variant: "destructive",
+        title: "Reset soft thất bại",
+        description: message,
+      })
+    }
+  }, [onResetSoft, toast])
+
+  const handleResetHard = React.useCallback(async () => {
+    const confirmed = window.confirm(
+      "Reset hard sẽ xoá toàn bộ dữ liệu lịch. Bạn có chắc muốn tiếp tục?",
+    )
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      await onResetHard()
+      toast({
+        variant: "destructive",
+        title: "Đã reset DB",
+        description: "Toàn bộ dữ liệu lịch đã được reset (hard).",
+      })
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Không thể reset lịch (hard)."
+      toast({
+        variant: "destructive",
+        title: "Reset hard thất bại",
+        description: message,
+      })
+    }
+  }, [onResetHard, toast])
 
   return (
     <SidebarProvider>
