@@ -3,9 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { FileText, Scissors } from "lucide-react"
+import { FileText, Scissors, Play, CheckCircle2, Clock, Sparkles, Database, Eye } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { PageHeader } from "@/components/PageHeader"
+import { GlassPanel, GlassButton, GlassBadge } from "@/components/ui/glass"
+import { cn } from "@/lib/utils"
 
 const CHUNKING_WEBHOOK_URL = import.meta.env.VITE_WEBHOOK_CHUNKING_URL || 'https://iconic-host.lapage.vn/webhook/chunking'
 
@@ -173,138 +175,259 @@ export default function ChatbotChunking() {
     <>
       <PageHeader
         icon={Scissors}
-        tagline="Chunking"
-        title="Chunking"
-        description="Quản lý và xem nội dung text từ file đã upload"
+        tagline="AI Text Processing"
+        title="Content Chunking & Analysis"
+        description="Quản lý và phân tích nội dung text được trích xuất từ các file đã upload"
       />
-      <div className="space-y-6">
-        {/* Table Section */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Text Extraction</CardTitle>
-                <CardDescription>
-                  Danh sách file đã được xử lý và trích xuất nội dung text
-              </CardDescription>
+
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <GlassPanel variant="strong" className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Tổng Files</p>
+              <p className="text-2xl font-bold mt-1 bg-gradient-to-br from-sky-600 to-indigo-600 bg-clip-text text-transparent">
+                {mockChunks.length}
+              </p>
             </div>
-            <Button
+            <div className="p-3 rounded-xl bg-gradient-to-br from-sky-100 to-indigo-100 dark:from-sky-900/30 dark:to-indigo-900/30">
+              <Database className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+            </div>
+          </div>
+        </GlassPanel>
+
+        <GlassPanel variant="strong" className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Đã xử lý</p>
+              <p className="text-2xl font-bold mt-1 bg-gradient-to-br from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                {chunkResponse ? 1 : 0}
+              </p>
+            </div>
+            <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30">
+              <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            </div>
+          </div>
+        </GlassPanel>
+
+        <GlassPanel variant="strong" className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Đang chờ</p>
+              <p className="text-2xl font-bold mt-1 bg-gradient-to-br from-amber-600 to-orange-600 bg-clip-text text-transparent">
+                {chunkResponse ? mockChunks.length - 1 : mockChunks.length}
+              </p>
+            </div>
+            <div className="p-3 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30">
+              <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            </div>
+          </div>
+        </GlassPanel>
+      </div>
+
+      <div className="space-y-6">
+        {/* Enhanced Table Section */}
+        <GlassPanel variant="strong" className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-xl font-bold bg-gradient-to-br from-sky-600 to-indigo-600 bg-clip-text text-transparent">
+                Text Extraction
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Danh sách file đã được xử lý và trích xuất nội dung
+              </p>
+            </div>
+            <GlassButton
+              variant="primary"
               onClick={handleChunk}
               disabled={!selectedRecord || chunking}
-              size="sm"
+              className={cn(
+                "gap-2",
+                chunking && "opacity-80",
+                !chunking && !selectedRecord && "opacity-50",
+                !chunking && selectedRecord && "shadow-lg shadow-sky-500/25"
+              )}
             >
-              <Scissors className="mr-2 h-4 w-4" />
-              {chunking ? "Đang xử lý..." : "Chunk"}
-            </Button>
+              {chunking ? (
+                <>
+                  <Sparkles className="h-4 w-4 animate-pulse" />
+                  Đang xử lý...
+                </>
+              ) : (
+                <>
+                  <Play className="h-4 w-4" />
+                  Process Chunk
+                </>
+              )}
+            </GlassButton>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
+
+          <div className={cn(
+            "rounded-xl border border-slate-200/60 dark:border-slate-800/60",
+            "overflow-hidden shadow-ios",
+            "bg-white/50 dark:bg-slate-900/50"
+          )}>
             <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50 hover:bg-muted/50">
-                  <TableHead className="font-bold">UUID</TableHead>
-                  <TableHead className="font-bold">File Name</TableHead>
-                  <TableHead className="font-bold">Content Preview</TableHead>
-                  <TableHead className="font-bold w-[100px]">Action</TableHead>
+              <TableHeader className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-b-2 border-slate-200/60 dark:border-slate-800/60">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="font-semibold text-foreground">UUID</TableHead>
+                  <TableHead className="font-semibold text-foreground">File Name</TableHead>
+                  <TableHead className="font-semibold text-foreground">Content Preview</TableHead>
+                  <TableHead className="font-semibold text-foreground text-right pr-6">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {mockChunks.map((record) => (
                   <TableRow
                     key={record.uuid}
-                    className={`cursor-pointer ${
-                      selectedRecord?.uuid === record.uuid ? "bg-muted/50" : ""
-                    }`}
+                    className={cn(
+                      "cursor-pointer transition-all duration-200",
+                      "hover:bg-sky-50/50 dark:hover:bg-sky-900/20",
+                      "border-b border-slate-200/40 dark:border-slate-800/40",
+                      selectedRecord?.uuid === record.uuid && "bg-sky-50/80 dark:bg-sky-900/30"
+                    )}
                     onClick={() => handleRowClick(record)}
                   >
-                    <TableCell className="font-mono text-xs">{record.uuid}</TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground">
+                      {record.uuid.substring(0, 8)}...
+                    </TableCell>
                     <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-gradient-to-br from-sky-100 to-indigo-100 dark:from-sky-900/30 dark:to-indigo-900/30">
+                          <FileText className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                        </div>
                         {record.file_name}
                       </div>
                     </TableCell>
                     <TableCell className="max-w-md truncate text-muted-foreground">
-                      {record.content.substring(0, 100)}...
+                      {record.content.substring(0, 80)}...
                     </TableCell>
-                    <TableCell>
-                      <Button
+                    <TableCell className="text-right">
+                      <GlassButton
                         variant="outline"
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation()
                           handleRowClick(record)
                         }}
+                        className="gap-1.5 hover:border-sky-400/50"
                       >
-                        View
-                      </Button>
+                        <Eye className="h-3.5 w-3.5" />
+                        Xem
+                      </GlassButton>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </div>
-          <div className="mt-4 text-sm text-muted-foreground">
-            Tổng số: {mockChunks.length} bản ghi
+
+          <div className="mt-4 flex items-center gap-2">
+            <GlassBadge variant="info" className="gap-1.5">
+              <Database className="h-3 w-3" />
+              <span className="text-xs">Tổng số:</span>
+              <span className="font-semibold">{mockChunks.length}</span>
+              <span className="text-xs">bản ghi</span>
+            </GlassBadge>
+            {selectedRecord && (
+              <GlassBadge variant="primary" className="gap-1.5">
+                <CheckCircle2 className="h-3 w-3" />
+                <span className="text-xs">Đã chọn:</span>
+                <span className="font-semibold max-w-[150px] truncate">{selectedRecord.file_name}</span>
+              </GlassBadge>
+            )}
           </div>
-        </CardContent>
-      </Card>
+        </GlassPanel>
 
-      {/* Content Display Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Content Detail</CardTitle>
-          <CardDescription>
-            Nội dung chi tiết đã được trích xuất từ file
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+        {/* Enhanced Content Display Section */}
+        <GlassPanel variant="strong" className="p-6">
+          <div className="mb-6">
+            <h3 className="text-xl font-bold bg-gradient-to-br from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              Content Detail
+            </h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Nội dung chi tiết đã được trích xuất từ file
+            </p>
+          </div>
+
           {selectedRecord ? (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 rounded-lg border p-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">UUID</p>
-                  <p className="font-mono text-sm">{selectedRecord.uuid}</p>
+            <div className="space-y-6">
+              {/* File Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className={cn(
+                  "p-4 rounded-xl",
+                  "bg-gradient-to-br from-sky-50 to-indigo-50 dark:from-sky-900/20 dark:to-indigo-900/20",
+                  "border border-sky-200/60 dark:border-sky-800/60"
+                )}>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">UUID</p>
+                  <p className="font-mono text-sm text-foreground break-all">{selectedRecord.uuid}</p>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">File Name</p>
-                  <p className="text-sm font-medium">{selectedRecord.file_name}</p>
+                <div className={cn(
+                  "p-4 rounded-xl",
+                  "bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20",
+                  "border border-emerald-200/60 dark:border-emerald-800/60"
+                )}>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">File Name</p>
+                  <p className="text-sm font-medium text-foreground truncate">{selectedRecord.file_name}</p>
                 </div>
               </div>
 
+              {/* Content */}
               <div>
-                <p className="mb-2 text-sm font-medium text-muted-foreground">Content</p>
-                <ScrollArea className="h-[300px] rounded-lg border bg-muted/30 p-4">
-                  <pre className="whitespace-pre-wrap text-sm font-sans leading-relaxed">
-                    {selectedRecord.content}
-                  </pre>
-                </ScrollArea>
-              </div>
-
-              {chunkResponse && (
-                <div>
-                  <p className="mb-2 text-sm font-medium text-muted-foreground">Chunk Response</p>
-                  <ScrollArea className="h-[200px] rounded-lg border bg-muted/30 p-4">
-                    <pre className="whitespace-pre-wrap text-sm">
-                      {JSON.stringify(chunkResponse, null, 2)}
+                <div className="flex items-center gap-2 mb-3">
+                  <FileText className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                  <p className="text-sm font-semibold text-foreground">Extracted Content</p>
+                </div>
+                <div className={cn(
+                  "rounded-xl border border-slate-200/60 dark:border-slate-800/60",
+                  "bg-slate-50/50 dark:bg-slate-900/50",
+                  "overflow-hidden"
+                )}>
+                  <ScrollArea className="h-[320px]">
+                    <pre className="p-6 whitespace-pre-wrap text-sm font-sans leading-relaxed text-foreground">
+                      {selectedRecord.content}
                     </pre>
                   </ScrollArea>
+                </div>
+              </div>
+
+              {/* Chunk Response */}
+              {chunkResponse && (
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    <p className="text-sm font-semibold text-foreground">Processing Response</p>
+                    <GlassBadge variant="success" className="ml-auto gap-1.5">
+                      <CheckCircle2 className="h-3 w-3" />
+                      Success
+                    </GlassBadge>
+                  </div>
+                  <div className={cn(
+                    "rounded-xl border border-emerald-200/60 dark:border-emerald-800/60",
+                    "bg-emerald-50/50 dark:bg-emerald-900/20",
+                    "overflow-hidden"
+                  )}>
+                    <ScrollArea className="h-[240px]">
+                      <pre className="p-6 whitespace-pre-wrap text-sm font-mono leading-relaxed text-foreground">
+                        {JSON.stringify(chunkResponse, null, 2)}
+                      </pre>
+                    </ScrollArea>
+                  </div>
                 </div>
               )}
             </div>
           ) : (
-            <div className="flex h-[400px] items-center justify-center rounded-lg border bg-muted/30">
-              <div className="text-center">
-                <FileText className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                <p className="mt-4 text-sm text-muted-foreground">
-                  Chọn một bản ghi từ bảng bên trên để xem nội dung chi tiết
-                </p>
+            <div className="flex flex-col items-center justify-center py-20 px-6 rounded-xl bg-slate-50/30 dark:bg-slate-900/30 border border-dashed border-slate-200/60 dark:border-slate-800/60">
+              <div className="p-5 rounded-3xl bg-gradient-to-br from-slate-100 to-gray-100 dark:from-slate-800/30 dark:to-gray-800/30 mb-4">
+                <FileText className="h-14 w-14 text-muted-foreground/50" />
               </div>
+              <p className="font-semibold text-lg text-foreground mb-2">Chưa chọn file nào</p>
+              <p className="text-sm text-muted-foreground text-center max-w-md">
+                Chọn một bản ghi từ bảng bên trên để xem nội dung chi tiết
+              </p>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </GlassPanel>
       </div>
     </>
   )
