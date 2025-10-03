@@ -46,6 +46,12 @@ export const appRoutes: AppRoute[] = [
         description: "Cấu hình ca làm việc tùy chỉnh",
         icon: Clock,
       },
+      {
+        path: "/staff",
+        label: "Staff List",
+        description: "Quản lý danh sách nhân viên",
+        icon: Users,
+      },
     ],
   },
   {
