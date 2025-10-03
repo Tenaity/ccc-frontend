@@ -1,8 +1,7 @@
 import React, { lazy, Suspense, useMemo, useState } from "react"
 import { Navigate, Route, Routes } from "react-router-dom"
 
-import { AppSidebar } from "@/components/app-sidebar"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { AppleSidebar } from "@/components/AppleSidebar"
 import { useExportCsv } from "@/hooks/useExportCsv"
 import { useScheduleData } from "@/hooks/useScheduleData"
 import { useToast } from "@/components/ui/use-toast"
@@ -310,7 +309,7 @@ export default function App() {
   }, [onResetHard, toast])
 
   return (
-    <SidebarProvider>
+    <div className="flex h-screen overflow-hidden">
       <a
         className="sr-only focus:not-sr-only focus:absolute focus:left-6 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
         href={`#${MAIN_CONTENT_ID}`}
@@ -318,10 +317,10 @@ export default function App() {
       >
         Bỏ qua tới nội dung chính
       </a>
-      <AppSidebar />
-      <SidebarInset
+      <AppleSidebar />
+      <main
         className={cn(
-          "relative flex min-h-screen flex-1 flex-col",
+          "relative flex min-h-screen flex-1 flex-col overflow-y-auto",
           "bg-gradient-to-br from-sky-100/70 via-white/80 to-pink-100/70",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         )}
@@ -394,7 +393,7 @@ export default function App() {
             </div>
           </Suspense>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </main>
+    </div>
   )
 }
