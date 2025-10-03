@@ -180,12 +180,14 @@ export default function ScheduleMatrixRoute({
                     onValueChange={(value) => onMonthChange?.(Number(value))}
                     disabled={generating || validating}
                   >
-                    <SelectTrigger id="month-select" className={cn(
-                      "h-11 w-32 rounded-xl",
-                      "bg-white/80 dark:bg-slate-900/80",
-                      "border-slate-200/60 dark:border-slate-800/60",
-                      "focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/20"
-                    )}>
+                    <SelectTrigger id="month-select"
+                      className={cn(
+                        "h-11 w-32 rounded-xl",
+                        "bg-white/80 dark:bg-slate-900/80",
+                        "border-slate-200/60 dark:border-slate-800/60",
+                        "focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/20"
+                      )}
+                    >
                       <SelectValue placeholder="Chọn tháng" />
                     </SelectTrigger>
                     <SelectContent>

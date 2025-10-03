@@ -96,7 +96,7 @@ function SidebarSubMenuItem({ child }: { child: AppRoute }) {
             "relative flex items-center justify-center rounded-lg p-2 transition-all duration-300",
             "shadow-sm",
             childMatch
-              ? "bg-gradient-to-br from-sky-400 via-indigo-500 to-purple-500 text-white shadow-lg shadow-sky-500/50 scale-110"
+              ? "bg-gradient-to-br from-sky-400 via-indigo-300 to-purple-400 text-white shadow-lg shadow-sky-400/40 scale-110"
               : "bg-gradient-to-br from-white to-slate-50 text-muted-foreground group-hover:from-sky-100 group-hover:to-indigo-100 group-hover:text-sky-600 group-hover:shadow-md dark:from-slate-800/80 dark:to-slate-900/80",
             isHovered && !childMatch && "scale-105 shadow-md"
           )}>
@@ -173,7 +173,7 @@ function SidebarNavItem({ route }: { route: AppRoute }) {
                 "relative flex items-center justify-center rounded-lg p-2.5 transition-all duration-300",
                 "shadow-sm",
                 match
-                  ? "bg-gradient-to-br from-sky-400 via-indigo-500 to-purple-500 text-white shadow-lg shadow-sky-500/50"
+                  ? "bg-gradient-to-br from-sky-400 via-indigo-300 to-purple-400 text-white shadow-lg shadow-sky-400/40"
                   : "bg-gradient-to-br from-white to-slate-50 text-muted-foreground group-hover:from-sky-100 group-hover:to-indigo-100 group-hover:text-sky-600 group-hover:shadow-md dark:from-slate-800/80 dark:to-slate-900/80",
                 isHovered && !match && "scale-105 shadow-md"
               )}>
@@ -257,7 +257,7 @@ function SidebarNavItem({ route }: { route: AppRoute }) {
             "relative flex items-center justify-center rounded-lg p-2.5 transition-all duration-300",
             "shadow-sm",
             match
-              ? "bg-gradient-to-br from-sky-400 via-indigo-500 to-purple-500 text-white shadow-lg shadow-sky-500/50"
+              ? "bg-gradient-to-br from-sky-400 via-indigo-300 to-purple-400 text-white shadow-lg shadow-sky-400/40"
               : "bg-gradient-to-br from-white to-slate-50 text-muted-foreground group-hover:from-sky-100 group-hover:to-indigo-100 group-hover:text-sky-600 group-hover:shadow-md dark:from-slate-800/80 dark:to-slate-900/80",
             isHovered && !match && "scale-105 shadow-md"
           )}>
@@ -342,10 +342,10 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
               <a href="#brand" className="flex items-center gap-4">
                 <div className={cn(
                   "relative flex items-center justify-center rounded-xl p-3",
-                  "bg-gradient-to-br from-sky-500 via-indigo-600 to-purple-600",
-                  "shadow-[0_12px_48px_rgba(56,189,248,0.5),0_6px_24px_rgba(139,92,246,0.4)]",
+                  "bg-gradient-to-br from-sky-500 via-indigo-300 to-purple-500",
+                  "shadow-[0_12px_48px_rgba(56,189,248,0.4),0_6px_24px_rgba(139,92,246,0.3)]",
                   "ring-2 ring-white/30 dark:ring-slate-900/30",
-                  "group-hover:shadow-[0_16px_64px_rgba(56,189,248,0.6),0_8px_32px_rgba(139,92,246,0.5)]",
+                  "group-hover:shadow-[0_16px_64px_rgba(56,189,248,0.5),0_8px_32px_rgba(139,92,246,0.4)]",
                   "group-hover:scale-110 transition-all duration-300"
                 )}>
                   <ArrowUpCircleIcon className="size-6 text-white drop-shadow-lg" />

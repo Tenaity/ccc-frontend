@@ -87,8 +87,8 @@ const glassButtonVariants = cva(
           "shadow-ios hover:shadow-ios-lg",
         ],
         primary: [
-          "bg-gradient-to-br from-sky-500 via-indigo-500 to-pink-500",
-          "hover:from-sky-600 hover:via-indigo-600 hover:to-pink-600",
+          "bg-gradient-to-br from-sky-500 via-indigo-300 to-pink-500",
+          "hover:from-sky-600 hover:via-indigo-400 hover:to-pink-600",
           "border-sky-400/60",
           "text-white font-bold",
           "shadow-[0_10px_40px_rgba(56,189,248,0.4),0_4px_20px_rgba(236,72,153,0.3)]",
@@ -182,7 +182,7 @@ const glassBadgeVariants = cva(
           "text-foreground",
         ],
         primary: [
-          "bg-gradient-to-r from-sky-500/15 via-indigo-500/15 to-pink-500/15",
+          "bg-gradient-to-r from-sky-500/15 via-indigo-300/15 to-pink-500/15",
           "border-sky-400/40 dark:border-indigo-400/40",
           "text-sky-700 dark:text-sky-300 font-bold",
         ],
