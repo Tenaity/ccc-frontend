@@ -19,6 +19,144 @@
 
 ## Phase 1 & 2: Multi-Department Support (COMPLETED)
 
+## Phase 3: Staff Preferences & Work-Life Balance (COMPLETED)
+
+### Overview
+Added staff scheduling preferences UI to allow employees to set shift preferences, unavailable days, and work constraints for better work-life balance.
+
+### New Page
+
+#### StaffPreferences (`src/pages/StaffPreferences.tsx`)
+**Route**: `/staff-preferences`
+
+**Features**:
+- **Staff Selector**: Dropdown with department info badges
+- **Tabbed Interface** (3 tabs):
+  1. **Shift Preferences Tab**:
+     - Day Shift preference (with priority 1-10)
+     - Night Shift preference (with priority 1-10)
+     - Add/Remove preference buttons
+  2. **Day Off Preferences Tab**:
+     - 7-day week selector (Mon-Sun)
+     - Toggle switches for each day
+     - Priority selector (1-10) for each selected day
+  3. **Constraints Tab**:
+     - Max Consecutive Working Days (3-10 days dropdown)
+     - Min Rest Days Between Shifts (0-3 days dropdown)
+- **Save/Reset Actions**:
+  - Save button to persist preferences
+  - Reset button to reload from server
+
+**APIs Used**:
+```typescript
+GET /api/staff/:id/preferences
+PUT /api/staff/:id/preferences
+```
+
+**Components Used**:
+- `PageHeader` - Title with icon
+- `GlassPanel` - Container
+- `Select`, `Switch`, `Button`, `Badge`
+- `Tabs`, `TabsContent`, `TabsList`, `TabsTrigger`
+- `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`
+
+### Routing Updates
+
+**`src/app/routes.tsx`**:
+```typescript
+{
+  path: "/schedule",
+  children: [
+    // ... existing routes
+    {
+      path: "/staff-preferences",
+      label: "Staff Preferences",
+      description: "Cấu hình ưu tiên ca làm việc cho nhân viên",
+      icon: UserCog
+    }, // NEW
+  ]
+}
+```
+
+**`src/App.tsx`**:
+```typescript
+const StaffPreferencesPage = lazy(() => import("./pages/StaffPreferences"))
+
+// Routes
+<Route path="/staff-preferences" element={<StaffPreferencesPage />} />
+```
+
+### Data Structure
+
+**Frontend Interface** (current UI design):
+```typescript
+interface ShiftPreference {
+  shift_type: "day" | "night"
+  priority: number
+}
+
+interface DayOffPreference {
+  day_of_week: number  // 0-6
+  priority: number
+}
+
+interface StaffPreferences {
+  staff_id: number
+  shift_preferences: ShiftPreference[]
+  day_off_preferences: DayOffPreference[]
+  max_consecutive_days: number
+  min_rest_days: number
+}
+```
+
+**Backend API Format** (actual):
+```typescript
+interface StaffPreferences {
+  staff_id: number
+  preferred_shifts: string[]  // e.g., ["K", "CA1", "Đ"]
+  unavailable_days: string[]  // e.g., ["2025-10-15"]
+  max_consecutive_days: number
+  preferred_days_off: number[]  // e.g., [0, 1] for Mon, Tue
+  notes: string
+}
+```
+
+**Note**: Frontend UI currently uses priority-based model. Backend uses simpler array model. Integration requires format conversion or UI adjustment.
+
+### Design System
+
+**Glass-morphism Cards**:
+- Shift preference cards with icon (Sun/Moon)
+- Day selector cards with Calendar icon
+- Constraint input cards
+
+**Color Coding**:
+- Day Shift: `text-amber-500` (Sun icon)
+- Night Shift: `text-blue-500` (Moon icon)
+- Selected days: Active switches with sky theme
+
+**Interactions**:
+- Smooth priority selector transitions
+- Toggle switches for day preferences
+- Dropdown selectors for constraints
+
+### Integration Status
+- ✅ UI page created and routed
+- ✅ Component structure complete
+- ✅ Glass-morphism styling applied
+- ⚠️ Data format mismatch (frontend vs backend)
+- ⚠️ API integration needs format adapter
+- 📝 Consider: Update frontend to match backend format OR add conversion layer
+
+### Future Enhancements
+1. Format conversion layer for API compatibility
+2. Visual preference satisfaction tracking
+3. Conflict resolution UI
+4. Bulk preference import/export
+5. Team-based preference templates
+
+## Phase 1 & 2: Multi-Department Support (COMPLETED)
+
 ### New Pages
 
 #### 1. DepartmentManagement (`src/pages/DepartmentManagement.tsx`)
