@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, type ReactNode } from "react"
-import { Calendar } from "lucide-react"
+import { Calendar, AlertTriangle, Users, AlertCircle, CheckCircle2 } from "lucide-react"
 import { Link } from "react-router-dom"
 
 import ScheduleMatrixRoute from "@/routes/ScheduleMatrixRoute"
@@ -8,6 +8,8 @@ import { PageHeader } from "@/components/PageHeader"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { GlassPanel, GlassBadge } from "@/components/ui/glass"
+import { cn } from "@/lib/utils"
 import type { DayPlaceSummary, ExpectedByDay, Staff } from "@/types"
 import type { Cell } from "@/utils/mergeCellIndex"
 
@@ -139,24 +141,54 @@ export default function SchedulePage({
   const toolbar = useMemo(
     () => (
       <>
-        <div className="flex flex-wrap items-center gap-3 rounded-full border border-white/40 bg-white/70 px-4 py-2 text-sm text-muted-foreground shadow-[0_12px_26px_rgba(15,23,42,0.12)] dark:border-white/10 dark:bg-slate-900/60 dark:shadow-[0_12px_26px_rgba(0,0,0,0.35)]">
-          <Switch
-            id="auto-fill-hc"
-            checked={fillHC}
-            onCheckedChange={onToggleFillHC}
-            aria-describedby={autoFillHintId}
-          />
-          <Label htmlFor="auto-fill-hc" className="text-sm font-medium text-foreground">
-            Tự động bù HC
-          </Label>
-          <span id={autoFillHintId} className="sr-only">
-            Bật để tự động bù ca hành chính khi sinh hoặc xáo lịch.
-          </span>
-        </div>
-        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-          <span>{conflictCount} cảnh báo</span>
-          <span>{hasLeaderDup ? "Trùng trưởng ca" : "Không trùng trưởng ca"}</span>
-          <span>{leaderErrorsCount} ngày thiếu trưởng ca</span>
+        <GlassPanel variant="strong" className="px-5 py-3">
+          <div className="flex items-center gap-3">
+            <Switch
+              id="auto-fill-hc"
+              checked={fillHC}
+              onCheckedChange={onToggleFillHC}
+              aria-describedby={autoFillHintId}
+            />
+            <Label htmlFor="auto-fill-hc" className="text-sm font-semibold text-foreground cursor-pointer">
+              Tự động bù HC
+            </Label>
+            <span id={autoFillHintId} className="sr-only">
+              Bật để tự động bù ca hành chính khi sinh hoặc xáo lịch.
+            </span>
+          </div>
+        </GlassPanel>
+        <div className="flex flex-wrap items-center gap-3">
+          <GlassBadge
+            variant={conflictCount > 0 ? "destructive" : "success"}
+            className="gap-2"
+          >
+            {conflictCount > 0 ? (
+              <AlertTriangle className="h-3.5 w-3.5" />
+            ) : (
+              <CheckCircle2 className="h-3.5 w-3.5" />
+            )}
+            <span className="font-semibold">{conflictCount}</span>
+            <span className="text-xs">cảnh báo</span>
+          </GlassBadge>
+          <GlassBadge
+            variant={hasLeaderDup ? "warning" : "success"}
+            className="gap-2"
+          >
+            {hasLeaderDup ? (
+              <AlertCircle className="h-3.5 w-3.5" />
+            ) : (
+              <CheckCircle2 className="h-3.5 w-3.5" />
+            )}
+            <span className="text-xs">{hasLeaderDup ? "Trùng trưởng ca" : "Không trùng trưởng ca"}</span>
+          </GlassBadge>
+          <GlassBadge
+            variant={leaderErrorsCount > 0 ? "destructive" : "info"}
+            className="gap-2"
+          >
+            <Users className="h-3.5 w-3.5" />
+            <span className="font-semibold">{leaderErrorsCount}</span>
+            <span className="text-xs">ngày thiếu trưởng ca</span>
+          </GlassBadge>
         </div>
       </>
     ),
@@ -167,9 +199,9 @@ export default function SchedulePage({
     <>
       <PageHeader
         icon={Calendar}
-        tagline="Schedule Management"
-        title="Schedule Management"
-        description="Tăng tốc quy trình làm việc với trải nghiệm lấy cảm hứng từ iOS/macOS."
+        tagline="Smart Scheduling System"
+        title="Schedule Matrix Manager"
+        description="Quản lý lịch trực thông minh với AI-powered optimization và real-time validation"
       />
       {monthConfigMissing ? (
         <Alert variant="warning" className="max-w-3xl">
