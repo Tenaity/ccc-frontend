@@ -1,7 +1,8 @@
 import React from "react"
-import { Settings2, Sparkles } from "lucide-react"
+import { Settings2, Sparkles, CalendarDays, TrendingUp, Loader2 } from "lucide-react"
 import type { WeekendPolicy } from "@/types"
-import { GlassButton, GlassCard } from "@/components/ui/glass"
+import { GlassButton, GlassCard, GlassPanel, GlassBadge } from "@/components/ui/glass"
+import { cn } from "@/lib/utils"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -349,9 +350,68 @@ export function MonthPlanTab() {
     }))
   }, [])
 
+  const monthLabel = React.useMemo(() => {
+    if (!hasSelection) return "N/A"
+    return `${String(month).padStart(2, "0")}/${year}`
+  }, [hasSelection, month, year])
+
   return (
     <Form {...form}>
+      {/* Premium Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <GlassPanel variant="strong" className="p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Kỳ lịch</p>
+              <p className="text-2xl font-bold mt-1 bg-gradient-to-br from-sky-600 to-indigo-600 bg-clip-text text-transparent">
+                {monthLabel}
+              </p>
+            </div>
+            <div className="p-3 rounded-xl bg-gradient-to-br from-sky-100 to-indigo-100 dark:from-sky-900/30 dark:to-indigo-900/30">
+              <CalendarDays className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+            </div>
+          </div>
+        </GlassPanel>
+
+        <GlassPanel variant="strong" className="p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Ngày làm việc</p>
+              <p className="text-2xl font-bold mt-1 bg-gradient-to-br from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                {autoWorkingDays !== null ? autoWorkingDays : "..."}
+              </p>
+            </div>
+            <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30">
+              <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            </div>
+          </div>
+        </GlassPanel>
+
+        <GlassPanel variant="strong" className="p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Ngày nghỉ bổ sung</p>
+              <p className="text-2xl font-bold mt-1 bg-gradient-to-br from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                {extraOffdays.length}
+              </p>
+            </div>
+            <div className="p-3 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30">
+              <Sparkles className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+            </div>
+          </div>
+        </GlassPanel>
+      </div>
+
       <GlassCard className="space-y-6 p-6">
+        <div>
+          <h3 className="text-lg font-bold bg-gradient-to-br from-sky-600 to-indigo-600 bg-clip-text text-transparent mb-1">
+            Cấu hình tháng
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Thiết lập năm, tháng và các tham số sinh lịch
+          </p>
+        </div>
+
         <div className="grid gap-4 md:grid-cols-2 md:gap-6">
           <FormField
             control={form.control}
@@ -422,16 +482,6 @@ export function MonthPlanTab() {
           </Alert>
         ) : null}
 
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200/70 bg-white/70 px-4 py-3 dark:border-slate-800/70 dark:bg-slate-900/70">
-          <Badge variant="default" className="gap-2">
-            <Sparkles className="h-3.5 w-3.5" /> Auto working days
-          </Badge>
-          <span className="text-sm text-muted-foreground">
-            {autoWorkingDays !== null
-              ? `${autoWorkingDays} ngày làm việc dự kiến`
-              : "Chưa có dữ liệu"}
-          </span>
-        </div>
 
         <div className="grid gap-6 md:grid-cols-2">
           <WeekendPolicySelector
@@ -478,30 +528,47 @@ export function MonthPlanTab() {
           onChange={onShiftDefaultChange}
         />
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 pt-2">
           <GlassButton
             variant="primary"
             type="button"
             onClick={() => void submitSave()}
             disabled={saveDisabled}
-            className="gap-2"
+            className={cn(
+              "gap-2 min-w-[140px]",
+              !saveDisabled && "shadow-lg shadow-sky-500/25"
+            )}
           >
-            <Settings2 className="h-4 w-4" />
-            {saving ? "Đang lưu…" : "Save"}
+            {saving ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Settings2 className="h-4 w-4" />
+            )}
+            {saving ? "Đang lưu…" : "Save Config"}
           </GlassButton>
           <GlassButton
             variant="secondary"
             type="button"
             onClick={() => void submitGenerate()}
             disabled={generateDisabled}
-            className="gap-2"
+            className={cn(
+              "gap-2 min-w-[180px]",
+              !generateDisabled && "shadow-lg shadow-indigo-500/20"
+            )}
           >
-            <Sparkles className="h-4 w-4" />
+            {generating ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4" />
+            )}
             {generating ? "Đang sinh…" : "Generate Schedule"}
           </GlassButton>
-          {loading ? (
-            <span className="text-sm text-muted-foreground">Đang tải cấu hình tháng…</span>
-          ) : null}
+          {loading && (
+            <GlassBadge variant="info" className="gap-2">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <span className="text-xs">Đang tải cấu hình…</span>
+            </GlassBadge>
+          )}
         </div>
       </GlassCard>
     </Form>
