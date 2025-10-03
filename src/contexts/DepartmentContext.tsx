@@ -7,6 +7,7 @@ interface Department {
   code: string
   color: string
   icon: string
+  is_active: boolean
 }
 
 interface DepartmentContextValue {
