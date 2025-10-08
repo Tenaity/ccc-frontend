@@ -14,6 +14,7 @@ import DashboardPage from "./pages/Dashboard"
 
 const SchedulePage = lazy(() => import("./pages/Schedule"))
 const ChatbotCRUDPage = lazy(() => import("./pages/ChatbotCRUD"))
+const ChatbotDataManagementPage = lazy(() => import("./pages/ChatbotDataManagement"))
 const ChatbotUploadPage = lazy(() => import("./pages/ChatbotUpload"))
 const ChatbotChunkingPage = lazy(() => import("./pages/ChatbotChunking"))
 const ConfigPage = lazy(() => import("./pages/Config"))
@@ -400,6 +401,7 @@ export default function App() {
                 <Route path="/staff" element={<StaffManagementPage />} />
                 <Route path="/staff-preferences" element={<StaffPreferencesPage />} />
                 <Route path="/chatbot" element={<ChatbotCRUDPage />} />
+                <Route path="/chatbot/data" element={<ChatbotDataManagementPage />} />
                 <Route path="/chatbot/upload" element={<ChatbotUploadPage />} />
                 <Route path="/chatbot/chunking" element={<ChatbotChunkingPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,4 +1,4 @@
-import { CalendarIcon, LayoutDashboardIcon, BotIcon, Upload, Scissors, Settings2, TableIcon, Building2, Users, Clock, UserCog } from "lucide-react"
+import { CalendarIcon, LayoutDashboardIcon, BotIcon, Upload, Scissors, Settings2, TableIcon, Building2, Users, Clock, UserCog, Database } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
 export type AppRoute = {
@@ -66,6 +66,12 @@ export const appRoutes: AppRoute[] = [
     description: "Quản lý dữ liệu chatbot Point_v3",
     icon: BotIcon,
     children: [
+      {
+        path: "/chatbot/data",
+        label: "Data Management",
+        description: "Quản lý dữ liệu chatbot với CRUD đầy đủ",
+        icon: Database,
+      },
       {
         path: "/chatbot/upload",
         label: "Upload File",
