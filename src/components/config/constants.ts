@@ -17,9 +17,9 @@ export const SHIFT_FIELD_LABELS: Record<string, string> = {
 }
 
 export const SHIFT_DEFAULT_BASE: Record<string, number> = {
-  day: 0,
-  night: 0,
-  leader: 0,
-  pgd: 0,
+  day: 40,
+  night: 20,
+  leader: 10,
+  pgd: 5,
   hc: 0,
 }
