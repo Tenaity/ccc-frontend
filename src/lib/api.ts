@@ -6,7 +6,35 @@ import type {
   ShiftDefaultConfig,
 } from "@/types"
 
-const JSON_HEADERS = { "Content-Type": "application/json" } as const
+// API Configuration
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ""
+const API_KEY = "123456" // TODO: Move to env when ready
+
+const JSON_HEADERS = {
+  "Content-Type": "application/json",
+  "x-api-key": API_KEY
+} as const
+
+// Helper to build full API URL
+function buildApiUrl(path: string): string {
+  if (path.startsWith("http")) return path
+  const base = API_BASE_URL.endsWith("/") ? API_BASE_URL.slice(0, -1) : API_BASE_URL
+  const cleanPath = path.startsWith("/") ? path : `/${path}`
+  return base ? `${base}${cleanPath}` : cleanPath
+}
+
+// Helper for fetch with API key
+function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  const headers = new Headers(options?.headers)
+  if (!headers.has("x-api-key")) {
+    headers.set("x-api-key", API_KEY)
+  }
+
+  return fetch(buildApiUrl(url), {
+    ...options,
+    headers,
+  })
+}
 
 type JsonValue = Record<string, unknown>
 
@@ -79,7 +107,7 @@ export async function validateSchedule(
     ok: boolean
     conflicts?: unknown
   }>(
-    await fetch(`/api/schedule/validate?year=${year}&month=${month}`),
+    await apiFetch(`/api/schedule/validate?year=${year}&month=${month}`),
   )
 
   const conflicts: ValidationConflict[] = []
@@ -148,7 +176,7 @@ export async function generateSchedule(
   }
 
   return parseJsonResponse<GenerateResponse>(
-    await fetch("/api/schedule/generate", {
+    await apiFetch("/api/schedule/generate", {
       method: "POST",
       headers: JSON_HEADERS,
       body: JSON.stringify(payload),
@@ -167,7 +195,7 @@ export async function exportScheduleCsv(
   year: number,
   month: number,
 ): Promise<ExportCsvResult> {
-  const response = await fetch(`/api/export/month.csv?year=${year}&month=${month}`)
+  const response = await apiFetch(`/api/export/month.csv?year=${year}&month=${month}`)
   const text = await response.text()
 
   if (!response.ok) {
@@ -212,13 +240,13 @@ function unwrapHolidayPayload(payload: Holiday | { item?: Holiday } | { holiday?
 
 export async function listHolidaysByYear(year: number): Promise<Holiday[]> {
   return parseJsonResponse<Holiday[]>(
-    await fetch(`/api/holidays?year=${year}`),
+    await apiFetch(`/api/holidays?year=${year}`),
   )
 }
 
 export async function createHolidayEntry(payload: Omit<Holiday, "id">): Promise<Holiday> {
   const data = await parseJsonResponse<Holiday | { item?: Holiday }>(
-    await fetch(`/api/holidays`, {
+    await apiFetch(`/api/holidays`, {
       method: "POST",
       headers: JSON_HEADERS,
       body: JSON.stringify(payload),
@@ -229,7 +257,7 @@ export async function createHolidayEntry(payload: Omit<Holiday, "id">): Promise<
 }
 
 export async function deleteHolidayEntry(id: number): Promise<void> {
-  const response = await fetch(`/api/holidays/${id}`, { method: "DELETE" })
+  const response = await apiFetch(`/api/holidays/${id}`, { method: "DELETE" })
   if (!response.ok) {
     const text = await response.text()
     throw new Error(extractErrorMessage(text, response.statusText))
@@ -238,7 +266,7 @@ export async function deleteHolidayEntry(id: number): Promise<void> {
 
 export async function importHolidaysFromNager(year: number): Promise<{ imported: number }> {
   const data = await parseJsonResponse<{ imported?: number }>(
-    await fetch(`/api/holidays/import?year=${year}&source=nager`, {
+    await apiFetch(`/api/holidays/import?year=${year}&source=nager`, {
       method: "POST",
       headers: JSON_HEADERS,
     }),
@@ -253,7 +281,7 @@ export async function getMonthConfig(
   year: number,
   month: number,
 ): Promise<MonthConfig | null> {
-  const response = await fetch(`/api/month-config?year=${year}&month=${month}`)
+  const response = await apiFetch(`/api/month-config?year=${year}&month=${month}`)
   if (response.status === 404) {
     return null
   }
@@ -265,7 +293,7 @@ export async function updateMonthConfig(
   payload: MonthConfigInput,
 ): Promise<MonthConfig> {
   return parseJsonResponse<MonthConfig>(
-    await fetch(`/api/month-config`, {
+    await apiFetch(`/api/month-config`, {
       method: "PUT",
       headers: JSON_HEADERS,
       body: JSON.stringify(payload),
@@ -277,7 +305,7 @@ export async function getShiftDefaultConfig(
   year: number,
   month: number,
 ): Promise<ShiftDefaultConfig | null> {
-  const response = await fetch(`/api/shift-defaults?year=${year}&month=${month}`)
+  const response = await apiFetch(`/api/shift-defaults?year=${year}&month=${month}`)
   if (response.status === 404) {
     return null
   }
@@ -289,7 +317,7 @@ export async function updateShiftDefaultConfig(
   payload: ShiftDefaultConfig,
 ): Promise<ShiftDefaultConfig> {
   return parseJsonResponse<ShiftDefaultConfig>(
-    await fetch(`/api/shift-defaults`, {
+    await apiFetch(`/api/shift-defaults`, {
       method: "PUT",
       headers: JSON_HEADERS,
       body: JSON.stringify(payload),
@@ -301,7 +329,7 @@ export async function hasMonthConfig(
   year: number,
   month: number,
 ): Promise<boolean> {
-  const response = await fetch(`/api/month-config?year=${year}&month=${month}`)
+  const response = await apiFetch(`/api/month-config?year=${year}&month=${month}`)
   if (response.status === 404) {
     return false
   }
