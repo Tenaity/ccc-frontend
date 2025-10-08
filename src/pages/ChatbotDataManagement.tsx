@@ -59,8 +59,29 @@ import { cn } from "@/lib/utils"
 import { ChatbotPoint } from "@/types/chatbot"
 import { useToast } from "@/components/ui/use-toast"
 
-// API base URL
+// API Configuration
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ""
+const API_KEY = "123456"
 const API_BASE = "/api/chatbot-data"
+
+// Helper for API calls with base URL and API key
+function buildApiUrl(path: string): string {
+  const base = API_BASE_URL.endsWith("/") ? API_BASE_URL.slice(0, -1) : API_BASE_URL
+  const cleanPath = path.startsWith("/") ? path : `/${path}`
+  return base ? `${base}${cleanPath}` : cleanPath
+}
+
+function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  const headers = new Headers(options?.headers)
+  if (!headers.has("x-api-key")) {
+    headers.set("x-api-key", API_KEY)
+  }
+
+  return fetch(buildApiUrl(url), {
+    ...options,
+    headers,
+  })
+}
 
 type ColumnKey = keyof ChatbotPoint
 
@@ -143,7 +164,7 @@ export default function ChatbotDataManagement() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const response = await fetch(
+      const response = await apiFetch(
         `${API_BASE}?page=${currentPage}&page_size=${pageSize}`
       )
       const result = await response.json()
@@ -173,7 +194,7 @@ export default function ChatbotDataManagement() {
         : API_BASE
       const method = currentRecord?.id ? "PUT" : "POST"
 
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -203,7 +224,7 @@ export default function ChatbotDataManagement() {
     if (!currentRecord?.id) return
     setLoading(true)
     try {
-      const response = await fetch(`${API_BASE}/${currentRecord.id}`, {
+      const response = await apiFetch(`${API_BASE}/${currentRecord.id}`, {
         method: "DELETE",
       })
 
