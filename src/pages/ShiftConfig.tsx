@@ -32,6 +32,18 @@ import {
 } from "@/components/ui/select"
 import * as Icons from "lucide-react"
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ""
+const API_KEY = "123456"
+
+function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  const headers = new Headers(options?.headers)
+  if (!headers.has("x-api-key")) {
+    headers.set("x-api-key", API_KEY)
+  }
+  const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`
+  return fetch(fullUrl, { ...options, headers })
+}
+
 interface Department {
   id: number
   name: string
@@ -114,7 +126,7 @@ export default function ShiftConfig() {
 
   const fetchDepartments = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/departments")
+      const res = await apiFetch("/api/departments")
       const data = await res.json()
       setDepartments(data.filter((d: Department) => d.is_active))
     } catch (err) {
@@ -126,8 +138,8 @@ export default function ShiftConfig() {
 
   const fetchShifts = async (deptId: number) => {
     try {
-      const res = await fetch(
-        `http://localhost:8000/api/shift-configs?department_id=${deptId}`
+      const res = await apiFetch(
+        `/api/shift-configs?department_id=${deptId}`
       )
       const data = await res.json()
       setShifts(data)
@@ -171,12 +183,12 @@ export default function ShiftConfig() {
   const handleSave = async () => {
     try {
       const url = editingShift
-        ? `http://localhost:8000/api/shift-configs/${editingShift.id}`
-        : "http://localhost:8000/api/shift-configs"
+        ? `/api/shift-configs/${editingShift.id}`
+        : "/api/shift-configs"
 
       const method = editingShift ? "PUT" : "POST"
 
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -207,8 +219,8 @@ export default function ShiftConfig() {
     }
 
     try {
-      const res = await fetch(
-        `http://localhost:8000/api/shift-configs/${shift.id}`,
+      const res = await apiFetch(
+        `/api/shift-configs/${shift.id}`,
         {
           method: "DELETE",
         }

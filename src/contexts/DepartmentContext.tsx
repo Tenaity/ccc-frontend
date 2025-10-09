@@ -1,6 +1,18 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react"
 import { useSearchParams } from "react-router-dom"
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ""
+const API_KEY = "123456"
+
+function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  const headers = new Headers(options?.headers)
+  if (!headers.has("x-api-key")) {
+    headers.set("x-api-key", API_KEY)
+  }
+  const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`
+  return fetch(fullUrl, { ...options, headers })
+}
+
 interface Department {
   id: number
   name: string
@@ -45,7 +57,7 @@ export function DepartmentProvider({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/departments?active=1")
+        const res = await apiFetch("/api/departments?active=1")
         const data = await res.json()
         setDepartments(data.filter((d: Department) => d.is_active))
       } catch (err) {

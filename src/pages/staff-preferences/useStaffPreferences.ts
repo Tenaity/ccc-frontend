@@ -5,6 +5,18 @@ import { useDepartment } from "@/contexts/DepartmentContext"
 import { DEFAULT_PREFERENCES } from "./constants"
 import type { PreferencesFormState, Staff } from "./types"
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ""
+const API_KEY = "123456"
+
+function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  const headers = new Headers(options?.headers)
+  if (!headers.has("x-api-key")) {
+    headers.set("x-api-key", API_KEY)
+  }
+  const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`
+  return fetch(fullUrl, { ...options, headers })
+}
+
 export function useStaffPreferences() {
   const { selectedDepartmentId } = useDepartment()
 
@@ -18,9 +30,9 @@ export function useStaffPreferences() {
     try {
       setLoading(true)
       const url = selectedDepartmentId
-        ? `http://localhost:8000/api/staff?department_id=${selectedDepartmentId}`
-        : "http://localhost:8000/api/staff"
-      const res = await fetch(url)
+        ? `/api/staff?department_id=${selectedDepartmentId}`
+        : "/api/staff"
+      const res = await apiFetch(url)
       const data = await res.json()
       setStaff(data)
     } catch (error) {
@@ -39,7 +51,7 @@ export function useStaffPreferences() {
   const fetchPreferences = useCallback(async (staffId: number) => {
     try {
       setLoading(true)
-      const res = await fetch(`http://localhost:8000/api/staff/${staffId}/preferences`)
+      const res = await apiFetch(`/api/staff/${staffId}/preferences`)
       if (res.ok) {
         const data = await res.json()
         setPreferences(data)
@@ -112,7 +124,7 @@ export function useStaffPreferences() {
 
     try {
       setSaving(true)
-      const res = await fetch(`http://localhost:8000/api/staff/${selectedStaffId}/preferences`, {
+      const res = await apiFetch(`/api/staff/${selectedStaffId}/preferences`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(preferences),
