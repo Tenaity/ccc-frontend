@@ -1,6 +1,16 @@
 import { useCallback, useState } from 'react';
 import type { FixedAssignment, OffDay } from '../types';
 
+const API_KEY = "123456";
+
+function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  const headers = new Headers(options?.headers);
+  if (!headers.has("x-api-key")) {
+    headers.set("x-api-key", API_KEY);
+  }
+  return fetch(url, { ...options, headers });
+}
+
 async function safeJSON<T>(res: Response): Promise<T> {
   const text = await res.text();
   const data = text ? JSON.parse(text) : {};
@@ -22,8 +32,8 @@ export function useFixedOff(year: number, month: number) {
       setError(null);
       try {
         const [fRes, oRes] = await Promise.all([
-          fetch(`/api/fixed?year=${y}&month=${m}`),
-          fetch(`/api/off?year=${y}&month=${m}`),
+          apiFetch(`/api/fixed?year=${y}&month=${m}`),
+          apiFetch(`/api/off?year=${y}&month=${m}`),
         ]);
         const [fJson, oJson] = await Promise.all([
           safeJSON<FixedAssignment[]>(fRes),
@@ -42,7 +52,7 @@ export function useFixedOff(year: number, month: number) {
 
   const createFixed = useCallback(
     async (payload: Omit<FixedAssignment, 'id'>) => {
-      const res = await fetch('/api/fixed', {
+      const res = await apiFetch('/api/fixed', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -57,7 +67,7 @@ export function useFixedOff(year: number, month: number) {
 
   const updateFixed = useCallback(
     async (id: number, payload: Partial<FixedAssignment>) => {
-      const res = await fetch(`/api/fixed/${id}`, {
+      const res = await apiFetch(`/api/fixed/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -72,7 +82,7 @@ export function useFixedOff(year: number, month: number) {
 
   const deleteFixed = useCallback(
     async (id: number) => {
-      await fetch(`/api/fixed/${id}`, { method: 'DELETE' });
+      await apiFetch(`/api/fixed/${id}`, { method: 'DELETE' });
       setFixed((prev) => prev.filter((f) => f.id !== id));
       await load({ year, month });
     },
@@ -81,7 +91,7 @@ export function useFixedOff(year: number, month: number) {
 
   const createOff = useCallback(
     async (payload: Omit<OffDay, 'id'>) => {
-      const res = await fetch('/api/off', {
+      const res = await apiFetch('/api/off', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -96,7 +106,7 @@ export function useFixedOff(year: number, month: number) {
 
   const deleteOff = useCallback(
     async (id: number) => {
-      await fetch(`/api/off/${id}`, { method: 'DELETE' });
+      await apiFetch(`/api/off/${id}`, { method: 'DELETE' });
       setOff((prev) => prev.filter((o) => o.id !== id));
       await load({ year, month });
     },

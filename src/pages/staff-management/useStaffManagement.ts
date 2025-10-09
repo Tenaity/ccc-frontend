@@ -4,6 +4,18 @@ import { useDepartment } from "@/contexts/DepartmentContext"
 
 import type { Department, RoleFilter, Staff, StaffFormData } from "./types"
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ""
+const API_KEY = "123456"
+
+function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  const headers = new Headers(options?.headers)
+  if (!headers.has("x-api-key")) {
+    headers.set("x-api-key", API_KEY)
+  }
+  const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`
+  return fetch(fullUrl, { ...options, headers })
+}
+
 const DEFAULT_FORM_DATA: StaffFormData = {
   full_name: "",
   role: "GDV",
@@ -28,10 +40,10 @@ export function useStaffManagement() {
     try {
       setLoading(true)
       const url = selectedDepartmentId
-        ? `http://localhost:8000/api/staff?department_id=${selectedDepartmentId}`
-        : "http://localhost:8000/api/staff"
+        ? `/api/staff?department_id=${selectedDepartmentId}`
+        : "/api/staff"
 
-      const res = await fetch(url)
+      const res = await apiFetch(url)
       const data = await res.json()
       setStaff(data)
     } catch (error) {
@@ -43,7 +55,7 @@ export function useStaffManagement() {
 
   const fetchDepartments = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/departments")
+      const res = await apiFetch("/api/departments")
       const data = await res.json()
       setDepartments(data.filter((department: Department) => department.is_active))
     } catch (error) {
@@ -86,12 +98,12 @@ export function useStaffManagement() {
   const saveStaff = useCallback(async () => {
     try {
       const url = editingStaff
-        ? `http://localhost:8000/api/staff/${editingStaff.id}`
-        : "http://localhost:8000/api/staff"
+        ? `/api/staff/${editingStaff.id}`
+        : "/api/staff"
 
       const method = editingStaff ? "PUT" : "POST"
 
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -117,7 +129,7 @@ export function useStaffManagement() {
       }
 
       try {
-        const res = await fetch(`http://localhost:8000/api/staff/${staffMember.id}`, {
+        const res = await apiFetch(`/api/staff/${staffMember.id}`, {
           method: "DELETE",
         })
 
