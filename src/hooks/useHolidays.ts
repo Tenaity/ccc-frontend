@@ -2,6 +2,16 @@ import { useCallback, useState } from 'react';
 
 import type { Holiday } from '../types';
 
+const API_KEY = "123456";
+
+function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  const headers = new Headers(options?.headers);
+  if (!headers.has("x-api-key")) {
+    headers.set("x-api-key", API_KEY);
+  }
+  return fetch(url, { ...options, headers });
+}
+
 async function safeJSON<T>(res: Response): Promise<T> {
   const text = await res.text();
   try {
@@ -30,7 +40,7 @@ export function useHolidays(year: number, month: number) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/holidays?year=${y}&month=${m}`);
+        const res = await apiFetch(`/api/holidays?year=${y}&month=${m}`);
         const json = await safeJSON<Holiday[]>(res);
         setHolidays(json);
       } catch (err: any) {
@@ -44,7 +54,7 @@ export function useHolidays(year: number, month: number) {
 
   const createHoliday = useCallback(
     async (payload: Omit<Holiday, 'id'>) => {
-      const res = await fetch('/api/holidays', {
+      const res = await apiFetch('/api/holidays', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -59,7 +69,7 @@ export function useHolidays(year: number, month: number) {
 
   const deleteHoliday = useCallback(
     async (id: number) => {
-      await fetch(`/api/holidays/${id}`, { method: 'DELETE' });
+      await apiFetch(`/api/holidays/${id}`, { method: 'DELETE' });
       setHolidays((prev) => prev.filter((holiday) => holiday.id !== id));
       await load({ year, month });
     },

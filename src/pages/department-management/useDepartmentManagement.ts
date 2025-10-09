@@ -2,6 +2,18 @@ import { type Dispatch, type SetStateAction, useCallback, useEffect, useMemo, us
 import { DEFAULT_FORM_DATA } from "./constants"
 import type { Department, DepartmentFormData } from "./types"
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ""
+const API_KEY = "123456"
+
+function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  const headers = new Headers(options?.headers)
+  if (!headers.has("x-api-key")) {
+    headers.set("x-api-key", API_KEY)
+  }
+  const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`
+  return fetch(fullUrl, { ...options, headers })
+}
+
 interface UseDepartmentManagementResult {
   departments: Department[]
   loading: boolean
@@ -32,7 +44,7 @@ export function useDepartmentManagement(): UseDepartmentManagementResult {
   const refreshDepartments = useCallback(async () => {
     try {
       setLoading(true)
-      const res = await fetch("http://localhost:8000/api/departments")
+      const res = await apiFetch("/api/departments")
       const data = await res.json()
       setDepartments(data)
     } catch (error) {
@@ -72,12 +84,12 @@ export function useDepartmentManagement(): UseDepartmentManagementResult {
   const saveDepartment = useCallback(async () => {
     try {
       const url = editingDepartment
-        ? `http://localhost:8000/api/departments/${editingDepartment.id}`
-        : "http://localhost:8000/api/departments"
+        ? `/api/departments/${editingDepartment.id}`
+        : "/api/departments"
 
       const method = editingDepartment ? "PUT" : "POST"
 
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -110,7 +122,7 @@ export function useDepartmentManagement(): UseDepartmentManagementResult {
       }
 
       try {
-        const res = await fetch(`http://localhost:8000/api/departments/${department.id}`, {
+        const res = await apiFetch(`/api/departments/${department.id}`, {
           method: "DELETE",
         })
 
