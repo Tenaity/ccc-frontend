@@ -9,6 +9,16 @@ import { PageHeader } from "@/components/PageHeader"
 import { GlassPanel, GlassButton, GlassBadge } from "@/components/ui/glass"
 import { cn } from "@/lib/utils"
 
+const API_KEY = "123456"
+
+function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  const headers = new Headers(options?.headers)
+  if (!headers.has("x-api-key")) {
+    headers.set("x-api-key", API_KEY)
+  }
+  return fetch(url, { ...options, headers })
+}
+
 const CHUNKING_WEBHOOK_URL = import.meta.env.VITE_WEBHOOK_CHUNKING_URL || 'https://iconic-host.lapage.vn/webhook/chunking'
 
 interface ChunkRecord {
@@ -136,7 +146,7 @@ export default function ChatbotChunking() {
 
     setChunking(true)
     try {
-      const response = await fetch('/api/chatbot/chunking', {
+      const response = await apiFetch('/api/chatbot/chunking', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

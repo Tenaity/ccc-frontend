@@ -1,32 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import type { Holiday } from '../types';
-
-const API_KEY = "123456";
-
-function apiFetch(url: string, options?: RequestInit): Promise<Response> {
-  const headers = new Headers(options?.headers);
-  if (!headers.has("x-api-key")) {
-    headers.set("x-api-key", API_KEY);
-  }
-  return fetch(url, { ...options, headers });
-}
-
-async function safeJSON<T>(res: Response): Promise<T> {
-  const text = await res.text();
-  try {
-    const json = text ? JSON.parse(text) : {};
-    if (!res.ok) {
-      throw new Error(json?.error || res.statusText || 'Request failed');
-    }
-    return json as T;
-  } catch (error) {
-    if (!res.ok) {
-      throw new Error(text || res.statusText);
-    }
-    throw error;
-  }
-}
+import { apiFetch, safeJSON } from '@/lib/fetch';
 
 export function useHolidays(year: number, month: number) {
   const [holidays, setHolidays] = useState<Holiday[]>([]);

@@ -6,6 +6,16 @@ import { z } from "zod"
 import { useFixedOff } from "@/hooks/useFixedOff"
 import { useHolidays } from "@/hooks/useHolidays"
 import type { Position, Staff } from "@/types"
+
+const API_KEY = "123456"
+
+function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  const headers = new Headers(options?.headers)
+  if (!headers.has("x-api-key")) {
+    headers.set("x-api-key", API_KEY)
+  }
+  return fetch(url, { ...options, headers })
+}
 import {
   Tabs,
   TabsContent,
@@ -163,7 +173,7 @@ export default function FixedOffHolidayForm({
       setStaffLoading(true)
       setStaffError(null)
       try {
-        const response = await fetch("/api/staff")
+        const response = await apiFetch("/api/staff")
         if (!response.ok) {
           const text = await response.text()
           throw new Error(text || "Không thể tải danh sách nhân viên")
