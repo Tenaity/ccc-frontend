@@ -1,22 +1,6 @@
 import { useCallback, useState } from 'react';
 import type { FixedAssignment, OffDay } from '../types';
-
-const API_KEY = "123456";
-
-function apiFetch(url: string, options?: RequestInit): Promise<Response> {
-  const headers = new Headers(options?.headers);
-  if (!headers.has("x-api-key")) {
-    headers.set("x-api-key", API_KEY);
-  }
-  return fetch(url, { ...options, headers });
-}
-
-async function safeJSON<T>(res: Response): Promise<T> {
-  const text = await res.text();
-  const data = text ? JSON.parse(text) : {};
-  if (!res.ok) throw new Error(data?.error || res.statusText || 'Request failed');
-  return data as T;
-}
+import { apiFetch, safeJSON } from '@/lib/fetch';
 
 export function useFixedOff(year: number, month: number) {
   const [fixed, setFixed] = useState<FixedAssignment[]>([]);

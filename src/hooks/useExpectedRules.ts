@@ -2,6 +2,16 @@
 import { useEffect, useState } from "react";
 import type { ExpectedByDay } from "../types";  // ✅ dùng type chuẩn từ types.ts
 
+const API_KEY = "123456"
+
+function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  const headers = new Headers(options?.headers)
+  if (!headers.has("x-api-key")) {
+    headers.set("x-api-key", API_KEY)
+  }
+  return fetch(url, { ...options, headers })
+}
+
 // fetch JSON an toàn
 async function safeJSON<T>(res: Response): Promise<T> {
   const text = await res.text();
@@ -24,7 +34,7 @@ export function useExpectedRules(year: number, month: number) {
       setLoading(true); setError(null);
       try {
         // Backend /api/rules/expected trả về { ok, perDayExpected }
-        const res = await fetch(`/api/rules/expected?year=${year}&month=${month}`);
+        const res = await apiFetch(`/api/rules/expected?year=${year}&month=${month}`);
         const json = await safeJSON<{ ok: boolean; perDayExpected: ExpectedByDay }>(res);
         setExpected(json.perDayExpected || {});
       } catch (e: any) {

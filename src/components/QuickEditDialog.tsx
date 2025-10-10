@@ -5,6 +5,16 @@ import { z } from "zod";
 import { AlertCircle, CheckCircle2, Loader2, Lock, UserCheck } from "lucide-react";
 
 import type { Staff } from "@/types";
+
+const API_KEY = "123456"
+
+function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  const headers = new Headers(options?.headers)
+  if (!headers.has("x-api-key")) {
+    headers.set("x-api-key", API_KEY)
+  }
+  return fetch(url, { ...options, headers })
+}
 import {
   Dialog,
   DialogContent,
@@ -100,7 +110,7 @@ export default function QuickEditDialog({
     const validateSelection = async () => {
       try {
         setIsValidating(true);
-        const response = await fetch(
+        const response = await apiFetch(
           `/api/schedule/validate?day=${encodeURIComponent(
             day
           )}&staff_id=${encodeURIComponent(selectedStaffId)}`,
