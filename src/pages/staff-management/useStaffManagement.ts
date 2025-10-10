@@ -1,20 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { useDepartment } from "@/contexts/DepartmentContext"
+import { apiFetch } from "@/lib/fetch"
 
 import type { Department, RoleFilter, Staff, StaffFormData } from "./types"
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ""
-const API_KEY = "123456"
-
-function apiFetch(url: string, options?: RequestInit): Promise<Response> {
-  const headers = new Headers(options?.headers)
-  if (!headers.has("x-api-key")) {
-    headers.set("x-api-key", API_KEY)
-  }
-  const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`
-  return fetch(fullUrl, { ...options, headers })
-}
 
 const DEFAULT_FORM_DATA: StaffFormData = {
   full_name: "",

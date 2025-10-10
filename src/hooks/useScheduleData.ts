@@ -15,6 +15,15 @@ import { fmtYMD, parseYMD } from "../utils/date";
 import { buildCellIndex, type Cell } from "../utils/mergeCellIndex";
 import { generateSchedule, validateSchedule } from "@/lib/api";
 
+const API_KEY = "123456";
+
+function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  const headers = new Headers(options?.headers);
+  if (!headers.has("x-api-key")) {
+    headers.set("x-api-key", API_KEY);
+  }
+  return fetch(url, { ...options, headers });
+}
 
 /** safeJSON: đọc Response an toàn, ném Error message gọn gàng khi !ok */
 async function safeJSON<T>(res: Response): Promise<T> {
@@ -24,7 +33,7 @@ async function safeJSON<T>(res: Response): Promise<T> {
     if (!res.ok) throw new Error(json?.error || res.statusText || "Request failed");
     return json as T;
   } catch (e) {
-    if (!res.ok) throw new Error(text.slice(0, 200) || res.statusText); 
+    if (!res.ok) throw new Error(text.slice(0, 200) || res.statusText);
     throw e;
   }
 }
@@ -137,7 +146,7 @@ export function useScheduleData(
     setLoadingStaff(true);
     setStaffError(null);
     try {
-      const res = await fetch("/api/staff");
+      const res = await apiFetch("/api/staff");
       const json = await safeJSON<Staff[]>(res);
       setStaff(json);
     } catch (err: unknown) {
@@ -161,7 +170,7 @@ export function useScheduleData(
     if (!isEnabled) {
       return;
     }
-    const res = await fetch(`/api/assignments?year=${year}&month=${month}`);
+    const res = await apiFetch(`/api/assignments?year=${year}&month=${month}`);
     setAssignments(await safeJSON<Assignment[]>(res));
   }, [isEnabled, month, year]);
 
@@ -170,7 +179,7 @@ export function useScheduleData(
     if (!isEnabled) {
       return;
     }
-    const res = await fetch(`/api/fixed?year=${year}&month=${month}`);
+    const res = await apiFetch(`/api/fixed?year=${year}&month=${month}`);
     setFixed(await safeJSON<FixedAssignment[]>(res));
   }, [isEnabled, month, year]);
 
@@ -179,7 +188,7 @@ export function useScheduleData(
     if (!isEnabled) {
       return;
     }
-    const res = await fetch(`/api/offdays?year=${year}&month=${month}`);
+    const res = await apiFetch(`/api/offdays?year=${year}&month=${month}`);
     setOffdays(await safeJSON<OffDay[]>(res));
   }, [isEnabled, month, year]);
 
@@ -187,7 +196,7 @@ export function useScheduleData(
     if (!isEnabled) {
       return;
     }
-    const res = await fetch(`/api/holidays?year=${year}&month=${month}`);
+    const res = await apiFetch(`/api/holidays?year=${year}&month=${month}`);
     setHolidays(await safeJSON<Holiday[]>(res));
   }, [isEnabled, month, year]);
 
@@ -215,7 +224,7 @@ export function useScheduleData(
     setLoadingExpected(true);
     setExpectedError(null);
     try {
-      const res = await fetch(`/api/rules/expected?year=${year}&month=${month}`);
+      const res = await apiFetch(`/api/rules/expected?year=${year}&month=${month}`);
       const json = await safeJSON<{ ok: boolean; perDayExpected: ExpectedByDay }>(res);
       setExpectedByDay(json?.perDayExpected || {});
     } catch (err: any) {
@@ -235,7 +244,7 @@ export function useScheduleData(
     setLoadingEstimate(true);
     setEstimateError(null);
     try {
-      const res = await fetch(`/api/schedule/estimate?year=${year}&month=${month}`);
+      const res = await apiFetch(`/api/schedule/estimate?year=${year}&month=${month}`);
       const json = await safeJSON<EstimateResponse>(res);
       setEstimate(json);
     } catch (err: any) {
@@ -327,7 +336,7 @@ export function useScheduleData(
   };
 
   async function postReset(mode: "soft" | "hard") {
-    const response = await fetch(`/api/admin/reset?mode=${mode}`, {
+    const response = await apiFetch(`/api/admin/reset?mode=${mode}`, {
       method: "POST",
     });
 

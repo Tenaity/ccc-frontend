@@ -8,6 +8,16 @@ import { PageHeader } from "@/components/PageHeader"
 import { GlassPanel, GlassButton, GlassBadge } from "@/components/ui/glass"
 import { cn } from "@/lib/utils"
 
+const API_KEY = "123456"
+
+function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  const headers = new Headers(options?.headers)
+  if (!headers.has("x-api-key")) {
+    headers.set("x-api-key", API_KEY)
+  }
+  return fetch(url, { ...options, headers })
+}
+
 const ALLOWED_FILE_TYPES = [
   'application/pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -78,7 +88,7 @@ export default function ChatbotUpload() {
         type: selectedFile.type
       })
 
-      const response = await fetch('/api/chatbot/upload', {
+      const response = await apiFetch('/api/chatbot/upload', {
         method: 'POST',
         body: formData,
       })
