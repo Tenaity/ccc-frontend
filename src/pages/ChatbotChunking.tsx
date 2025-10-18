@@ -19,7 +19,7 @@ function apiFetch(url: string, options?: RequestInit): Promise<Response> {
   return fetch(url, { ...options, headers })
 }
 
-const CHUNKING_WEBHOOK_URL = import.meta.env.VITE_WEBHOOK_CHUNKING_URL || 'https://iconic-host.lapage.vn/webhook/chunking'
+const CHUNKING_WEBHOOK_URL = import.meta.env.VITE_WEBHOOK_CHUNKING_URL || 'https://n8n-prod.iconiclogs.com/webhook/chatbot-chunking'
 
 interface ChunkRecord {
   uuid: string
@@ -146,19 +146,26 @@ export default function ChatbotChunking() {
 
     setChunking(true)
     try {
-      const response = await apiFetch('/api/chatbot/chunking', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          uuid: selectedRecord.uuid,
-          file_name: selectedRecord.file_name,
-          content: selectedRecord.content
-        })
+      // Call n8n webhook directly (no backend needed)
+      const formData = new FormData()
+      formData.append('uuid', selectedRecord.uuid)
+      formData.append('file_name', selectedRecord.file_name)
+      formData.append('content', selectedRecord.content)
+
+      console.log('Chunking:', {
+        uuid: selectedRecord.uuid,
+        file_name: selectedRecord.file_name,
+        content_length: selectedRecord.content.length
       })
 
+      const response = await fetch(CHUNKING_WEBHOOK_URL, {
+        method: 'POST',
+        body: formData,
+      })
+
+      console.log('Response status:', response.status)
       const data = await response.json()
+      console.log('Response:', data)
 
       if (response.ok) {
         setChunkResponse(data)
@@ -167,7 +174,7 @@ export default function ChatbotChunking() {
           description: `File ${selectedRecord.file_name} đã được xử lý`
         })
       } else {
-        throw new Error(data.error || 'Chunking failed')
+        throw new Error(`Chunking failed with status ${response.status}: ${JSON.stringify(data)}`)
       }
     } catch (error) {
       console.error('Chunking error:', error)

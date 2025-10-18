@@ -88,7 +88,10 @@ export default function ChatbotUpload() {
         type: selectedFile.type
       })
 
-      const response = await apiFetch('/api/chatbot/upload', {
+      // Call n8n webhook directly (no backend needed)
+      const WEBHOOK_URL = "https://n8n-prod.iconiclogs.com/webhook/chatbot-convert-text"
+
+      const response = await fetch(WEBHOOK_URL, {
         method: 'POST',
         body: formData,
       })
