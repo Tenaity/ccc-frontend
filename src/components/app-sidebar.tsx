@@ -10,7 +10,7 @@ import {
 } from "lucide-react"
 import { NavLink, useMatch } from "react-router-dom"
 
-import { appRoutes, type AppRoute } from "@/app/routes"
+import { appRoutes, type AppRoute } from "@/config/navigation"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
 import {

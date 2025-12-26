@@ -10,7 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { appRoutes, type AppRoute } from "@/app/routes"
+import { appRoutes, type AppRoute } from "@/config/navigation"
 
 interface AppleSidebarProps {
   className?: string

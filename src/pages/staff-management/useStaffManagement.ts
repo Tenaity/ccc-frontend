@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { useDepartment } from "@/contexts/DepartmentContext"
-import { apiFetch } from "@/lib/fetch"
+import * as staffV2Api from "@/lib/api-v2"
 
 import type { Department, RoleFilter, Staff, StaffFormData } from "./types"
 
@@ -28,13 +28,10 @@ export function useStaffManagement() {
   const fetchStaff = useCallback(async () => {
     try {
       setLoading(true)
-      const url = selectedDepartmentId
-        ? `/api/staff?department_id=${selectedDepartmentId}`
-        : "/api/staff"
-
-      const res = await apiFetch(url)
-      const data = await res.json()
-      setStaff(data)
+      const data = await staffV2Api.listStaff(
+        selectedDepartmentId ? { department_id: selectedDepartmentId } : {}
+      )
+      setStaff(data as Staff[])
     } catch (error) {
       console.error("Failed to fetch staff:", error)
     } finally {
@@ -44,9 +41,8 @@ export function useStaffManagement() {
 
   const fetchDepartments = useCallback(async () => {
     try {
-      const res = await apiFetch("/api/departments")
-      const data = await res.json()
-      setDepartments(data.filter((department: Department) => department.is_active))
+      const data = await staffV2Api.listDepartments(true)
+      setDepartments(data as Department[])
     } catch (error) {
       console.error("Failed to fetch departments:", error)
     }
@@ -86,51 +82,31 @@ export function useStaffManagement() {
 
   const saveStaff = useCallback(async () => {
     try {
-      const url = editingStaff
-        ? `/api/staff/${editingStaff.id}`
-        : "/api/staff"
-
-      const method = editingStaff ? "PUT" : "POST"
-
-      const res = await apiFetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      })
-
-      if (res.ok) {
-        await fetchStaff()
-        setDialogOpen(false)
+      if (editingStaff) {
+        await staffV2Api.updateStaff(editingStaff.id, formData)
       } else {
-        const error = await res.json()
-        alert(error.error || "Failed to save staff member")
+        await staffV2Api.createStaff(formData as Parameters<typeof staffV2Api.createStaff>[0])
       }
+      await fetchStaff()
+      setDialogOpen(false)
     } catch (error) {
       console.error("Failed to save staff:", error)
-      alert("Failed to save staff member")
+      alert((error as Error).message || "Failed to save staff member")
     }
   }, [editingStaff, fetchStaff, formData])
 
-  const deleteStaff = useCallback(
+  const deleteStaffMember = useCallback(
     async (staffMember: Staff) => {
       if (!confirm(`Are you sure you want to delete "${staffMember.full_name}"?`)) {
         return
       }
 
       try {
-        const res = await apiFetch(`/api/staff/${staffMember.id}`, {
-          method: "DELETE",
-        })
-
-        if (res.ok) {
-          await fetchStaff()
-        } else {
-          const error = await res.json()
-          alert(error.error || "Failed to delete staff member")
-        }
+        await staffV2Api.deleteStaff(staffMember.id)
+        await fetchStaff()
       } catch (error) {
         console.error("Failed to delete staff:", error)
-        alert("Failed to delete staff member")
+        alert((error as Error).message || "Failed to delete staff member")
       }
     },
     [fetchStaff]
@@ -177,6 +153,6 @@ export function useStaffManagement() {
     openCreateDialog,
     openEditDialog,
     saveStaff,
-    deleteStaff,
+    deleteStaff: deleteStaffMember,
   }
 }

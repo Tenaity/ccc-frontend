@@ -217,7 +217,10 @@ export default function ChatbotCRUD() {
         const aVal = a[sortColumn]
         const bVal = b[sortColumn]
         if (aVal === bVal) return 0
-        const comparison = aVal > bVal ? 1 : -1
+        const safeA = aVal ?? "";
+        const safeB = bVal ?? "";
+        if (safeA === safeB) return 0;
+        const comparison = safeA > safeB ? 1 : -1;
         return sortDirection === "asc" ? comparison : -comparison
       })
     }

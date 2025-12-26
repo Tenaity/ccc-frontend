@@ -1,18 +1,7 @@
 import { type Dispatch, type SetStateAction, useCallback, useEffect, useMemo, useState } from "react"
 import { DEFAULT_FORM_DATA } from "./constants"
+import * as deptV2Api from "@/lib/api-v2"
 import type { Department, DepartmentFormData } from "./types"
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ""
-const API_KEY = "123456"
-
-function apiFetch(url: string, options?: RequestInit): Promise<Response> {
-  const headers = new Headers(options?.headers)
-  if (!headers.has("x-api-key")) {
-    headers.set("x-api-key", API_KEY)
-  }
-  const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`
-  return fetch(fullUrl, { ...options, headers })
-}
 
 interface UseDepartmentManagementResult {
   departments: Department[]
@@ -44,9 +33,8 @@ export function useDepartmentManagement(): UseDepartmentManagementResult {
   const refreshDepartments = useCallback(async () => {
     try {
       setLoading(true)
-      const res = await apiFetch("/api/departments")
-      const data = await res.json()
-      setDepartments(data)
+      const data = await deptV2Api.listDepartments()
+      setDepartments(data as Department[])
     } catch (error) {
       console.error("Failed to fetch departments:", error)
     } finally {
@@ -83,66 +71,41 @@ export function useDepartmentManagement(): UseDepartmentManagementResult {
 
   const saveDepartment = useCallback(async () => {
     try {
-      const url = editingDepartment
-        ? `/api/departments/${editingDepartment.id}`
-        : "/api/departments"
-
-      const method = editingDepartment ? "PUT" : "POST"
-
-      const res = await apiFetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      })
-
-      if (res.ok) {
-        await refreshDepartments()
-        setDialogOpen(false)
+      if (editingDepartment) {
+        await deptV2Api.updateDepartment(editingDepartment.id, formData as deptV2Api.UpdateDepartmentInput)
       } else {
-        const error = await res.json()
-        alert(error.error || "Failed to save department")
+        await deptV2Api.createDepartment(formData as deptV2Api.CreateDepartmentInput)
       }
+      await refreshDepartments()
+      setDialogOpen(false)
     } catch (error) {
       console.error("Failed to save department:", error)
-      alert("Failed to save department")
+      alert((error as Error).message || "Failed to save department")
     }
   }, [editingDepartment, formData, refreshDepartments])
 
-  const deleteDepartment = useCallback(
+  const deleteDepartmentMember = useCallback(
     async (department: Department) => {
-      if (department.staff_count > 0) {
-        alert(
-          `Cannot delete department with ${department.staff_count} staff members. Please reassign or remove staff first.`
-        )
-        return
-      }
-
       if (!confirm(`Are you sure you want to delete "${department.name}"?`)) {
         return
       }
 
       try {
-        const res = await apiFetch(`/api/departments/${department.id}`, {
-          method: "DELETE",
-        })
-
-        if (res.ok) {
-          await refreshDepartments()
-        } else {
-          const error = await res.json()
-          alert(error.error || "Failed to delete department")
-        }
+        await deptV2Api.deleteDepartment(department.id)
+        await refreshDepartments()
       } catch (error) {
         console.error("Failed to delete department:", error)
-        alert("Failed to delete department")
+        alert((error as Error).message || "Failed to delete department")
       }
     },
     [refreshDepartments]
   )
 
   const stats = useMemo(() => {
-    const totalStaff = departments.reduce((sum, dept) => sum + dept.staff_count, 0)
-    const totalShifts = departments.reduce((sum, dept) => sum + dept.shift_count, 0)
+    // V2 API doesn't include staff_count and shift_count in response
+    // Calculate from the departments structure if available
+    const totalStaff = 0 // Will be updated when staff data is available
+    const totalShifts = 0 // Will be updated when shift data is available
 
     return {
       totalDepartments: departments.length,
@@ -163,7 +126,7 @@ export function useDepartmentManagement(): UseDepartmentManagementResult {
     closeDialog,
     refreshDepartments,
     saveDepartment,
-    deleteDepartment,
+    deleteDepartment: deleteDepartmentMember,
     stats,
   }
 }

@@ -2,7 +2,7 @@ import { useMemo } from "react"
 import { z } from "zod"
 import { LayoutDashboard } from "lucide-react"
 
-import documentsData from "@/app/dashboard/data.json"
+
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { DataTable, schema as documentSchema } from "@/components/data-table"
 import { SectionCards } from "@/components/section-cards"
@@ -11,7 +11,7 @@ import { PageHeader } from "@/components/PageHeader"
 const dataArraySchema = z.array(documentSchema)
 
 export default function DashboardPage() {
-  const documents = useMemo(() => dataArraySchema.parse(documentsData), [])
+  const documents: z.infer<typeof documentSchema>[] = [] // data.json removed
 
   return (
     <>

@@ -24,7 +24,7 @@ function buildApiUrl(path: string): string {
 }
 
 // Helper for fetch with API key
-function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+export function apiFetch(url: string, options?: RequestInit): Promise<Response> {
   const headers = new Headers(options?.headers)
   if (!headers.has("x-api-key")) {
     headers.set("x-api-key", API_KEY)
